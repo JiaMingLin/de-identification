@@ -126,7 +126,7 @@ USE_TZ = True
 STATIC_URL = '/privacy/web/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "server/web/"),    
+    os.path.join(BASE_DIR, "server/web/"),
 ]
 
 CACHES = {
