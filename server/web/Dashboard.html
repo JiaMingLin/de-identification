@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Home Page</title>
-	<link rel="stylesheet"  href="css/bootstrap.css">
-	<link rel="stylesheet"  href="css/bootstrap-theme.min.css">
+	<link rel="stylesheet"  href="web/css/bootstrap.css">
+	<link rel="stylesheet"  href="web/css/bootstrap-theme.min.css">
 	
 </head>
 <body>
@@ -55,51 +55,54 @@
       			<button type="button" class="btn btn-info">刪除</button>
       			<button type="button" class="btn btn-info">停止</button>
       		</div>
-      		<div class="table-responsive" style="position:absolute;height:100%;overflow:auto;width:100%;">
-      			<table class="table table-hover table-condensed" >
-				<thead class="thead-default" style="background-color:yellow;">
-				  <tr>
-				    <th>
-				    	<label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label>
-				    </th>
-				    <th>工作名稱</th>
-				    <th>時間</th>
-				    <th>狀態</th>
-				  </tr>
-				</thead>
-				<tbody>
-				  <tr>
-				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
-				    <td>De_Identification_JobA</td>
-				    <td>開始：2016-05-01 16:12:20<br/>
-						結束：2016-05-01 16:23:45
-					</td>
-				    <td>完成</td>
-				  </tr>
-				  <tr>
-				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
-				    <td>De_Identification_JobB</td>
-				    <td>開始：2016-05-17 13:37:30<br/>
-						結束：　　　－
-					</td>
-				    <td>執行中</td>
-				  </tr>
-				  <tr>
-				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
-				    <td>De_Identification_JobC</td>
-				    <td>開始：2016-05-17 13:40:29<br/>
-						結束：　　　－
-					</td>
-				    <td>執行中</td>
-				  </tr>
-				  
-				</tbody>
-				</table>
-      		</div>  
+			<div class="row">
+				<div class="col-xs-12 col-lg-12" style=" padding-top:10px;bottom:-20px;">
+					<table class="table" style="table-layout:fixed;">
+					<thead style="background-color:yellow;">
+			            <tr>
+			                <th><label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label></th>
+			               	<th>工作名稱</th>
+			    			<th>時間</th>
+			    			<th>狀態</th>
+			            </tr>
+			         </thead>   
+					</table>
+				</div>
+				<div  class="table-responsive col-xs-12 col-lg-12" style="position:relative;overflow:auto;height:350px;width:100%" >
+					<table class="table table-hover table-condensed" style="table-layout:fixed">
+						<tbody id="dpJobListBody">
+						  <tr>
+						  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+						    <td>De_Identification_JobA</td>
+						    <td>開始：2016-05-01 16:12:20<br/>
+								結束：2016-05-01 16:23:45
+							</td>
+						    <td>完成</td>
+						  </tr>
+						  <tr>
+						  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+						    <td>De_Identification_JobB</td>
+						    <td>開始：2016-05-17 13:37:30<br/>
+								結束：　　　－
+							</td>
+						    <td>執行中</td>
+						  </tr>
+						  <tr>
+						  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+						    <td>De_Identification_JobC</td>
+						    <td>開始：2016-05-17 13:40:29<br/>
+								結束：　　　－
+							</td>
+						    <td>執行中</td>
+						  </tr>
+						</tbody>
+					</table>
+				</div>
+      		</div>
 		</div>
 		<div class="tab-pane text-style" id="tab2">
   			<h2><strong>合成資料分析</strong></h2>
-	       	<p>
+	       	<p class="text-info">
 	         此功能將針對去識別化後之合成資料進行資料探勘分析，從中比較出與原始資料集的差異性。
 	       	</p>
 	       	<hr>
@@ -109,54 +112,59 @@
       			<button type="button" class="btn btn-info">刪除</button>
       			<button type="button" class="btn btn-info">停止</button>
       		</div>
-      		<div class="table-responsive" style="position:absolute;height:100%;overflow:auto;width:100%;">
-      			<table class="table table-hover table-condensed">
-				<thead class="thead-default" style="background-color:yellow;">
-				  <tr>
-				    <th>
-				    	<label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label>
-				    </th>
-				    <th>工作名稱</th>
-				    <th>時間</th>
-				    <th>狀態</th>
-				  </tr>
-				</thead>
-				<tbody>
-				  <tr>
-				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
-				    <td>Synthetic_Analysis_JobA</td>
-				    <td>開始：2016-05-01 16:12:20<br/>
-						結束：2016-05-01 16:23:45
-					</td>
-				    <td>完成</td>
-				  </tr>
-				  <tr>
-				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
-				    <td>Synthetic_Analysis_JobB</td>
-				    <td>開始：2016-05-17 13:37:30<br/>
-						結束：　　　－
-					</td>
-				    <td>執行中</td>
-				  </tr>
-				  <tr>
-				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
-				    <td>Synthetic_Analysis_JobC</td>
-				    <td>開始：2016-05-17 13:40:29<br/>
-						結束：　　　－
-					</td>
-				    <td>執行中</td>
-				  </tr>
-				</tbody>
-				</table>
-      		</div>  
+      					<div class="row">
+				<div class="col-xs-12 col-lg-12" style=" padding-top:10px;bottom:-20px;">
+					<table class="table" style="table-layout:fixed;">
+					<thead style="background-color:yellow;">
+			            <tr>
+			                <th><label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label></th>
+			               	<th>工作名稱</th>
+			    			<th>時間</th>
+			    			<th>狀態</th>
+			            </tr>
+			         </thead>   
+					</table>
+				</div>
+				<div  class="table-responsive col-xs-12 col-lg-12" style="position:relative;overflow:auto;height:350px;width:100%" >
+					<table class="table table-hover table-condensed" style="table-layout:fixed">
+						<tbody id="dpJobListBody">
+						  <tr>
+						  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+						    <td>Synthetic_Analysis_JobA</td>
+						    <td>開始：2016-05-01 16:12:20<br/>
+								結束：2016-05-01 16:23:45
+							</td>
+						    <td>完成</td>
+						  </tr>
+						  <tr>
+						  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+						    <td>Synthetic_Analysis_JobB</td>
+						    <td>開始：2016-05-17 13:37:30<br/>
+								結束：　　　－
+							</td>
+						    <td>執行中</td>
+						  </tr>
+						  <tr>
+						  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+						    <td>Synthetic_Analysis_JobC</td>
+						    <td>開始：2016-05-17 13:40:29<br/>
+								結束：　　　－
+							</td>
+						    <td>執行中</td>
+						  </tr>
+						</tbody>
+					</table>
+				</div>
+      		</div>
 		</div>
 	</div>
 </div>
 </div>
 
 
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+<script type="text/javascript" src="web/js/jquery.min.js"></script>
+<script type="text/javascript" src="web/js/bootstrap.js"></script>
+<script type="text/javascript" src="web/js/bootstrap-filestyle.min.js"> </script>
+<script type="text/javascript" src="web/js/Dashboard.js"> </script>
 </body>
 </html>

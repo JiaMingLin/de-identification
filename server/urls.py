@@ -22,7 +22,7 @@ import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^privacy/api/', include('api.urls')),
-#    url(r'^privacy/', views.IndexView.as_view()),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    url(r'^privacy/$', views.IndexView.as_view()),
+]
 
 
