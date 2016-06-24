@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Query Error Rate</title>
+	<link rel="stylesheet"  href="css/bootstrap.css">
+	<link rel="stylesheet"  href="css/bootstrap-theme.min.css">
+	
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role=navigation>
+	<div class=container-fluid>
+		<div class=navbar-header><button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target=#navbar aria-expanded=false aria-controls=navbar> 
+			<span class=sr-only>Toggle navigation</span> 
+			<span class=icon-bar></span> <span class=icon-bar></span> 
+			<span class=icon-bar></span> </button> <a class=navbar-brand href=#>去識別化工具</a>
+		</div>
+		<div id=navbar class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href=#>Dashboard</a>
+				<li><a href=#>Settings</a>
+				<li><a href=#>Help</a>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12 col-lg-12" >
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xs-12 col-lg-12">
+						<nav class="navbar navbar-default" role=navigation>
+							<div class=container-fluid>
+								<div class=navbar-header><button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#corenavbar" aria-expanded=false aria-controls=navbar> 
+								<span class=sr-only>Toggle navigation</span> 
+								<span class=icon-bar></span> <span class=icon-bar></span> 
+							</div>
+							<div id=corenavbar class="navbar-collapse collapse">
+								<ul class="nav navbar-nav navbar-left">
+									<li><a href=#>原始資料預覽</a>
+									<li><a href=#>去識別化</a>
+									<li class="active"><a href=#>查詢誤差率</a>
+								</ul>
+							</div>
+							</div>
+						</nav>
+					</div>
+					<div class="col-xs-12 col-lg-12">
+						<div class="row">
+							<div class="col-xs-4 col-lg-4">
+								<div class="panel panel-primary">
+						      		<div class="panel-heading lead" align="center"><strong>查詢列表</strong></div>
+						      			<div class="panel-body" style="overflow:auto;">
+								      		<div class="list-group">
+											  <a class="list-group-item active"> 查詢名稱A</a>
+											  <a class="list-group-item"> 查詢名稱B</a> 
+											  <a class="list-group-item"> 查詢名稱C</a>
+											  <a class="list-group-item"> 查詢名稱D</a> 
+											  <a class="list-group-item"> 查詢名稱E</a>  
+											</div>
+						      			</div>
+						    	</div>
+							</div>
+							<div class="col-xs-8 col-lg-8">
+								<div class="panel panel-primary">
+						      		<div class="panel-heading lead" align="center"><strong>查詢名稱A</strong></div>
+						      			<div class="panel-body" style="overflow:auto;">
+								      		<div class="form-group">
+											  <label for="comment">請輸入查詢條件:</label>
+											  <textarea class="form-control" rows="5" id="queryarea" placeholder="輸入條件如：(身高 > 170 AND 體重 < 60) OR 年齡 >= 23；年齡 > 22 AND 收入 <= 24K
+												">
+											  </textarea>
+											</div>
+											<div>
+												<section  class="col-lg-6 col-xs-6">
+												<span style="font-size:small;color: red;">提示：最多五筆查詢條件，每筆條件以" ; "區隔。
+												</span>
+												</section>
+												<div class="btn-group pull-right">
+													<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-play">執行</button>
+				  									<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-trash">清除</button>
+												</div>
+											</div>
+						      			</div>
+						    	</div>
+						    	<div class="panel panel-primary">
+						      		<div class="panel-heading lead" align="center"><strong>查詢結果</strong></div>
+						      			<div class="panel-body" style="overflow:auto;">
+								      		<div class="col-xs-12 col-lg-12" align="center">
+												<img src="images/query_error_rate.png" class="img-responsive" style="height:200px;width:800px;">
+											</div>
+						      			</div>
+						    	</div>
+							</div>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-xs-12 col-lg-12" style="display:table;text-align:right;">
+  			<button type="button" class="btn btn-info btn-lg" style="display:table-cell;vertical-align:bottom;">儲存</button>
+  			<button type="button" class="btn btn-info btn-lg" style="display:table-cell;vertical-align:bottom;">取消</button>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+</body>
+</html>

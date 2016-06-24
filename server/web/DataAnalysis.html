@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Synthetic Data Analysis</title>
+	<link rel="stylesheet"  href="css/bootstrap.css">
+	<link rel="stylesheet"  href="css/bootstrap-theme.min.css">
+	
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role=navigation>
+	<div class=container-fluid>
+		<div class=navbar-header><button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target=#navbar aria-expanded=false aria-controls=navbar> 
+			<span class=sr-only>Toggle navigation</span> 
+			<span class=icon-bar></span> <span class=icon-bar></span> 
+			<span class=icon-bar></span> </button> <a class=navbar-brand href=#>去識別化工具</a>
+		</div>
+		<div id=navbar class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href=#>Dashboard</a>
+				<li><a href=#>Settings</a>
+				<li><a href=#>Help</a>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12 col-lg-12" >
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xs-12 col-lg-12">
+						<nav class="navbar navbar-default" role=navigation>
+							<div class=container-fluid>
+								<div class=navbar-header><button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target="#corenavbar" aria-expanded=false aria-controls=navbar> 
+								<span class=sr-only>Toggle navigation</span> 
+								<span class=icon-bar></span> <span class=icon-bar></span> 
+							</div>
+							<div id=corenavbar class="navbar-collapse collapse">
+								<ul class="nav navbar-nav navbar-left">
+									<li class="active"><a href=#>合成資料分析</a>
+								</ul>
+							</div>
+							</div>
+						</nav>
+					</div>
+					<div class="col-xs-12 col-lg-12">
+						<div class="row">
+							<div class="col-xs-5 col-lg-5">
+								<div class="row">
+									<div class="col-xs-4 col-lg-4" align="center" >
+										<label class="lead" ><strong>工作名稱</strong>
+									</div>
+									<div class="col-xs-8 col-lg-8 ">
+										<select class="form-control" >
+										<option>De_Indentification_JobA</option>
+										<option>De_Indentification_JobB</option>
+										<option>De_Indentification_JobC</option>
+										<option>De_Indentification_JobD</option>
+										<option>De_Indentification_JobE</option>
+										</select>
+									</div>
+									<div class="clearfix visible-xs-block visible-lg-block"></div>
+									<div class="col-xs-4 col-lg-4" align="center" >
+										<label class="lead" ><strong>演算法</strong>
+									</div>
+									<div class="col-xs-8 col-lg-8 ">
+										<select class="form-control" >
+										<option>Logistical Regression</option>
+										<option>LibSVM</option>
+										</select>
+									</div>
+									<div class="col-xs-12 col-lg-12 col-lg-offset-1">
+										<div class="radio"><label><input type="radio" id="testoption1" checked>Use training set</label></div>
+
+										<div class="radio col-xs-6 col-lg-6"><label style="padding-left:5px;padding-top:5px"><input type="radio" id="testoption2" >Supplied test set</label></div><div class="col-xs-6 col-lg-6  col-lg-pull-1"><input type="file" class="filestyle" data-buttonBefore="true" data-placeholder="無檔案" data-buttonText="選擇檔案" ></div>
+
+										<div class="radio col-xs-6 col-lg-6"><label style="padding-left:5px;"><input type="radio" id="testoption3" >Cross-validation</label></div><div class="col-xs-6 col-lg-6 "><label style="padding-left:15px;padding-top:8px">Folds</label><input type="text" data-buttonBefore="true" data-placeholder="10" ></div>
+										<div class="clearfix visible-xs-block visible-lg-block"></div>
+
+										<div class="radio col-xs-6 col-lg-6"><label style="padding-left:5px;"><input type="radio" id="testoption4" >Percentage split</label></div><div class="col-xs-6 col-lg-6 "><label style="padding-left:42px">%</label><input type="text" data-buttonBefore="true" data-placeholder="10" ></div>
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+
+									<div class="col-xs-3 col-lg-3" align="center" >
+										<label class="lead" ><strong>目標</strong>
+									</div>
+									<div class="col-xs-5 col-lg-5">
+										<select class="form-control" >
+										<option>身高</option>
+										<option>體重</option>
+										<option>年齡</option>
+										<option>學歷</option>
+										<option>收入</option>
+										</select>
+									</div>
+									<div class="col-xs-4 col-lg-4 btn-group">
+										<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-play pull-right">執行</button>
+	  									<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-stop pull-right">停止</button>
+									</div>
+									<div class="col-xs-12 col-lg-12">
+										<div class="panel panel-primary">
+							      		<div class="panel-heading lead" align="center"><strong>結果列表</strong></div>
+							      			<div class="panel-body" style="overflow:auto;">
+									      		<div class="list-group">
+												  <a class="list-group-item"> 查詢名稱A</a>
+												  <a class="list-group-item"> 查詢名稱B</a> 
+												  <a class="list-group-item active"> 查詢名稱C</a>
+												  <a class="list-group-item"> 查詢名稱D</a> 
+												  <a class="list-group-item"> 查詢名稱E</a>  
+												</div>
+							      			</div>
+							    		</div>
+						    		</div>
+								</div>
+							</div>
+							<div class="col-xs-7 col-lg-7">
+								<div class="col-xs-12 col-lg-12">
+										<div class="panel panel-primary">
+							      		<div class="panel-heading lead" align="center"><strong>分類結果</strong></div>
+							      			<div class="panel-body" style="overflow:auto;">
+									      		<img src="images/F-measure.png" class="img-responsive" style="height:200px;width:800px;">
+									      		<img src="images/correctly classified instances.png" class="img-responsive" style="height:200px;width:800px;">
+							      			</div>
+							    		</div>
+						    		</div>
+							</div>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-xs-12 col-lg-12" style="display:table;text-align:right;">
+  			<button type="button" class="btn btn-info btn-lg" style="display:table-cell;vertical-align:bottom;">儲存</button>
+  			<button type="button" class="btn btn-info btn-lg" style="display:table-cell;vertical-align:bottom;">取消</button>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+</body>
+</html>

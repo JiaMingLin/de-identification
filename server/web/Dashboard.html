@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Home Page</title>
+	<link rel="stylesheet"  href="css/bootstrap.css">
+	<link rel="stylesheet"  href="css/bootstrap-theme.min.css">
+	
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role=navigation>
+	<div class=container-fluid>
+		<div class=navbar-header><button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target=#mainnavbar aria-expanded=false aria-controls=navbar> 
+			<span class=sr-only>Toggle navigation</span> 
+			<span class=icon-bar></span> <span class=icon-bar></span> 
+			<span class=icon-bar></span> </button> <a class=navbar-brand href=#>去識別化工具</a>
+		</div>
+		<div id=mainnavbar class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href=#>Dashboard</a>
+				<li><a href=#>Settings</a>
+				<li><a href=#>Help</a>
+			</ul>
+		</div>
+	</div>
+</nav>
+<div class="container-fluid">
+<div class="row">
+    <div class="col-xs-3 col-lg-3 sidebar" id="sidebar">
+    	<nav class="nav-sidebar">
+    		<ul class="nav tabs">
+    			<li class="active"><a href="#tab1" data-toggle="tab" data-target="#tab1">機敏資料去識別化</a></li>
+            	<li class=""><a href="#tab2" data-toggle="tab" data-target="#tab2">合成資料分析</a></li>
+    		</ul>
+    	</nav>
+    </div>
+	<div class="col-xs-9 col-lg-9 tab-content">
+		<!-- tab content -->
+		<div class="tab-pane active text-style" id="tab1">
+	  		<h2><strong>機敏資料去識別化</strong></h2>
+	       	<p class="text-info">
+	         本工具目的為將機敏資料集進行去識別化程序，以達到隱私保護之效益；其中功能包括：<br/>
+	         1. 使用者可選擇隱私層級以達到欲想之隱私程度。<br/>
+	         2. 使用者可選擇欲計算之欄位。<br/>
+	         3. 使用者可選擇欲有關聯性之欄位。<br/>
+	         4. 使用者可自定義欄位區間數。<br/>
+	         5. 使用者可藉由條件查詢功能比較與原始資料之誤差率。<br/>
+	         6. 使用者可藉由資料分析功能比較與原始資料之統計差異性。<br/>
+	       	</p>
+	       	<hr>
+      		<div >
+      			<button type="button" class="btn btn-info">建立</button>
+      			<button type="button" class="btn btn-info">編輯</button>
+      			<button type="button" class="btn btn-info">刪除</button>
+      			<button type="button" class="btn btn-info">停止</button>
+      		</div>
+      		<div class="table-responsive" style="position:absolute;height:100%;overflow:auto;width:100%;">
+      			<table class="table table-hover table-condensed" >
+				<thead class="thead-default" style="background-color:yellow;">
+				  <tr>
+				    <th>
+				    	<label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label>
+				    </th>
+				    <th>工作名稱</th>
+				    <th>時間</th>
+				    <th>狀態</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  <tr>
+				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+				    <td>De_Identification_JobA</td>
+				    <td>開始：2016-05-01 16:12:20<br/>
+						結束：2016-05-01 16:23:45
+					</td>
+				    <td>完成</td>
+				  </tr>
+				  <tr>
+				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+				    <td>De_Identification_JobB</td>
+				    <td>開始：2016-05-17 13:37:30<br/>
+						結束：　　　－
+					</td>
+				    <td>執行中</td>
+				  </tr>
+				  <tr>
+				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+				    <td>De_Identification_JobC</td>
+				    <td>開始：2016-05-17 13:40:29<br/>
+						結束：　　　－
+					</td>
+				    <td>執行中</td>
+				  </tr>
+				  
+				</tbody>
+				</table>
+      		</div>  
+		</div>
+		<div class="tab-pane text-style" id="tab2">
+  			<h2><strong>合成資料分析</strong></h2>
+	       	<p>
+	         此功能將針對去識別化後之合成資料進行資料探勘分析，從中比較出與原始資料集的差異性。
+	       	</p>
+	       	<hr>
+      		<div >
+      			<button type="button" class="btn btn-info">建立</button>
+      			<button type="button" class="btn btn-info">編輯</button>
+      			<button type="button" class="btn btn-info">刪除</button>
+      			<button type="button" class="btn btn-info">停止</button>
+      		</div>
+      		<div class="table-responsive" style="position:absolute;height:100%;overflow:auto;width:100%;">
+      			<table class="table table-hover table-condensed">
+				<thead class="thead-default" style="background-color:yellow;">
+				  <tr>
+				    <th>
+				    	<label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label>
+				    </th>
+				    <th>工作名稱</th>
+				    <th>時間</th>
+				    <th>狀態</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  <tr>
+				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+				    <td>Synthetic_Analysis_JobA</td>
+				    <td>開始：2016-05-01 16:12:20<br/>
+						結束：2016-05-01 16:23:45
+					</td>
+				    <td>完成</td>
+				  </tr>
+				  <tr>
+				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+				    <td>Synthetic_Analysis_JobB</td>
+				    <td>開始：2016-05-17 13:37:30<br/>
+						結束：　　　－
+					</td>
+				    <td>執行中</td>
+				  </tr>
+				  <tr>
+				  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
+				    <td>Synthetic_Analysis_JobC</td>
+				    <td>開始：2016-05-17 13:40:29<br/>
+						結束：　　　－
+					</td>
+				    <td>執行中</td>
+				  </tr>
+				</tbody>
+				</table>
+      		</div>  
+		</div>
+	</div>
+</div>
+</div>
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+</body>
+</html>
