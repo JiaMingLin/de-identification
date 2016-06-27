@@ -66,4 +66,5 @@ class JunctionTreeTests(TestCase):
         """
         jtree = JunctionTree(self.edges, self.nodes)
         cliques = jtree.get_jtree(display = True)
+        print cliques
         self.assertEqual(len(cliques) == 1, True)
