@@ -23,9 +23,8 @@ class TestDPTable(TestCase):
 			['D','E','F'],
 			['E','F','G']
 		]
-		self.cnum = [2,3,4,5]
 		self._lambda = 0.2
-		self.var_reduce = VarianceReduce(self.domain, self.jtree, self.cnum, self._lambda)
+		self.var_reduce = VarianceReduce(self.domain, self.jtree, self._lambda)
 
 	def test_different_matrix_constructor_with_zero_result(self):
 		diff_operator = self.var_reduce.construct_difference(4)

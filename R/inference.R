@@ -1,6 +1,4 @@
-source('data.R')
-source('consistent.R')
-source('jtree.R')
+library(data.table)
 Inference <- setRefClass(
 	"Inference",
 	
@@ -11,19 +9,21 @@ Inference <- setRefClass(
 		cluster.noisy.freq = "ANY",
 		jtree = "ANY",
 		clique.freq = "list",
-		POTlist.consistent = "ANY"
+		POTlist.consistent = "ANY",
+		POTgrain.consistent = 'ANY'
 	),
 	
 	methods = list(
-		initialize <- function(cluster, edges, nodes, epsilon, data_path, domain){
+		initialize = function(cluster, edges, nodes, epsilon, data_path, domain){
 			.self$cluster <- cluster
 			.self$epsilon <- epsilon
 			.self$data <- Data$new(data_path, domain)
-			.self$jtree <- get_jtree(edges, nodes, display=FALSE)
+			.self$jtree <- get_jtree(edges, unlist(nodes), display=FALSE)
 		},
 		
-		inject_noise <- function(){
-			t <- data.table(.self$data)
+		inject_noise = function(){
+			margins <- .self$cluster
+			t <- data.table(.self$data$origin)
 			margin.noisy.freq <- list()
 			sen <- 1
 			num.margins<-length(margins)
@@ -33,7 +33,7 @@ Inference <- setRefClass(
 				cq <- margins[[i]]
 				setkeyv(t, cq)
 				curr_levels <- lapply(cq, function(x) levels(t[, get(x)]))
-        
+        		
 				xxx <- t[do.call(CJ, curr_levels), list(freq = .N), allow.cartesian = T, by = .EACHI][, freq]
 				noises <- r(Lap)(length(xxx))
 				freq.noisy <- xxx + noises				
@@ -42,14 +42,14 @@ Inference <- setRefClass(
 			.self$cluster.noisy.freq <- margin.noisy.freq
 		},
 
-		consistency <- function(){
+		consistency = function(){
 			consistency <- ConsistentMargin$new(.self$data$DB.size, .self$cluster, .self$data$domain, .self$cluster.noisy.freq)
 			.self$cluster.noisy.freq <- consistency$fix_negative_entry_approx(flag.set = FALSE)
 			.self$cluster.noisy.freq <- consistency$enforce_global_consistency()			
 		},
 		
 		set_clique_margin_from_cluster = function() {
-			t <- data.table(.self$data)
+			t <- data.table(.self$data$origin)
 			domain <- .self$data$domain
 			noisy.freq <- .self$cluster.noisy.freq
 			cliques <- .self$jtree$cliques
@@ -89,12 +89,12 @@ Inference <- setRefClass(
 		},
 		
 		init_potential_data_table = function() {
-			clique.noisy.freq <- .self$clique.noisy.freq
+			cliques.noisy.freq <- .self$cluster.noisy.freq
 			cliques<-.self$jtree$cliques
 			seps<-.self$jtree$separators
 			ans <- vector("list", length(cliques))
 			N=.self$data$DB.size
-			t <- data.table(data)
+			t <- data.table(.self$data$origin)
 			for (ii in seq_along(cliques)){
 
 				cq  <- cliques[[ii]]
@@ -106,8 +106,8 @@ Inference <- setRefClass(
         
 				.self$clique.freq[[ii]] <- xxx[, freq]
         
-				if (length(clique.noisy.freq) > 0) {
-					freq.noisy <- clique.noisy.freq[[ii]]
+				if (length(cliques.noisy.freq) > 0) {
+					freq.noisy <- cliques.noisy.freq[[ii]]
 					xxx[, freq.noisy := freq.noisy]
 					# print(xxx)
 					f <- as.formula(paste("freq.noisy~", paste(cq, collapse = "+")))
@@ -138,7 +138,8 @@ Inference <- setRefClass(
 			.self$POTgrain.consistent <- propagate(compile(gin.consistent))      
 		},
 		
-		simulate = function(num.of.syn, flag.consistent=TRUE) {
+		simulate = function(flag.consistent=TRUE) {
+			num.of.syn <- .self$data$DB.size
 			curr.grain <- .self$POTgrain.consistent
 			if(is.null(curr.grain)) stop("POTgrain is not provided yet")
 			data.sim <- simulate.grain(curr.grain, num.of.syn)
@@ -146,3 +147,23 @@ Inference <- setRefClass(
 		}
 	)
 )
+
+do_inference <- function(r_script_dir, cluster, edges, nodes, epsilon, data_path, domain){
+
+	source(paste(r_script_dir, 'data.R', sep='/'))
+	source(paste(r_script_dir, 'consistency.R', sep='/'))
+	source(paste(r_script_dir, 'jtree.R', sep='/'))
+	inference <- Inference$new(cluster, edges, nodes, epsilon, data_path, domain)
+
+	inference$inject_noise()
+
+	inference$consistency()
+
+	inference$set_clique_margin_from_cluster()
+
+	inference$init_potential_data_table()
+
+	inference$message_passing()
+
+	return(inference$simulate())
+}

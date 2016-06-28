@@ -10,14 +10,13 @@ import cvxpy as cvx
 
 class VarianceReduce(Base):
 	logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
-	def __init__(self, domain, jtree, cnum, _lambda):
+	def __init__(self, domain, jtree, _lambda=0.2):
 		"""
 		Using linear programming method to find a less noise variance.
 		param:
 			domain: the domain of the given data
 				(note) the order of columns in domain should be same with the original
 			jtree: the structure of junction tree
-			cnum: the list of cluster numbers will merge to.
 			_lambda: the balance number.
 
 		TODO:
@@ -31,7 +30,7 @@ class VarianceReduce(Base):
 		self.jtree = jtree
 		self.nodes_num = len(self.node_card)
 		self.cliques_num = len(jtree)
-		self.cnum = cnum
+		self.cnum = range(2, len(jtree)+1) if len(jtree) >=2 else [1]
 		self.jtree_in_node_index = [self.find_subset_index(clique) for clique in jtree]
 
 	def main(self, display = True):
