@@ -1,4 +1,3 @@
-import json
 import collections
 import pandas as pd
 from common.base import Base
@@ -15,9 +14,8 @@ class DataUtils(Base):
         self.preview_count = 5
 
     def data_preview(self, format = None):
-        if(format=='json'):
-            return json.dumps(dict(((col,val.tolist()) for (col,val) in dict(self.dataframe[:self.preview_count]).items())))
-        return self.dataframe[:self.preview_count]
+        sub_df = self.dataframe[:self.preview_count]
+        return sub_df
 
     def get_pandas_df(self):
         return self.dataframe

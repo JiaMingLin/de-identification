@@ -78,5 +78,12 @@ class DataPreview(APIView):
         """
         req = request.data
         data = DataUtils(str(req['file_path']))
-        preview = data.data_preview(format = 'json')
-        return Response(preview, status = status.HTTP_200_OK)
+        preview_df = data.data_preview()
+        rows = [row[1].tolist() for row in preview_df.iterrows()]
+        col_names = list(preview_df.columns.values)
+        result = dict({
+            'rows':rows,
+            'col_names':col_names
+        })
+        result = json.dumps(result)
+        return Response(result, status = status.HTTP_200_OK)
