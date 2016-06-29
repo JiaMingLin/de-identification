@@ -1,5 +1,6 @@
 function dashboardManagement() {
-	var endpoint = "http://140.92.25.109:8080/privacy/";
+	utilities = new utilities();
+	var endpoint = utilities.endpoint;
 
 	this.listTasks = function (size,page) {
 		var url = endpoint + "api/de-identification?page=" + page + "&size=" + size; 

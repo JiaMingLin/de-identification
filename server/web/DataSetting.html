@@ -13,18 +13,21 @@
 	<script type="text/javascript" src="js/jqueryFileTree.js"></script>
 	<script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
 	<script type="text/javascript">
-		$(document).ready(function(){
-			$('#JQueryFTD_Demo').fileTree({
-			root: '/workspace/',
-			script: 'connectors/jqueryFileTree.asp',
-			expandSpeed: 1000,
-			collapseSpeed: 1000,
-			multiFolder: false
-			}, function(file) {
-			alert(file);
-			});
-			});
+		// $(document).ready(function(){
+		// 	$('#JQueryFTD_Demo').fileTree({
+		// 	root: '/workspace/',
+		// 	script: 'connectors/jqueryFileTree.asp',
+		// 	expandSpeed: 1000,
+		// 	collapseSpeed: 1000,
+		// 	multiFolder: false
+		// 	}, function(file) {
+		// 	alert(file);
+		// 	});
+		// 	});
 	</script>
+	<script type="text/javascript" src="js/DataSetting.js"></script>
+	<script type="text/javascript" src="js/DataSettingManagement.js"></script>
+	<script type="text/javascript" src="js/utilities.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top" role=navigation>
@@ -69,65 +72,42 @@
 					<div class="col-xs-6 col-lg-6">
 						<div class="row">
 							<div class="col-xs-9 col-lg-6" >
-							<label class="control-label lead"><strong>請選擇機敏資料集(.csv)</strong></label>
-							<!-- <input type="file" class="filestyle" data-buttonBefore="true" data-placeholder="無檔案" data-buttonText="選擇檔案" > -->
-							<button id="JQueryFTD_Demo" class="JQueryFTD">Browse Files</button>
+							<!-- <label class="control-label lead"><strong>請選擇機敏資料集(.csv)</strong></label>
+							<input type="file" class="filestyle" data-buttonBefore="true" data-placeholder="無檔案" data-buttonText="選擇檔案" > -->
+							<label class="control-label lead"><strong>請輸入機敏資料集名稱(.csv)</strong></label>
+							<input type="text" id="filenameinput"></input>
+							<button id="fileconfirm">確認</button>
+							<button id="filecancel">取消</button>
+							<button id="fileclear">清除</button>
+							<!-- <button id="JQueryFTD_Demo" class="JQueryFTD">Browse Files</button> -->
 							</div>
 						</div>
 						<div class="row">
-							<div class="col-xs-12 col-lg-12" style=" padding-top:10px;bottom:-20px;">
+						<!-- 	<div class="col-xs-12 col-lg-12" style=" padding-top:10px;bottom:-20px;">
 								<label class="control-label lead"><strong>原始資料集</strong></label>
 									<table class="table" style="table-layout:fixed;">
 									<thead style="background-color:yellow;">
-							            <tr>
-							                <th class="text-center">身高</th>
-							               	<th class="text-center">體重</th>
-							               	<th class="text-center">年齡</th>
-							               	<th class="text-center">學歷</th>
-							               	<th class="text-center">收入</th>
+							            <tr id="sensitiveHead">
+		
 							            </tr>
 							         </thead>   
 								</table>
 							</div>
-							<div  class="table-responsive col-xs-12 col-lg-12" style="position:relative;overflow:auto;height:100%;width:100%" >
-								<table class="table table-bordered" style="table-layout:fixed">
-									<tbody>
-							            <tr>
-									  	<td>180</td>
-									    <td>66</td>
-									    <td>24</td>
-									    <td>大學</td>
-									    <td>22k</td>
-									  </tr>
-									  <tr>
-									  	<td>156</td>
-									    <td>44</td>
-									    <td>22</td>
-									    <td>高中</td>
-									    <td>10k</td>
-									  </tr>
-									  <tr>
-									  	<td>190</td>
-									    <td>99</td>
-									    <td>18</td>
-									    <td>小學</td>
-									    <td>3M</td>
-									  </tr>
-									  <tr>
-									  	<td>166</td>
-									    <td>73</td>
-									    <td>60</td>
-									    <td>研究所</td>
-									    <td>40K</td>
-									  </tr>
-									  <tr>
-									  	<td>145</td>
-									    <td>55</td>
-									    <td>44</td>
-									    <td>博士</td>
-									    <td>60K</td>
-									  </tr>					        
+							<div  class="table-responsive col-xs-12 col-lg-12" style="overflow:auto;height:100%;width:100%" >
+								<table class="table table-bordered" >
+									<tbody id="sensitiveBody" style="display:table-cell;">
+	        
 							        </tbody>
+								</table>
+							</div> -->
+							<div class="col-xs-12 col-lg-12 table-responsive" style="overflow:auto;width:100%;hight:100%;">
+								<table class="table table-bordered">
+									<thead style="background-color:yellow;">
+										<tr id="sensitiveHead">
+										</tr>
+									</thead>
+									<tbody id="sensitiveBody">
+									</tbody>
 								</table>
 							</div>
 			      		</div>
@@ -142,7 +122,7 @@
 											<table class="table" style="table-layout:fixed;">
 											<thead style="background-color:yellow;">
 									            <tr>
-									                <th><label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label></th>
+									                <th><label class="checkbox-inline"><input type="checkbox" value="" id="dataSelectedCheckAll"><strong>全選</strong></label></th>
 												    <th>欄位</th>
 												    <th>型態</th>
 												    <th>關聯屬性</th>
@@ -152,8 +132,8 @@
 										</div>
 										<div  class="table-responsive col-xs-12 col-lg-12" style="position:relative;overflow:auto;height:160px;width:100%" >
 											<table class="table table-hover table-condensed" style="table-layout:fixed">
-												<tbody>
-												  <tr>
+												<tbody id="columnSettingBody">
+												  <!-- <tr>
 												  	<td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
 												    <td>身高</td>
 												    <td>
@@ -226,7 +206,7 @@
 															</span>
 														</section>
 													</td>
-												  </tr>
+												  </tr> -->
 												</tbody>
 											</table>
 										</div>
