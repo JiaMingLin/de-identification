@@ -11,33 +11,6 @@ The test file has for fields, and the dependency graph would be a complete graph
 The junction Tree has only one clique
 
 """
-class DataUtilitiesTests(TestCase):
-
-    def setUp(self):
-        self.data = DataUtils(TESTING_FILE)
-
-    def test_data_preview(self):
-        preview = self.data.data_preview()
-        self.assertEqual(len(preview.values[0]) > 0, True)
-
-    def test_read_data_by_three_selected_column(self):
-        """
-        Test the read data by user specified columns
-        """
-        selected_data = DataUtils(TESTING_FILE, ['A', 'B', 'C'])
-        self.assertEqual(len(selected_data.get_nodes_name()) == 3, True)
-
-    def test_data_domain_keep_original_order(self):
-        """
-        Test the order in domain object is in same order with 
-        original raw data.
-        """
-        df = self.data.get_pandas_df()
-        domain = self.data.get_domain()
-        cols = domain.keys()
-        self.assertEqual(cols == list(df.columns.values), True)
-
-
 class DependencyGraphTests(TestCase):
 
     def setUp(self):

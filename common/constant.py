@@ -15,3 +15,9 @@ Test file path
 """
 TEST_FILE_PATH = os.path.join(ROOT_PATH, 'static/test/')
 TEST_DATA_PATH = os.path.join(TEST_FILE_PATH, 'Data2-coarse.csv')
+TEST_ORIGIN_DATA_PATH = os.path.join(TEST_FILE_PATH, 'Data2.csv')
+
+"""
+System configuration
+"""
+MAX_BIN_NUMBER = 30
