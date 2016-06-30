@@ -7,7 +7,9 @@ $(function() {
 	$("#fileconfirm").click(function(){
 		$("#filenameinput").prop('disabled',true);
 		var filepath = "static/test/" + $("#filenameinput").val() + ".csv";
-		dataSettingManagement.showSensitiveTable(filepath);
+		var columns = dataSettingManagement.showSensitiveTable(filepath);
+		//list columns setting
+		dataSettingManagement.columnSetting(columns);
 	});
 
 	$("#filecancel").click(function(){		

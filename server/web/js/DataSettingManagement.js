@@ -2,10 +2,41 @@ function dataSettingManagement(){
 	utilities = new utilities();
 	var endpoint = utilities.endpoint;
 
+	this.columnSetting = function (columns) {
+		$("#columnSettingBody").html('');
+		for (var i = 0; i < columns.length; i++) {
+			var columnName = columns[i];
+			var columnInfo = "";
+
+			columnInfo += "<tr>";
+			columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"\"></label></td>";
+			columnInfo += "<td>" + columnName + "</td>";
+			columnInfo += "<td><div class=\"dropdown\">";
+			columnInfo += "<select class=\"form-control\">";
+			columnInfo += "<option>連續型</option>";
+			columnInfo += "<option>類別型</option>";
+			columnInfo += "</select></div></td>";
+			columnInfo += "<td>";
+			columnInfo += "<section style=\"border-style:inset;\">";
+			columnInfo += "<span class=\"attr_each\">" + columns[1];											
+			columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
+			columnInfo += "</span>";												
+			columnInfo += "</span>";											
+			columnInfo += "<span class=\"attr_each\">" + columns[2];											
+			columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\">";										
+			columnInfo += "</span>";											
+			columnInfo += "</span></section></td></tr>";																				
+											   
+			
+			$("#columnSettingBody").append(columnInfo);
+		};
+	}
+
 	this.showSensitiveTable = function(filePath){
 		var url = endpoint + "api/data/";
 		var requestBody = new Object();
 		requestBody.file_path = filePath;
+		var columns = [];
 
 		$.ajax({
 			type: "Post",
@@ -14,11 +45,11 @@ function dataSettingManagement(){
 				"Content-Type":"application/json"
 			},
 			dataType: "json",
+			async: false,
 			processData: false,
 			data: JSON.stringify(requestBody),
 			success: function(data) {
 				var jsonData = JSON.parse(data);
-				var columns = [];
 				columns = jsonData.col_names;
 				
 				//build table head
@@ -50,36 +81,10 @@ function dataSettingManagement(){
 				$("#sensitiveBody").html('');
 			}
 		});
+		
+		//used for list column setting
+		return columns;
 	}
 
-	this.columnSetting = function (columns) {
-		$("#columnSettingBody").html('');
-		for (var i = 0; i < columns.length; i++) {
-			var columnName = columns[i];
-			var columnInfo = "";
-
-			columnInfo += "<tr>";
-			columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"\"></label></td>";
-			columnInfo += "<td>" + columnName + "</td>";
-			columnInfo += "<td><div class=\"dropdown\">";
-			columnInfo += "<select class=\"form-control\">";
-			columnInfo += "<option>連續型</option>";
-			columnInfo += "<option>類別型</option>";
-			columnInfo += "</select></div></td>";
-			columnInfo += "<td>";
-			columnInfo += "<section style=\"border-style:inset;\">";
-			columnInfo += "<span class=\"attr_each\">" + columns[1];											
-			columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
-			columnInfo += "</span>";												
-			columnInfo += "</span>";											
-			columnInfo += "<span class=\"attr_each\">" + columns[2];											
-			columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\">";										
-			columnInfo += "</span>";											
-			columnInfo += "</span></section></td></tr>";																				
-											   
-			
-			$("#columnSettingBody").append(columnInfo);
-		};
-	}
 	
 }
