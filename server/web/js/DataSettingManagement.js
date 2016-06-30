@@ -79,6 +79,7 @@ function dataSettingManagement(){
 				//clear table content
 				$("#sensitiveHead").html('');
 				$("#sensitiveBody").html('');
+				$("#columnSettingBody").html('');
 			}
 		});
 		

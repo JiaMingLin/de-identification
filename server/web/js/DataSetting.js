@@ -22,6 +22,8 @@ $(function() {
 			//clear table content
 			$("#sensitiveHead").html('');
 			$("#sensitiveBody").html('');
+			//clear columns setting content
+			$("#columnSettingBody").html('');
 		}
 	});
 
