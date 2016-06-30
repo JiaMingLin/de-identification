@@ -45,6 +45,9 @@ class DataUtils(Base):
 	def get_valbin_maps(self):
 		return self.valbin_maps
 
+	def save(self, path):
+		self.dataframe.to_csv(path, index=False)
+
 	def data_coarsilize(self):
 		df = self.dataframe
 		

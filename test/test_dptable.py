@@ -29,7 +29,7 @@ class TestDPTable(TestCase):
 	def test_different_matrix_constructor_with_zero_result(self):
 		diff_operator = self.var_reduce.construct_difference(4)
 		ones_4 = [1,1,1,1]
-		result = np.dot(ones_4, diff_operator)		
+		result = np.dot(ones_4, diff_operator)
 		self.assertEqual(np.sum(np.square(result)) == 0, True)
 
 	def test_jtree_matrix_rep_with_chain_structure(self):
@@ -45,4 +45,5 @@ class TestDPTable(TestCase):
 		self.assertEqual(log_sum_by_clique[0] == 6.2383246250395068, True)
 
 	def test_main_func(self):
-		print self.var_reduce.main()
+		opted_cluster = self.var_reduce.main()
+		print opted_cluster

@@ -21,3 +21,5 @@ TEST_ORIGIN_DATA_PATH = os.path.join(TEST_FILE_PATH, 'Data2.csv')
 System configuration
 """
 MAX_BIN_NUMBER = 30
+MEDIATE_DATA_DIR = os.path.join(ROOT_PATH, "mediate_data/task_%(task_id)s")
+COARSE_DATA_NAME = "coarse.csv"
