@@ -4,6 +4,7 @@ from django.test import TestCase
 
 TESTING_FILE = c.TEST_ORIGIN_DATA_PATH
 class DataUtilitiesTests(TestCase):
+# TODO: The Data Coarse and Generalize step should seperate, to simulate a more real case.
 
 	def setUp(self):
 		self.selected_attrs = dict({

@@ -19,16 +19,16 @@ class TestInerence(TestCase):
 		
 		# compute dependency graph
 		dep_graph = DependencyGraph(data)
-		edges = dep_graph.get_dep_edges()
+		edges = dep_graph.get_dep_edges(display=True)
 		
 		# compute junction tree
 		jtree = JunctionTree(edges, nodes)
-		cliques = jtree.get_jtree()
 		# optimize marginals
 		var_reduce = VarianceReduce(domain, jtree.get_jtree(display=True), 0.2)
 		opted_cluster = var_reduce.main()
-		rcluster = [ro.StrVector(clique) for clique in opted_cluster]
-		self.inference = Inference(c.TEST_DATA_PATH, edges, nodes, domain, rcluster , 0.2)
+		self.inference = Inference(c.TEST_DATA_PATH, edges, nodes, domain, opted_cluster , 0.2)
 
 	def test_execute_inference(self):
-		self.inference.execute()
+		df = self.inference.execute()
+		print df.describe()
+		print df

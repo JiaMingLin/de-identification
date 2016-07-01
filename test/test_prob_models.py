@@ -29,7 +29,7 @@ class JunctionTreeTests(TestCase):
     def setUp(self):
         self.data = DataUtils(TESTING_FILE)
         self.dep_graph = DependencyGraph(self.data)
-        self.edges = self.dep_graph.get_dep_edges()
+        self.edges = self.dep_graph.get_dep_edges(display=True)
         self.nodes = self.data.get_nodes_name()
 
     def test_junction_tree_with_one_clique(self):

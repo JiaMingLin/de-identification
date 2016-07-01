@@ -26,15 +26,18 @@ class Task(models.Model):
     task_id = models.AutoField(primary_key = True)
     task_name = models.CharField(max_length = 100, blank = False)
     data_path = models.CharField(max_length = 300, blank = False)
-    selected_attrs = models.TextField(max_length = 500, blank = False)
+    selected_attrs = models.TextField(blank = False)
     jtree_strct = models.TextField(max_length = 500, blank = True)
     dep_graph = models.TextField(blank = True)
+    valbin_map = models.TextField(blank = True)
+    domain = models.TextField(blank = True)
     start_time = models.DateTimeField(auto_now_add = True)
     end_time = models.DateTimeField(null = True)
     status = models.PositiveSmallIntegerField(default = 0, choices=TASK_STATUS)
 
     class Meta:
         ordering = ('start_time',)
+
 
 class Job(models.Model):
     dp_id = models.AutoField(primary_key = True)

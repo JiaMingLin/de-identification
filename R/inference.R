@@ -1,3 +1,4 @@
+library(distr)
 library(data.table)
 Inference <- setRefClass(
 	"Inference",
@@ -143,6 +144,7 @@ Inference <- setRefClass(
 			curr.grain <- .self$POTgrain.consistent
 			if(is.null(curr.grain)) stop("POTgrain is not provided yet")
 			data.sim <- simulate.grain(curr.grain, num.of.syn)
+			print(class(data.sim))
 			return(data.sim)
 		}
 	)

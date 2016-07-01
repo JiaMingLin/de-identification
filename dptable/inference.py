@@ -1,8 +1,10 @@
 from common.base import Base
+from rpy2.robjects import pandas2ri
 
 import common.constant as c
 import rpy2.robjects as ro
 import rpy2.rlike.container as rlc
+
 
 class Inference(Base):
 	def __init__(self, data_path, edges, nodes, domain, cluster, epsilon):
@@ -12,6 +14,8 @@ class Inference(Base):
 				are temporary to be here.
 		param
 			data_path: the path of data file.
+			TODO: Because the DPTable algorithm construct lots of attributes when reading data,
+					to using memory cache, one should refector the inference step of DPTable.
 		param
 			edges: the edges in dependency graph.
 		param
@@ -29,16 +33,17 @@ class Inference(Base):
 			epsilon: the privacy budget
 		"""
 		self.data_path = data_path
-		self.edges = edges
 		self.nodes = nodes
-		self.cluster = cluster
 		self.epsilon = epsilon		
 		self.rdomain = self.convert2rdomain(domain)
+		self.edges = self.convert2rlistofvector(edges)
+		self.cluster = self.convert2rlistofvector(cluster)
 
 	def execute(self):
 		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')
 		sim_data = do_inference(c.R_SCRIPT_PATH, self.cluster, self.edges, self.nodes, self.epsilon, self.data_path, self.rdomain)
-		print sim_data
+		pandas_df = pandas2ri.ri2py_dataframe(sim_data)
+		return pandas_df.astype(int, copy=False)
 
 	def convert2rdomain(self, domain):
 		"""
@@ -74,4 +79,3 @@ class Inference(Base):
 			('dsize', rdsize)
 		])
 		return rdomain
-

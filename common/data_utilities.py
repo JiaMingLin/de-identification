@@ -96,6 +96,6 @@ class DataUtils(Base):
 		D = c.MAX_BIN_NUMBER
 		smax = max(col)+.5; smin = min(col)-.5
 		edges = linspace(smin, smax, D+1)
-		self.valbin_maps[col.name] = edges
+		self.valbin_maps[col.name] = list(edges)
 		Ncount = searchsorted(edges, list(col), 'right')
 		return pd.Series(Ncount)
