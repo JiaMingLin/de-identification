@@ -101,6 +101,8 @@ class JobSerializer(serializers.ModelSerializer):
 
 		# Save the synthetic data to file system.
 		synthetic_path = self.save_sim_data(sim_df, task_id, privacy_level)
+
+		# Save metadata to database
 		job_obj = Job.objects.create(
 			task_id = task,
 			privacy_level = privacy_level,
@@ -130,7 +132,9 @@ class JobSerializer(serializers.ModelSerializer):
 		file_name = c.SIM_DATA_NAME_PATTERN % {'privacy_level':privacy_level}
 		file_path = os.path.join(folder,file_name)
 		dataframe.to_csv(file_path, index = False)
-		return file_path
+
+		# return the download path
+		return "task_%(task_id)s/%(file_name)s" % {'task_id':task_id, 'file_name':file_name}
 
 	def get_statistical_error(self, task_id, sim_coarsed_df):
 		# read the original coarse data first.
