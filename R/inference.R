@@ -12,15 +12,21 @@ Inference <- setRefClass(
 		jtree = "ANY",
 		clique.freq = "list",
 		POTlist.consistent = "ANY",
-		POTgrain.consistent = 'ANY'
+		POTgrain.consistent = 'ANY',
+		POTlist = "ANY",
+		POTgrain = "ANY",
+		noise.flag = "logical"
 	),
 	
 	methods = list(
-		initialize = function(cluster, jtree_file, epsilon, data_path, domain){
+		initialize = function(cluster, jtree_file, data_path, domain, noise.flag=TRUE, epsilon=0.0){
+			.self$cluster.noisy.freq <- list()
 			.self$cluster <- cluster
 			.self$epsilon <- epsilon
 			.self$data <- Data$new(data_path, domain)
 			.self$jtree <- readRDS(jtree_file)
+			.self$noise.flag <- noise.flag
+			print(domain)
 		},
 		
 		inject_noise = function(){
@@ -128,18 +134,33 @@ Inference <- setRefClass(
 				}   
 			}
 			attr(ans, "rip") <-.self$jtree
-			.self$POTlist.consistent <- ans 
-			class(.self$POTlist.consistent) <- "extractPOT"
+
+			if(.self$noise.flag){
+				.self$POTlist.consistent <- ans
+				class(.self$POTlist.consistent) <- "extractPOT"
+			}else{
+				.self$POTlist <- ans
+				class(.self$POTlist) <- "extractPOT"
+			}
 		},
 		
 		message_passing = function() {
-			gin.consistent <- grain(compilePOT(.self$POTlist.consistent))
-			.self$POTgrain.consistent <- propagate(compile(gin.consistent))
+			if(.self$noise.flag == TRUE){
+				gin.consistent <- grain(compilePOT(.self$POTlist.consistent))
+				.self$POTgrain.consistent <- propagate(compile(gin.consistent))
+			}else{
+				gin <- grain(compilePOT(.self$POTlist))
+				.self$POTgrain <- propagate(compile(gin))
+			}
 		},
 		
 		simulate = function(flag.consistent=TRUE) {
+			if (.self$noise.flag) {
+				curr.grain <- .self$POTgrain.consistent
+			}else {
+				curr.grain <- .self$POTgrain
+			}
 			num.of.syn <- .self$data$DB.size
-			curr.grain <- .self$POTgrain.consistent
 			if(is.null(curr.grain)) stop("POTgrain is not provided yet")
 			data.sim <- simulate.grain(curr.grain, num.of.syn)
 			return(data.sim)
@@ -151,7 +172,14 @@ do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, data_path, 
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
-	inference <- Inference$new(cluster, jtree_path, epsilon, data_path, domain)
+	inference <- Inference$new(
+		cluster, 
+		jtree_path, 
+		data_path, 
+		domain, 
+		epsilon = epsilon, 
+		noise.flag = TRUE
+	)
 
 	inference$inject_noise()
 
@@ -163,5 +191,22 @@ do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, data_path, 
 
 	inference$message_passing()
 
+	return(inference$simulate())
+}
+
+do_inference_without_noise <- function(r_script_dir, cluster, jtree_path, data_path, domain){
+
+	source(paste(r_script_dir, 'data.R', sep='/'))
+	source(paste(r_script_dir, 'consistency.R', sep='/'))
+
+	inference <- Inference$new(
+		cluster, 
+		jtree_path, 
+		data_path, 
+		domain, 
+		noise.flag = FALSE
+	)
+	inference$init_potential_data_table()
+	inference$message_passing()
 	return(inference$simulate())
 }

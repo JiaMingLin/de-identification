@@ -12,17 +12,21 @@ fields = list(
 	N = "numeric",
 	edges = "list",
 	domain = "list",
+	nodes_name = "ANY",
+	pairs = "ANY",
 	flag.all.binary = "logical",
 	pairwise.table = "data.frame",
 	thresh = "numeric",
+	noise.flag = "logical",
 	debug = "logical"
 	),
 
 	methods = list(
-	initialize = function(data, domain, thresh.CV = 0.2){
-		.self$domain = domain
-		.self$N = nrow(data)
-		.self$thresh = thresh.CV
+	initialize = function(data, domain, noise.flag = TRUE, thresh.CV = 0.2){
+		.self$domain <- domain
+		.self$N <- nrow(data)
+		.self$noise.flag <- noise.flag
+		.self$thresh <- thresh.CV
 		.self$pairwise.table <-data.frame(
 			dk.name = character()
 			, dl.name = character()
@@ -32,20 +36,26 @@ fields = list(
 			, CV = numeric()
 			, CV2.LH = numeric()
 			, CV2.RH = numeric()
-	  )
+		)
+		.self$nodes_name <- names(.self$domain)
+		.self$pairs <- combn(as.vector(.self$nodes_name), 2)
 
 		mi_scale <- .computemi_scale()
-		.construct_dep_graph(data, mi_scale)	
+		if(noise.flag){
+			.construct_dep_graph_with_noise(data, mi_scale)
+		}else{
+			.construct_dep_graph(data)
+		}
+		
 	},
 
-	.construct_dep_graph = function(data, mi_scale){
-		nodes_name = names(.self$domain)
+	.construct_dep_graph_with_noise = function(data, mi_scale){
+		
 		Lap.CV2 <- DExp(rate = 1 / mi_scale)
 		noise.thresh.CV2 <- r(Lap.CV2)(1)
-		pairs <- combn(as.vector(nodes_name), 2)
 
-		for (i in seq_len(ncol(pairs))) {
-			pair <- pairs[,i]
+		for (i in seq_len(ncol(.self$pairs))) {
+			pair <- .self$pairs[,i]
 			dk.name <- pair[1]
 			dl.name <- pair[2]
 			curr_xtab <- xtabs(formula = ~ get(dk.name) + get(dl.name), data = data)
@@ -66,6 +76,32 @@ fields = list(
 				dk, dl, mi,
 				CV, CV2.LH, CV2.RH)
 		}
+	},
+
+	.construct_dep_graph = function(data){
+		for (i in seq_len(ncol(.self$pairs))) {
+			pair <- .self$pairs[,i]
+			dk.name <- pair[1]
+			dl.name <- pair[2]
+			curr_xtab <- xtabs(formula = ~ get(dk.name) + get(dl.name), data = data)
+			expected_sum <- .get_xtable_expected_sum(curr_xtab)
+			chi2 <- sum((curr_xtab - expected_sum) ** 2 / expected_sum, na.rm = TRUE)
+			
+			dk <- length(.self$domain[[dk.name]])
+			dl <- length(.self$domain[[dl.name]])
+
+			mi <- mi.empirical(curr_xtab, unit = 'log')
+			CV <- sqrt(chi2 / (.self$N * (min(dk, dl) - 1)))
+			.filter_association_edges(pair, CV, .self$thresh)
+
+			CV2.LH <- mi
+			CV2.RH <- (.self$thresh^ 2) * (min(dk, dl) - 1) / 2
+			.append_pairwise_association_table(
+				dk.name, dl.name,
+				dk, dl, mi,
+				CV, CV2.LH, CV2.RH
+			)
+		}	
 	},
 
 	.append_pairwise_association_table = function(dk.name, dl.name, 
@@ -95,9 +131,9 @@ fields = list(
 	},
 
 	.filter_association_edges = function(pair, measure, bar) {
-	  if(measure >= bar){
-		curr_length <- length(.self$edges)
-		.self$edges[[curr_length + 1]]<- pair
+		if(measure >= bar){
+			curr_length <- length(.self$edges)
+			.self$edges[[curr_length + 1]]<- pair
 		}
 	},
 
@@ -122,7 +158,7 @@ fields = list(
 	)
 )
 
-get_dep_edges <- function(data, domain){
-	dep_graph <- DependenceGraph$new(data, domain)
+get_dep_edges <- function(data, domain, noise.flag){
+	dep_graph <- DependenceGraph$new(data, domain, noise.flag = noise.flag)
 	return(dep_graph$edges)
 }

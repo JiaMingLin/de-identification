@@ -7,7 +7,7 @@ import rpy2.rlike.container as rlc
 
 
 class Inference(Base):
-	def __init__(self, data_path, jtree_path, domain, cluster, epsilon):
+	def __init__(self, data_path, jtree_path, domain, cluster, epsilon = 0.0):
 		"""
 		Initialize the inference class.
 		TODO: 1. refactor, the data_path, edges, nodes, domain 
@@ -53,6 +53,11 @@ class Inference(Base):
 		pandas_df = pandas2ri.ri2py_dataframe(sim_data)
 		return pandas_df.astype(int, copy=False)
 
+	def execute_without_noise(self):
+		do_inference_without_noise = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference_without_noise')
+		sim_data = do_inference_without_noise(c.R_SCRIPT_PATH, self.cluster, self.jtree_path, self.data_path, self.rdomain)
+		pandas_df = pandas2ri.ri2py_dataframe(sim_data)
+		return pandas_df.astype(int, copy=False)
 
 	def convert2rdomain(self, domain):
 		"""

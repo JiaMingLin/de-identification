@@ -12,6 +12,7 @@ import common.constant as c
 import numpy as np
 import os
 import ast
+import json
 import collections
 
 # TODO: All the operations/methods should NOT gather in this file, it is too long to read.
@@ -44,7 +45,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 			data_path = validated_data['data_path'], # the original data path
 			dep_graph = str(dep_graph.get_dep_edges(display = True)),
 			valbin_map = str(data.get_valbin_maps()),
-			domain = dict(domain) # this is the domain of coarsed data
+			domain = str(domain.items()) # this is the domain of coarsed data, and sould keep cols ordering.
 		)
 
 		# create folder for task
@@ -97,13 +98,14 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		data_path = task.data_path
 		jtree_strct = ast.literal_eval(task.jtree_strct)
 		edges = ast.literal_eval(task.dep_graph)
-		domain = ast.literal_eval(task.domain) # This is the corsed domain
+		domain = collections.OrderedDict(ast.literal_eval(task.domain)) # This is the corsed domain
 		valbin_map = ast.literal_eval(task.valbin_map)
 		selected_attrs = self.convert_selected_attrs(task.selected_attrs)
 		nodes = domain.keys()
 
 		# TODO: read coarse in python, and therefore, 
 		# the pandas dataframe can be reused in error rate estimations
+
 		inference = Inference(
 			self.get_coarse_data(task_id), 
 			self.get_jtree_file_path(task_id), 
@@ -122,6 +124,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		synthetic_path = self.save_sim_data(sim_df, task_id, privacy_level)
 
 		# Save metadata to database
+		
 		job_obj = Job.objects.create(
 			task_id = task,
 			privacy_level = privacy_level,
@@ -129,7 +132,9 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			synthetic_path = synthetic_path,
 			statistics_err = mean_err
 		)
+
 		return job_obj
+
 
 	def get_coarse_data(self, task_id):
 		# TODO: Read coarse data from memory cach.

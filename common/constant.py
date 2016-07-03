@@ -14,8 +14,9 @@ INFERENCE_R_FILE = os.path.join(R_SCRIPT_PATH, "inference.R")
 Test file path
 """
 TEST_FILE_PATH = os.path.join(ROOT_PATH, 'static/test/')
+TEST_ORIGIN_DATA_PATH = os.path.join(TEST_FILE_PATH, 'adults.csv')
 TEST_DATA_PATH = os.path.join(TEST_FILE_PATH, 'data2.dat')
-TEST_ORIGIN_DATA_PATH = os.path.join(TEST_FILE_PATH, 'Data2.csv')
+TEST_PARSED_FILE = os.path.join(TEST_FILE_PATH, 'data2-coarse.dat')
 TEST_JTREE_FILE_PATH = os.path.join(TEST_FILE_PATH, 'data2.jtree')
 
 """

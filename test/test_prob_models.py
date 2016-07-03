@@ -27,6 +27,12 @@ class DependencyGraphTests(TestCase):
 		#print self.data.get_domain()
 		self.assertEqual(len(edges) == 3, True)
 
+	def test_dep_graph_without_noise(self):
+		dep_graph = DependencyGraph(self.data, noise_flag = False)
+		self.assertEqual(
+			dep_graph.get_dep_edges(display=True) == [['Height', 'HTN'], ['Weight', 'HTN'], ['Income', 'TRV']],
+			True)
+
 class JunctionTreeTests(TestCase):
 
 	def setUp(self):
@@ -35,6 +41,13 @@ class JunctionTreeTests(TestCase):
 		self.edges = self.dep_graph.get_dep_edges(display=True)
 		self.nodes = self.data.get_nodes_name()
 		self.jtree_path = c.TEST_JTREE_FILE_PATH
+
+	def test_jtree_without_noise(self):
+		dep_graph = DependencyGraph(self.data, noise_flag = False)
+		edges = dep_graph.get_dep_edges(display=True)
+		jtree = JunctionTree(edges, self.nodes, self.jtree_path)
+		cliques = jtree.get_jtree()['cliques']
+		self.assertEqual(cliques == [['HTN', 'Height'], ['HTN', 'Weight'], ['Income', 'TRV'], ['Age'], ['DGF']], True)
 
 	def test_build_jtree_then_check_jtree_file(self):
 		self.TestA()
@@ -55,4 +68,5 @@ class JunctionTreeTests(TestCase):
 		from stat import *
 		st = os.stat(self.jtree_path)
 		now = time.time()
-		self.assertEqual((st.st_mtime - now) < 50000, True)
+		# TODO: Need to know this file is new modified
+		#self.assertEqual((st.st_mtime - now) < 100000, True)

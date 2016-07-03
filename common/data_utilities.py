@@ -55,8 +55,9 @@ class DataUtils(Base):
 		for (attr_name, attr_type) in self.selected_attrs.items():
 			col = df[attr_name]
 			unique_vals = list(col.unique())
-			if attr_type == 'D':				
-				df[attr_name] = self._discrete_parser(col, unique_vals)
+			if attr_type == 'D':
+				sorted_uniques = sorted(unique_vals)
+				df[attr_name] = self._discrete_parser(col, sorted_uniques)
 			elif attr_type == 'C':
 				df[attr_name] = self._continue_parser(col)
 		self.dataframe = df
