@@ -30,30 +30,43 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		# coarsilize
 		# TODO: Should add the sample rate.
 		data.data_coarsilize()
+		domain = data.get_domain()
+		nodes = data.get_nodes_name()
 		
 		# dependency graph
 		dep_graph = DependencyGraph(data)
 		edges = dep_graph.get_dep_edges()
 
-		# junction tree
-		nodes = data.get_nodes_name()
-		jtree = JunctionTree(edges, nodes)
-
-		# optimize marginal
-		domain = data.get_domain()
-		var_reduce = VarianceReduce(domain, jtree.get_jtree(display=True), 0.2)
-		optimized_jtree = var_reduce.main()
-
+		# create task to get task_id
 		task_obj = Task.objects.create(
 			selected_attrs = validated_data['selected_attrs'],
 			task_name = validated_data['task_name'],
-			data_path = validated_data['data_path'],
-			jtree_strct = str(optimized_jtree),
+			data_path = validated_data['data_path'], # the original data path
 			dep_graph = str(dep_graph.get_dep_edges(display = True)),
 			valbin_map = str(data.get_valbin_maps()),
 			domain = dict(domain) # this is the domain of coarsed data
 		)
-		self.save_coarse_data(task_obj, data)
+
+		# create folder for task
+		task_folder = self.create_task_folder(task_obj.task_id)
+
+		# junction tree
+		print self.get_jtree_file_path(task_obj.task_id)
+		jtree = JunctionTree(
+			edges, 
+			nodes, 
+			self.get_jtree_file_path(task_obj.task_id) # the path to save junction tree file
+		)
+
+		# optimize marginal
+		var_reduce = VarianceReduce(domain, jtree.get_jtree()['cliques'], 0.2)
+		optimized_jtree = var_reduce.main()
+
+		# update task to save the optimized jtree
+		task_obj.jtree_strct = str(optimized_jtree)
+		task_obj.save()
+
+		self.save_coarse_data(task_folder, data)
 		return task_obj
 
 	
@@ -62,15 +75,12 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		return collections.OrderedDict([(attr['attr_name'], attr['dtype']) for attr in attrs_ls])
 
 
-	def save_coarse_data(self, task, data):
+	def save_coarse_data(self, task_folder, data):
 		# TODO: to deal with failure
-		folder = c.MEDIATE_DATA_DIR % {'task_id': task.task_id}
-		if not os.path.exists(folder):
-			os.makedirs(folder)	
-		file_path = os.path.join(folder,c.COARSE_DATA_NAME)
+		file_path = os.path.join(task_folder,c.COARSE_DATA_NAME)
 		data.save(file_path)
 
-class JobSerializer(serializers.ModelSerializer):
+class JobSerializer(serializers.ModelSerializer, Base):
 	class Meta:
 		model = Job
 		field = ('dp_id', 'task_id', 'privacy_level', 'epsilon', 'status', 'synthetic_path', 'statistics_err', 'log_path', 'start_time', 'end_time')
@@ -92,10 +102,19 @@ class JobSerializer(serializers.ModelSerializer):
 		selected_attrs = self.convert_selected_attrs(task.selected_attrs)
 		nodes = domain.keys()
 
-		# TODO: Should not read data again.
-		inference = Inference(self.get_coarse_data(task_id), edges, nodes, domain, jtree_strct , epsilon)
+		# TODO: read coarse in python, and therefore, 
+		# the pandas dataframe can be reused in error rate estimations
+		inference = Inference(
+			self.get_coarse_data(task_id), 
+			self.get_jtree_file_path(task_id), 
+			domain, 
+			jtree_strct , 
+			epsilon)
+
 		sim_df = inference.execute()
-		stats_err = self.get_statistical_error(task_id, sim_df)
+
+		# compute the errors rate
+		mean_err, std_err = self.get_statistical_error(task_id, sim_df)
 
 		sim_df = self.data_generalize(sim_df, valbin_map, selected_attrs)
 
@@ -108,7 +127,7 @@ class JobSerializer(serializers.ModelSerializer):
 			privacy_level = privacy_level,
 			epsilon = epsilon,
 			synthetic_path = synthetic_path,
-			statistics_err = stats_err
+			statistics_err = mean_err
 		)
 		return job_obj
 
@@ -118,6 +137,7 @@ class JobSerializer(serializers.ModelSerializer):
 		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}
 		file_path = os.path.join(folder,c.COARSE_DATA_NAME)
 		return file_path
+
 
 	def data_generalize(self, dataframe, valbin_map, selected_attrs):
 		data = DataUtils(pandas_df=dataframe, valbin_maps = valbin_map, selected_attrs = selected_attrs)
@@ -134,9 +154,23 @@ class JobSerializer(serializers.ModelSerializer):
 		dataframe.to_csv(file_path, index = False)
 
 		# return the download path
-		return "task_%(task_id)s/%(file_name)s" % {'task_id':task_id, 'file_name':file_name}
+		return c.SIM_DATA_URI_PATTERN % {'task_id':task_id, 'file_name':file_name}
 
 	def get_statistical_error(self, task_id, sim_coarsed_df):
+		"""
+		Compute the mean and standard varience error rates(Both coarse data).
+		Parameters
+			task_id:
+				The task id to retrieve coarsed data.
+			sim_coarsed_df:
+				The noised sythetic data.
+		Returns
+			{
+				"A":0.05,
+				"B":0.12,
+				...
+			}
+		"""
 		# read the original coarse data first.
 		coarsed_data = DataUtils(self.get_coarse_data(task_id))
 		coarsed_df = coarsed_data.get_pandas_df()
@@ -154,7 +188,7 @@ class JobSerializer(serializers.ModelSerializer):
 		mean_error = (sim_df_mean - coarsed_df_mean) / coarsed_df_mean
 		std_error = (sim_df_std - coarsed_df_std) / coarsed_df_std
 
-		return mean_error, std_error
+		return dict(zip(nodes, mean_error)), dict(zip(nodes, std_error))
 
 	def convert_selected_attrs(self, attrs_ls):
 		attrs_ls = ast.literal_eval(attrs_ls)

@@ -1,6 +1,9 @@
 import logging
 import rpy2.robjects as robjects
 
+import os
+import common.constant as c
+
 class Base(object):
 
 	logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
@@ -16,3 +19,12 @@ class Base(object):
 	def convert2rlistofvector(self, groups):
 		return [robjects.StrVector(grp) for grp in groups]
 
+	def get_jtree_file_path(self, task_id):
+		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}
+		return os.path.join(folder, 'jtree.rds')
+
+	def create_task_folder(self, task_id):
+		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}
+		if not os.path.exists(folder):
+			os.makedirs(folder)
+		return folder

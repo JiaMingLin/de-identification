@@ -4,10 +4,10 @@ library(entropy)
 # TODO: Check the attributes are binerary or not.
 # TODO: Add a data structure of dep-graph for displaying.
 DependenceGraph <- setRefClass(
-    "DependenceGraph",
+	"DependenceGraph",
 
-  fields = list(
-  	beta = "numeric",
+fields = list(
+	beta = "numeric",
 	epsilon.1 = "numeric",
 	N = "numeric",
 	edges = "list",
@@ -16,15 +16,15 @@ DependenceGraph <- setRefClass(
 	pairwise.table = "data.frame",
 	thresh = "numeric",
 	debug = "logical"
-    ),
+	),
 
-  methods = list(
-  	initialize = function(data, domain, thresh.CV = 0.2){
-  		.self$domain = domain
-  		.self$N = nrow(data)
-  		.self$thresh = thresh.CV
-  		.self$pairwise.table <-data.frame(
-  			dk.name = character()
+	methods = list(
+	initialize = function(data, domain, thresh.CV = 0.2){
+		.self$domain = domain
+		.self$N = nrow(data)
+		.self$thresh = thresh.CV
+		.self$pairwise.table <-data.frame(
+			dk.name = character()
 			, dl.name = character()
 			, dk = integer()
 			, dl = integer()
@@ -32,12 +32,16 @@ DependenceGraph <- setRefClass(
 			, CV = numeric()
 			, CV2.LH = numeric()
 			, CV2.RH = numeric()
-      )
-  		.construct_dep_graph(data)	
+	  )
+
+		mi_scale <- .computemi_scale()
+		.construct_dep_graph(data, mi_scale)	
 	},
 
-	.construct_dep_graph = function(data){
+	.construct_dep_graph = function(data, mi_scale){
 		nodes_name = names(.self$domain)
+		Lap.CV2 <- DExp(rate = 1 / mi_scale)
+		noise.thresh.CV2 <- r(Lap.CV2)(1)
 		pairs <- combn(as.vector(nodes_name), 2)
 
 		for (i in seq_len(ncol(pairs))) {
@@ -54,8 +58,8 @@ DependenceGraph <- setRefClass(
 			CV <- sqrt(chi2 / (.self$N * (min(dk, dl) - 1)))
 
 			.filter_association_edges(pair, CV, .self$thresh)
-			CV2.LH <- mi
-			CV2.RH <- (.self$thresh ^ 2) * (min(dk, dl) - 1) / 2
+			CV2.LH <- mi + r(Lap.CV2)(1)
+			CV2.RH <- (.self$thresh ^ 2) * (min(dk, dl) - 1) / 2 + noise.thresh.CV2
 
 			.append_pairwise_association_table(
 				dk.name, dl.name,
@@ -75,7 +79,7 @@ DependenceGraph <- setRefClass(
 						, CV = CV
 						, CV2.LH = CV2.LH
 						, CV2.RH = CV2.RH
-      )
+		)
 		.self$pairwise.table<-rbind(.self$pairwise.table,newrow)
 
 	},
@@ -88,18 +92,37 @@ DependenceGraph <- setRefClass(
 		table.sum <- sum(rsums)
 		expected_sum <- rsums %*% csums / table.sum
 		return(expected_sum) 
-    },
+	},
 
-    .filter_association_edges = function(pair, measure, bar) {
-      if(measure >= bar){
-        curr_length <- length(.self$edges)
-        .self$edges[[curr_length + 1]]<- pair
-      }      
-    }
+	.filter_association_edges = function(pair, measure, bar) {
+	  if(measure >= bar){
+		curr_length <- length(.self$edges)
+		.self$edges[[curr_length + 1]]<- pair
+		}
+	},
+
+	.computemi_scale = function(){
+		epsilon.alpha.1 <- .amplify_epsilon_under_sampling(700, 1)
+		sensitivity.scale.mi <- .compute_mi_sensitivity_scale(.self$N, FALSE)
+		b.scale.mi <- 2 * sensitivity.scale.mi / epsilon.alpha.1
+		return(b.scale.mi)
+	},
+	.compute_mi_sensitivity_scale = function(N, flag.all.binary) {
+		if(flag.all.binary){
+			sensitivity.scale <- (1 / N) * log(N) + ((N - 1) / N) * log(N / (N - 1))
+		}else{
+			sensitivity.scale <- (2 / N) * log((N + 1) / 2) + ((N - 1) / N) * log((N + 1) / (N - 1))
+		} 
+		return(sensitivity.scale)
+	},
+	.amplify_epsilon_under_sampling = function(epsilon, sample.rate) {
+		epsilon.alpha <- log(exp(1) ** (epsilon) - 1 + sample.rate) - log(sample.rate)
+		return(epsilon.alpha)
+	}
 	)
 )
 
 get_dep_edges <- function(data, domain){
-    dep_graph <- DependenceGraph$new(data, domain)
-    return(dep_graph$edges)
+	dep_graph <- DependenceGraph$new(data, domain)
+	return(dep_graph$edges)
 }

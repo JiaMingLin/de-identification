@@ -1,5 +1,6 @@
 library(distr)
 library(data.table)
+library(gRain)
 Inference <- setRefClass(
 	"Inference",
 	
@@ -15,14 +16,15 @@ Inference <- setRefClass(
 	),
 	
 	methods = list(
-		initialize = function(cluster, edges, nodes, epsilon, data_path, domain){
+		initialize = function(cluster, jtree_file, epsilon, data_path, domain){
 			.self$cluster <- cluster
 			.self$epsilon <- epsilon
 			.self$data <- Data$new(data_path, domain)
-			.self$jtree <- get_jtree(edges, unlist(nodes), display=FALSE)
+			.self$jtree <- readRDS(jtree_file)
 		},
 		
 		inject_noise = function(){
+
 			margins <- .self$cluster
 			t <- data.table(.self$data$origin)
 			margin.noisy.freq <- list()
@@ -34,7 +36,6 @@ Inference <- setRefClass(
 				cq <- margins[[i]]
 				setkeyv(t, cq)
 				curr_levels <- lapply(cq, function(x) levels(t[, get(x)]))
-        		
 				xxx <- t[do.call(CJ, curr_levels), list(freq = .N), allow.cartesian = T, by = .EACHI][, freq]
 				noises <- r(Lap)(length(xxx))
 				freq.noisy <- xxx + noises				
@@ -44,12 +45,14 @@ Inference <- setRefClass(
 		},
 
 		consistency = function(){
+
 			consistency <- ConsistentMargin$new(.self$data$DB.size, .self$cluster, .self$data$domain, .self$cluster.noisy.freq)
 			.self$cluster.noisy.freq <- consistency$fix_negative_entry_approx(flag.set = FALSE)
 			.self$cluster.noisy.freq <- consistency$enforce_global_consistency()			
 		},
 		
 		set_clique_margin_from_cluster = function() {
+
 			t <- data.table(.self$data$origin)
 			domain <- .self$data$domain
 			noisy.freq <- .self$cluster.noisy.freq
@@ -72,8 +75,6 @@ Inference <- setRefClass(
 				freq.noisy <- margin.cluster[do.call(CJ, curr_cq_levels)
 						, list(Freq=sum(cluster.freq.noisy))
 						, allow.cartesian = T, by = .EACHI][, Freq]
-        
-
 				ans[[i]] <- freq.noisy
 			}
 			.self$cluster.noisy.freq <- ans
@@ -104,39 +105,36 @@ Inference <- setRefClass(
 				curr_levels <- lapply(cq, function(x) levels(t[, get(x)]))
 
 				xxx <- t[do.call(CJ, curr_levels), list(freq = .N), allow.cartesian = T, by = .EACHI]
-        
 				.self$clique.freq[[ii]] <- xxx[, freq]
-        
+		
 				if (length(cliques.noisy.freq) > 0) {
 					freq.noisy <- cliques.noisy.freq[[ii]]
 					xxx[, freq.noisy := freq.noisy]
-					# print(xxx)
 					f <- as.formula(paste("freq.noisy~", paste(cq, collapse = "+")))
 					xxx <- xtabs(formula = f, data = xxx)
 				} else {
 					f <- as.formula(paste("freq~", paste(cq, collapse = "+")))
-					xxx <- xtabs(formula = f, data = xxx)           
+					xxx <- xtabs(formula = f, data = xxx)		   
 				}
 				#ftable(t.cq)
 				t.cq <- tableMargin(xxx, cq)
 				names(dimnames(t.cq)) <- cq
 
 				if (!is.null(seps) && length(sp) > 0) {
-					t.sp      <- tableMargin(t.cq, sp)
+					t.sp	  <- tableMargin(t.cq, sp)
 					ans[[ii]] <- tableOp2(t.cq, t.sp, op = `/`)
 				} else {
 					ans[[ii]] <- t.cq / sum(t.cq)
 				}   
 			}
 			attr(ans, "rip") <-.self$jtree
-		
 			.self$POTlist.consistent <- ans 
 			class(.self$POTlist.consistent) <- "extractPOT"
 		},
 		
 		message_passing = function() {
 			gin.consistent <- grain(compilePOT(.self$POTlist.consistent))
-			.self$POTgrain.consistent <- propagate(compile(gin.consistent))      
+			.self$POTgrain.consistent <- propagate(compile(gin.consistent))
 		},
 		
 		simulate = function(flag.consistent=TRUE) {
@@ -144,18 +142,16 @@ Inference <- setRefClass(
 			curr.grain <- .self$POTgrain.consistent
 			if(is.null(curr.grain)) stop("POTgrain is not provided yet")
 			data.sim <- simulate.grain(curr.grain, num.of.syn)
-			print(class(data.sim))
 			return(data.sim)
 		}
 	)
 )
 
-do_inference <- function(r_script_dir, cluster, edges, nodes, epsilon, data_path, domain){
+do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, data_path, domain){
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
-	source(paste(r_script_dir, 'jtree.R', sep='/'))
-	inference <- Inference$new(cluster, edges, nodes, epsilon, data_path, domain)
+	inference <- Inference$new(cluster, jtree_path, epsilon, data_path, domain)
 
 	inference$inject_noise()
 

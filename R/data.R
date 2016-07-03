@@ -22,7 +22,8 @@ Data <- setRefClass(
 			.self$origin <- list()
 			
 			rows <- read.csv(file = .self$data_path, 
-				header = FALSE, 
+				header = FALSE,
+				skip=1,
 				col.names = .self$domain$name, 
 				colClasses = rep('factor', length(.self$domain$name)), 
 				check.names = FALSE

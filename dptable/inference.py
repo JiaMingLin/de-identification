@@ -7,7 +7,7 @@ import rpy2.rlike.container as rlc
 
 
 class Inference(Base):
-	def __init__(self, data_path, edges, nodes, domain, cluster, epsilon):
+	def __init__(self, data_path, jtree_path, domain, cluster, epsilon):
 		"""
 		Initialize the inference class.
 		TODO: 1. refactor, the data_path, edges, nodes, domain 
@@ -17,9 +17,18 @@ class Inference(Base):
 			TODO: Because the DPTable algorithm construct lots of attributes when reading data,
 					to using memory cache, one should refector the inference step of DPTable.
 		param
-			edges: the edges in dependency graph.
-		param
-			nodes: the nodes(attributes) in data set.
+			jtreepy: the junction tree
+			{
+				'cliques':[
+					[1,2,3],
+					[2,3,4],...
+				],
+				'separators':[
+					[2,3],...
+				],
+				'parents':[1,2,3,4,...]
+			}
+
 		param
 			domain: data information with format in dictionary
 
@@ -33,17 +42,17 @@ class Inference(Base):
 			epsilon: the privacy budget
 		"""
 		self.data_path = data_path
-		self.nodes = nodes
 		self.epsilon = epsilon		
 		self.rdomain = self.convert2rdomain(domain)
-		self.edges = self.convert2rlistofvector(edges)
 		self.cluster = self.convert2rlistofvector(cluster)
+		self.jtree_path = jtree_path
 
 	def execute(self):
 		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')
-		sim_data = do_inference(c.R_SCRIPT_PATH, self.cluster, self.edges, self.nodes, self.epsilon, self.data_path, self.rdomain)
+		sim_data = do_inference(c.R_SCRIPT_PATH, self.cluster, self.jtree_path, self.epsilon, self.data_path, self.rdomain)
 		pandas_df = pandas2ri.ri2py_dataframe(sim_data)
 		return pandas_df.astype(int, copy=False)
+
 
 	def convert2rdomain(self, domain):
 		"""
