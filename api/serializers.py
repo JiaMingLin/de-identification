@@ -116,7 +116,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		sim_df = inference.execute()
 
 		# compute the errors rate
-		mean_err, std_err = self.get_statistical_error(task_id, sim_df)
+		statistics_err = self.get_statistical_error(task_id, sim_df)
 
 		sim_df = self.data_generalize(sim_df, valbin_map, selected_attrs)
 
@@ -130,7 +130,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			privacy_level = privacy_level,
 			epsilon = epsilon,
 			synthetic_path = synthetic_path,
-			statistics_err = mean_err
+			statistics_err = statistics_err
 		)
 
 		return job_obj
@@ -190,10 +190,17 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		sim_df_mean = np.array(sim_coarsed_df.mean(), dtype = float)
 		sim_df_std = np.array(sim_coarsed_df.std(), dtype = float)
 
-		mean_error = (sim_df_mean - coarsed_df_mean) / coarsed_df_mean
-		std_error = (sim_df_std - coarsed_df_std) / coarsed_df_std
+		mean_error = np.abs((sim_df_mean - coarsed_df_mean)*100 / coarsed_df_mean)
+		std_error = np.abs((sim_df_std - coarsed_df_std)*100 / coarsed_df_std)
 
-		return dict(zip(nodes, mean_error)), dict(zip(nodes, std_error))
+		mean_error = [str(rate)+'%' for rate in np.round(mean_error, decimals = 2)]
+		std_error = [str(rate)+'%' for rate in np.round(std_error, decimals = 2)]
+
+		result = dict({
+			"mean":dict(zip(nodes, mean_error)),
+			"std":dict(zip(nodes, std_error))
+		})
+		return result
 
 	def convert_selected_attrs(self, attrs_ls):
 		attrs_ls = ast.literal_eval(attrs_ls)
