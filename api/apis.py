@@ -71,6 +71,8 @@ class JobRetrieveUpdateDestroyView(APIView):
 
 	def get(self, request, pk, task_id, format = None):
 		job = get_object_or_404(Job, pk = pk)
+		import ast
+		job.statistics_err = ast.literal_eval(job.statistics_err)
 		serializer = JobSerializer(job)
 		return Response(serializer.data)
 

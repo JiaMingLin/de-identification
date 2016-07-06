@@ -82,9 +82,11 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		data.save(file_path)
 
 class JobSerializer(serializers.ModelSerializer, Base):
+
+	statistics_err = serializers.JSONField(required=False)
 	class Meta:
 		model = Job
-		field = ('dp_id', 'task_id', 'privacy_level', 'epsilon', 'status', 'synthetic_path', 'statistics_err', 'log_path', 'start_time', 'end_time')
+		field = ('dp_id', 'task_id', 'privacy_level', 'epsilon', 'status', 'synthetic_path', 'log_path', 'start_time', 'end_time')
 
 	# The Job is not going to be modified.
 	def create(self, validated_data):
@@ -196,10 +198,16 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		mean_error = [str(rate)+'%' for rate in np.round(mean_error, decimals = 2)]
 		std_error = [str(rate)+'%' for rate in np.round(std_error, decimals = 2)]
 
-		result = dict({
-			"mean":dict(zip(nodes, mean_error)),
-			"std":dict(zip(nodes, std_error))
-		})
+		result = [
+			dict({
+				"stat_name":"mean",
+				"value":dict(zip(nodes, mean_error))
+			}),
+			dict({
+				"stat_name":"std",
+				"value":dict(zip(nodes, std_error))
+			})
+		]
 		return result
 
 	def convert_selected_attrs(self, attrs_ls):
