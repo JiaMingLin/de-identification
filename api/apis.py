@@ -49,6 +49,8 @@ class TaskRetrieveUpdateDestroyView(APIView):
 
 	def get(self, request, pk, format = None):
 		task = get_object_or_404(Task, pk = pk)
+		import ast
+		task.selected_attrs = ast.literal_eval(task.selected_attrs)
 		serializer = TaskSerializer(task)
 		return Response(serializer.data)
 

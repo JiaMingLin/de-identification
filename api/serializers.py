@@ -17,10 +17,11 @@ import collections
 
 # TODO: All the operations/methods should NOT gather in this file, it is too long to read.
 class TaskSerializer(serializers.ModelSerializer, Base):
+	selected_attrs = serializers.JSONField()
 
 	class Meta:
 		model = Task
-		field = ('task_id', 'task_name', 'data_path','selected_attrs' ,'jtree_strct', 'dep_graph', 'start_time', 'end_time', 'status')
+		field = ('task_id', 'task_name', 'data_path','selected_attrs','jtree_strct', 'dep_graph', 'start_time', 'end_time', 'status')
 
 	def create(self, validated_data):
 		selected_attrs = self.convert_selected_attrs(validated_data['selected_attrs'])
@@ -72,8 +73,8 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 
 	
 	def convert_selected_attrs(self, attrs_ls):
-		attrs_ls = ast.literal_eval(attrs_ls)
-		return collections.OrderedDict([(attr['attr_name'], attr['dtype']) for attr in attrs_ls])
+		#attrs_ls = ast.literal_eval(attrs_ls)
+		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))
 
 
 	def save_coarse_data(self, task_folder, data):
@@ -212,4 +213,4 @@ class JobSerializer(serializers.ModelSerializer, Base):
 
 	def convert_selected_attrs(self, attrs_ls):
 		attrs_ls = ast.literal_eval(attrs_ls)
-		return collections.OrderedDict([(attr['attr_name'], attr['dtype']) for attr in attrs_ls])
+		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))
