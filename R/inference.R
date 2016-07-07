@@ -26,7 +26,6 @@ Inference <- setRefClass(
 			.self$data <- Data$new(data_path, domain)
 			.self$jtree <- readRDS(jtree_file)
 			.self$noise.flag <- noise.flag
-			print(domain)
 		},
 		
 		inject_noise = function(){
