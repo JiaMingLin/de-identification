@@ -199,11 +199,14 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		mean_error = [str(rate)+'%' for rate in np.round(mean_error, decimals = 2)]
 		std_error = [str(rate)+'%' for rate in np.round(std_error, decimals = 2)]
 
-		result = [
-			{'attr_names':nodes},
-			{'mean':mean_error},
-			{'std':std_error}
-		]
+		result = {
+			'attrs':nodes,
+			'measures':['mean', 'std'],
+			'values':{
+				'mean':mean_error,
+				'std':std_error
+			}
+		}
 		return result
 
 	def convert_selected_attrs(self, attrs_ls):
