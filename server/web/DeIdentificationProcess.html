@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Sensitive Data Setting</title>
+	<link rel="stylesheet"  href="css/bootstrap.css">
+	<link rel="stylesheet"  href="css/bootstrap-theme.min.css">
+	<link rel="stylesheet" 	type="text/css" href="css/jqueryFileTree.css" media="screen" />
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role=navigation>
+	<div class=container-fluid>
+		<div class=navbar-header><button type=button class="navbar-toggle collapsed" data-toggle=collapse data-target=#navbar aria-expanded=false aria-controls=navbar> 
+			<span class=sr-only>Toggle navigation</span> 
+			<span class=icon-bar></span> <span class=icon-bar></span> 
+			<span class=icon-bar></span> </button> <a class=navbar-brand href=#>去識別化工具</a>
+		</div>
+		<div id=navbar class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/privacy">Dashboard</a>
+				<li><a href=#>Settings</a>
+				<li><a href=#>Help</a>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12">
+			<ul id="tool-tabs" class="nav nav-tabs" role="tablist">
+	        <li class="active"><a href="#data-preview" data-toggle="tab">原始資料預覽</a></li>
+	        <li><a href="#de-identification" data-toggle="tab">去識別化</a></li>
+	        <li><a href="#query-error-rate" data-toggle="tab">查詢誤差率</a></li>
+	    	</ul>
+	    	<div class="container-fluid" style="padding-top:10px">
+		    	<div id="tabs-content" class="tab-content">
+				    <div class="tab-pane active" id="data-preview">
+				            <div class="row">
+								<div class="col-xs-6 col-lg-6">
+									<div class="row">
+										<div class="col-xs-12" >
+										<!-- <label class="control-label lead"><strong>請選擇機敏資料集(.csv)</strong></label>
+										<input type="file" class="filestyle" data-buttonBefore="true" data-placeholder="無檔案" data-buttonText="選擇檔案" > -->
+										<label class="control-label lead"><strong>請輸入機敏資料集名稱(.csv)</strong></label>
+										</div>
+										<div class="col-xs-12" >
+										<input type="text" id="filenameinput"></input>
+										<button id="fileconfirm">確認</button>
+										<button id="filecancel">取消</button>
+										<button id="fileclear">清除</button>
+										<!-- <button id="JQueryFTD_Demo" class="JQueryFTD">Browse Files</button> -->
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12 col-lg-12" style="padding-top:10px;bottom:-20px;">
+											<label class="control-label lead"><strong>原始資料集</strong></label>
+										</div>
+										<div class="col-xs-11 col-lg-11 table-responsive" style="overflow:auto;padding-top:10px;bottom:-20px;">
+											
+											<table class="table table-bordered table-hover">
+												<thead style="background-color:yellow;">
+													<tr id="sensitiveHead">
+													</tr>
+												</thead>
+												<tbody id="sensitiveBody">
+												</tbody>
+											</table>
+										</div>
+						      		</div>
+								</div>
+								<div class="col-xs-6 col-lg-6">
+									<div class="row">
+										<div class="panel panel-primary">
+									      	<div class="panel-heading lead" align="center"><strong>欄位資訊設定</strong></div>
+									      	<div class="panel-body" style="overflow:auto;padding-top:0px;">
+						      					<div class="row">
+													<div class="col-xs-12 col-lg-12" style="bottom:-20px;">
+														<table class="table" style="table-layout:fixed;">
+														<thead style="background-color:yellow;">
+												            <tr>
+												                <th><label class="checkbox-inline"><input type="checkbox" value="" id="dataSelectedCheckAll"><strong>全選</strong></label></th>
+															    <th>欄位</th>
+															    <th>型態</th>
+															    <th>關聯屬性</th>
+												            </tr>
+												         </thead>   
+														</table>
+													</div>
+													<div  class="table-responsive col-xs-12 col-lg-12" style="position:relative;overflow:auto;height:200px;width:100%" >
+														<table class="table table-hover table-condensed" style="table-layout:fixed">
+															<tbody id="columnSettingBody">
+								
+															</tbody>
+														</table>
+													</div>
+													<div class="col-xs-12 col-lg-12" style="text-align:right;padding-top:20px">
+														<button id="columnconfirm">確認</button>
+														<button id="columncancel">取消</button>
+														<button id="columnreset">重設</button>
+													</div>	
+									      		</div>
+											</div>
+									    </div>
+									</div>
+									<div class="row">
+									<hr>
+										<div>
+											<div class="col-xs-3 col-lg-3">
+												<span class="lead glyphicon glyphicon-stats"><strong>屬性分佈圖</strong></span>
+											</div>
+									      	<div class="col-xs-4 col-lg-4">
+										  		<select class="form-control" >
+												<option>身高</option>
+												<option>體重</option>
+												<option>年齡</option>
+												<option>學歷</option>
+												<option>收入</option>
+												</select>
+											</div>
+											<div class="col-xs-12 col-lg-12">
+												<img src="images/distribution.png" class="img-responsive" style="height:200px;width:800px;">
+											</div>
+										</div>
+									</div>
+								</div>
+				            </div>
+				        </div>
+				        <div class="tab-pane" id="de-identification">
+    						<div class="col-xs-6 col-lg-6">
+								<div class="col-xs-12 col-lg-12">
+									<div class="row">
+										<div class="col-xs-3 col-lg-3" align="center" >
+											<label class="lead" ><strong>隱私層級</strong>
+										</div>
+										<div class="col-xs-9 col-lg-9 ">
+											<select class="form-control" id="PL-options">
+											<option value=1>LV1</option>
+											<option value=2>LV2</option>
+											<option value=3>LV3</option>
+											<option value=4>LV4</option>
+											<option value=5>LV5</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="col-xs-12 col-lg-12">
+									<div class="table-responsive" style="position:relative;height:100;overflow:auto;width:100%;">
+					      			<table class="table table-hover  table-bordered" >
+									<thead class="thead-inverse" style="background-color:yellow;">
+									  <tr>
+									    <th class="text-center">隱私層級</th>
+									    <th class="text-center">層級定義</th>
+									  </tr>
+									</thead>
+									<tbody>
+									  <tr>
+									  	<td class="text-center"><strong>LV1</strong></td>
+									    <td>TBD</td>
+									  </tr>
+									  <tr>
+									  	<td class="text-center"><strong>LV2</strong></td>
+									    <td>TBD</td>
+									  </tr>
+									  <tr>
+									  	<td class="text-center"><strong>LV3</strong></td>
+									    <td>TBD</td>
+									  </tr>
+									  <tr>
+									  	<td class="text-center"><strong>LV4</strong></td>
+									    <td>TBD</td>
+									  </tr>
+									  <tr>
+									  	<td class="text-center"><strong>LV5</strong></td>
+									    <td>TBD</td>
+									  </tr>
+									</tbody>
+									</table>
+					      			</div>
+								</div>
+								<div class="col-xs-12 col-lg-12">
+									<div class="clearfix btn-group">
+										<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-play" id="execDI">執行</button>
+	  									<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-stop" id="stopDI" disabled>停止</button>
+	  									<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-download-alt" id="download" disabled>合成資料下載</button>
+									</div>
+									<div class="col-xs-12 col-lg-7 pull-right">
+									<div class="progress" style="height:34px">
+											<div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%" id="dptableprogress">
+											   <span class="lead">40%</span>
+											 </div>
+									</div>
+									</div>
+								</div>
+								<div class="col-xs-12 col-lg-12">
+									<section style="border-style:inset;" class="lead">
+										<span style="font-size:large;" ><strong >訊息框 &nbsp | &nbsp </strong></span>
+										<span style="font-size:large;color: red;" ><strong id="information"></strong></span>
+									</section>
+								</div>
+							</div>
+							<div class="col-xs-6 col-lg-6">
+								<div class="col-xs-12 col-lg-12">
+									<div class="row">
+										<div class="col-xs-8 col-lg-8" align="center" >
+											<label class="lead" ><strong>隱私層級之相對應Epsilon(ε)</strong>
+										</div>
+										<div class="col-xs-4 col-lg-4 ">
+											<section style="border-style:inset;text-align:center;">
+												<span style="font-size:small;" ><strong id="showEpsilon"> &nbsp </strong></span>
+											</section>
+										</div>
+									</div>
+								</div>
+								<div class="col-xs-12 col-lg-12">
+									<div class="panel panel-primary">
+							      		<div class="panel-heading lead" align="center"><strong>統計誤差率</strong></div>
+							      			<div class="panel-body" style="overflow:auto;padding-top:0px;">
+							      				<div class="table-responsive col-xs-12 col-lg-12" style="position:relative;overflow:auto;height:200px;width:100%">
+								      				<table class="table table-hover table-bordered">
+														<thead style="background-color:yellow;">
+															<tr id="statisticsHead">
+															</tr>
+														</thead>
+														<tbody id="statisticsBody">
+														</tbody>
+													</table>
+												</div>
+							      		</div>
+							    	</div>
+							  	</div>
+							</div>
+				        </div><!--#de-identification div-->
+				        <div class="tab-pane" id="query-error-rate">
+    						<div class="row">
+								<div class="col-xs-4 col-lg-4">
+									<div class="panel panel-primary">
+							      		<div class="panel-heading lead" align="center"><strong>查詢列表</strong></div>
+							      			<div class="panel-body" style="overflow:auto;">
+									      		<div class="list-group">
+												  <a class="list-group-item active"> 查詢名稱A</a>
+												  <a class="list-group-item"> 查詢名稱B</a> 
+												  <a class="list-group-item"> 查詢名稱C</a>
+												  <a class="list-group-item"> 查詢名稱D</a> 
+												  <a class="list-group-item"> 查詢名稱E</a>  
+												</div>
+							      			</div>
+							    	</div>
+								</div>
+								<div class="col-xs-8 col-lg-8">
+									<div class="panel panel-primary">
+							      		<div class="panel-heading lead" align="center"><strong>查詢名稱A</strong></div>
+							      			<div class="panel-body" style="overflow:auto;">
+									      		<div class="form-group">
+												  <label for="comment">請輸入查詢條件:</label>
+												  <textarea class="form-control" rows="5" id="queryarea" placeholder="輸入條件如：(身高 > 170 AND 體重 < 60) OR 年齡 >= 23；年齡 > 22 AND 收入 <= 24K
+													">
+												  </textarea>
+												</div>
+												<div>
+													<section  class="col-lg-6 col-xs-6">
+													<span style="font-size:small;color: red;">提示：最多五筆查詢條件，每筆條件以" ; "區隔。
+													</span>
+													</section>
+													<div class="btn-group pull-right">
+														<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-play">執行</button>
+					  									<button type="button" class="btn  btn-md btn-primary glyphicon glyphicon-trash">清除</button>
+													</div>
+												</div>
+							      			</div>
+							    	</div>
+							    	<div class="panel panel-primary">
+							      		<div class="panel-heading lead" align="center"><strong>查詢結果</strong></div>
+							      			<div class="panel-body" style="overflow:auto;">
+									      		<div class="col-xs-12 col-lg-12" align="center">
+													<img src="images/query_error_rate.png" class="img-responsive" style="height:200px;width:800px;">
+												</div>
+							      			</div>
+							    	</div>
+								</div>
+							</div>
+				        </div><!--#query-error-rate div-->   
+		        </div><!--tabs-content-->
+	        </div>
+		</div>
+	</div><!--first row-->
+	<hr>
+	<div class="row">
+		<div class="col-xs-12" style="display:table;text-align:right;">
+  			<button type="button" class="btn btn-info btn-lg" style="display:table-cell;vertical-align:bottom;">儲存設定</button>
+  			<button type="button" class="btn btn-info btn-lg" style="display:table-cell;vertical-align:bottom;">返回列表</button>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"></script>
+<script type="text/javascript" src="js/jqueryFileTree.js"></script>
+<script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+<script type="text/javascript" src="js/ajax-loading.js"></script>
+<script type="text/javascript">
+	// $(document).ready(function(){
+	// 	$('#JQueryFTD_Demo').fileTree({
+	// 	root: '/workspace/',
+	// 	script: 'connectors/jqueryFileTree.asp',
+	// 	expandSpeed: 1000,
+	// 	collapseSpeed: 1000,
+	// 	multiFolder: false
+	// 	}, function(file) {
+	// 	alert(file);
+	// 	});
+	// 	});
+</script>
+<script type="text/javascript" src="js/DeIdentificationProcess.js"></script>
+<script type="text/javascript" src="js/DeIdentificationProcessManagement.js"></script>
+<script type="text/javascript" src="js/utilities.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+
+</body>
+</html>
