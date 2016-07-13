@@ -1,6 +1,6 @@
 function dashboardManagement() {
-	utilities = new utilities();
-	var endpoint = utilities.endpoint;
+	var endpoint = UTILITIES.endpoint;
+	deIdentificationProcessManagement = new deIdentificationProcessManagement();
 
 	this.listTasks = function (size,page) {
 		var url = endpoint + "api/de-identification?page=" + page + "&size=" + size; 
@@ -66,8 +66,41 @@ function dashboardManagement() {
 		});
 	}
 
+	this.editTask = function (task_id) {
+		var url = endpoint + "api/de-identification/" + task_id +"/"; 
+
+		$.ajax({
+			type: "Get",
+			url: url,
+			headers:{
+				"Content-Type":"application/json"
+			},
+			dataType: "json",
+			processData: false,
+			//data: JSON.stringify(requestBody),
+			success: function(data) {
+				console.log("get record back success");
+			},
+			error: function() {
+				console.log("get record back fail");
+			},
+			complete: function(xhr,textStatus,error){
+				if(textStatus == "success"){
+					var responseJSON = xhr.responseJSON;
+					_parseInfo(responseJSON);
+					window.location.href = "/privacy/web/DeIdentificationProcess.html?default=false";
+				}else if(textStatus == "error"){
+					location.href = "/privacy/";
+				}
+			}
+		});
+
+
+	}
+
 	this.deleteTasks = function (requestBody) {
-		var url = endpoint + "api/de-identification?page=" + page + "&size=" + size; 
+		var task_id = requestBody.task_id;
+		var url = endpoint + "api/de-identification/" + task_id; 
 
 		$.ajax({
 			type: "Delete",
@@ -85,9 +118,23 @@ function dashboardManagement() {
 				
 			}
 		});
-
-
 	}
 
-	
+	var _parseInfo = function(jsonData){
+		var data_path = jsonData.data_path;
+		var selected_attrs = jsonData.selected_attrs;
+		var task_id = jsonData.task_id;
+		var words = data_path.split("/");
+		var file_name = words[words.length-1].replace(".csv","");
+		var inputData = {};
+
+		inputData.default = false;
+		inputData.fileName = file_name;
+		inputData.selected_attrs = selected_attrs;
+		inputData.task_id = task_id;
+
+		console.log("Edit task input data: ");
+		console.log(inputData);
+		window.localStorage.setItem("info",JSON.stringify(inputData));
+	}
 }
