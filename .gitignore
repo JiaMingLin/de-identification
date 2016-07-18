@@ -3,3 +3,4 @@
 migrations/000*.py
 mediate_data
 mediate_data/*
+log/*

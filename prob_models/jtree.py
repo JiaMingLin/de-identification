@@ -1,6 +1,7 @@
 from common.base import Base
 import rpy2.robjects as robjects
 import common.constant as c
+import time
 
 class JunctionTree(Base):
 	
@@ -8,6 +9,7 @@ class JunctionTree(Base):
 		
 		edges = self.convert2rlistofvector(edges)
 
+		self.LOG = Base.get_logger("JunctionTree")
 		self.jtree = self._build_jtree(edges, nodes, jtree_path)
 	
 	def get_jtree(self):
@@ -33,4 +35,9 @@ class JunctionTree(Base):
 
 		r_nodes = robjects.StrVector(nodes)
 		get_jtree = self.get_r_method(c.JTREE_R_FILE, 'get_jtree')
-		return get_jtree(edges, r_nodes, jtree_path)
+		self.LOG.info("Starting to compute Junction Tree...")
+		start = time.time()
+		robj =  get_jtree(edges, r_nodes, jtree_path)
+		end = time.time()
+		self.LOG.info("Compute Junction Tree complete in %d seconds." % (end-start))
+		return robj

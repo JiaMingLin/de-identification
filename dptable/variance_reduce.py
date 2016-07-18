@@ -4,12 +4,11 @@ import math
 import random
 import operator
 import time
-import logging
 import numpy as np
 import cvxpy as cvx
 
 class VarianceReduce(Base):
-	logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
+
 	def __init__(self, domain, jtree, _lambda=0.2):
 		"""
 		Using linear programming method to find a less noise variance.
@@ -23,6 +22,7 @@ class VarianceReduce(Base):
 			1. Move jt_rep to Junction Tree Module
 			2. Move Different Operator to a linear algebra package
 		"""
+		self.LOG = Base.get_logger("CliqueMerge")
 		self.domain = domain
 		self.node_card = [len(vals) for vals in domain.values()]
 		self._lambda = float(_lambda)
@@ -42,7 +42,7 @@ class VarianceReduce(Base):
 			display: specify the returned node in clusters is 
 					showed as its name or index.
 		"""
-		logging.info("Starting to merge cliques...")
+		self.LOG.info("Starting to merge cliques...")
 		start = time.time()
 		cnum = self.cnum
 		# Z: Clique-Cluster rep.
@@ -54,7 +54,7 @@ class VarianceReduce(Base):
 		sorted_var_cluster = sorted(variance_cluster_for_m, key = operator.itemgetter(0))
 		opt_clusters = sorted_var_cluster[0][1]
 		end = time.time()
-		logging.info("Cliques merge job done in %d seconds." % (end-start))
+		self.LOG.info("Cliques merge job done in %d seconds." % (end-start))
 
 		if(display == True):
 			return [np.array(self.domain.keys())[cluster].tolist() for cluster in opt_clusters]
@@ -117,7 +117,7 @@ class VarianceReduce(Base):
 			z: the matrix rep for cliques and clusters
 			o: the matrix rep for nodes and cliques
 		"""
-		logging.debug("Starting to merge marginals")        
+		self.LOG.debug("Starting to merge marginals")        
 		node_card = self.node_card
 		jtree_in_node_index = self.jtree_in_node_index
 		d = self.nodes_num
@@ -141,9 +141,9 @@ class VarianceReduce(Base):
 		prev_Z = np.random.rand(n,m)
 
 		# run the convex optimization for max_iter times
-		logging.debug("Optimization starting...")
+		self.LOG.debug("Optimization starting...")
 		for i in range(self.max_iter):
-			logging.debug("The optimization iteration: "+str(i+1))
+			self.LOG.debug("The optimization iteration: "+str(i+1))
 			# sum of row of prev_Z
 			tmp1 = cvx.sum_entries(prev_Z, axis=0).value
 
@@ -179,7 +179,7 @@ class VarianceReduce(Base):
 			Z: Clique-Cluster rep.
 			O: Cliques-Nodes rep.
 		"""
-		logging.debug("Generating results...")
+		self.LOG.debug("Generating results...")
 		# find the index of max element in each row of Z
 		index = map(lambda row: row.tolist().index(max(row)), Z) 
 		# get the row length of Z, i.e. the number of cluster

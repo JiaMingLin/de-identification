@@ -4,6 +4,7 @@ from rpy2.robjects import pandas2ri
 import common.constant as c
 import rpy2.robjects as ro
 import rpy2.rlike.container as rlc
+import time
 
 
 class Inference(Base):
@@ -41,6 +42,7 @@ class Inference(Base):
 		param
 			epsilon: the privacy budget
 		"""
+		self.LOG = Base.get_logger("Inference")
 		self.data_path = data_path
 		self.epsilon = epsilon		
 		self.rdomain = self.convert2rdomain(domain)
@@ -49,7 +51,13 @@ class Inference(Base):
 
 	def execute(self):
 		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')
+
+		self.LOG.info("Starting to do inferences...")
+		start = time.time()
 		sim_data = do_inference(c.R_SCRIPT_PATH, self.cluster, self.jtree_path, self.epsilon, self.data_path, self.rdomain)
+		end = time.time()
+		self.LOG.info("Doing inferences complete in %d seconds." % (end-start))
+
 		pandas_df = pandas2ri.ri2py_dataframe(sim_data)
 		return pandas_df.astype(int, copy=False)
 

@@ -1,12 +1,14 @@
 import logging
 import rpy2.robjects as robjects
+from logging.handlers import TimedRotatingFileHandler
 
 import os
 import common.constant as c
 
 class Base(object):
 
-	logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
+	logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s \t %(levelname)s \t %(message)s')
+
 	from rpy2.robjects import pandas2ri
 	pandas2ri.activate()
 
@@ -28,3 +30,17 @@ class Base(object):
 		if not os.path.exists(folder):
 			os.makedirs(folder)
 		return folder
+
+	@staticmethod
+	def get_logger(name):
+		# TODO: The logger would be returned multiple instances as this method called.
+		formatter = logging.Formatter("%(asctime)s - %(name)s \t %(levelname)s \t %(message)s")
+		handler = TimedRotatingFileHandler(
+			c.LOG_FILE_PATH,
+			when="midnight"
+		)
+		handler.setFormatter(formatter)
+
+		logger = logging.getLogger(name)
+		logger.addHandler(handler)
+		return logger

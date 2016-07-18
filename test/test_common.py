@@ -8,17 +8,21 @@ class DataUtilitiesTests(TestCase):
 
 	def setUp(self):
 		self.selected_attrs = dict({
-			'A':'C', 
-			'B':'D',
-			'C':'C',
-			'D':'D',
-			'E':'C',
-			'F':'D',
-			'G':'D',
-			'I':'D',
-			'J':'D',
-			'K':'D',
-			'O':'D'
+			'Age':'C', 
+			'workclass':'D',
+			'fnlwgt':'C',
+			'education':'D',
+			'education_num':'D',
+			'marital_status':'D',
+			'occupation':'D',
+			'relationship':'D',
+			'race':'D',
+			'sex':'D',
+			'capital_gain':'C',
+			'capital_loss':'C',
+			'hours_per_week':'C',
+			'native_country':'D',
+			'income':'D'
 		})		
 		self.data = DataUtils(file_path = TESTING_FILE, selected_attrs = self.selected_attrs)
 		self.data.data_coarsilize()

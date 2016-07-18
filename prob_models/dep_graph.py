@@ -1,6 +1,7 @@
 from common.base import Base
 import rpy2.robjects as robjects
 import common.constant as c
+import time
 
 
 class DependencyGraph(Base):
@@ -22,8 +23,12 @@ class DependencyGraph(Base):
         domain = data.get_domain()
         r_df = self.pandas2ri.py2ri(pandas_df)
         rdomain = robjects.ListVector(domain)
+
+        self.LOG = Base.get_logger("DepGraph")
         self.noise_flag = noise_flag
+
         self.dep_graph = self._build_dep_graph(r_df, rdomain)
+
 
     def get_dep_edges(self, display = False):
 
@@ -33,4 +38,10 @@ class DependencyGraph(Base):
 
     def _build_dep_graph(self, r_df, r_domain):
         r_dep_edges = self.get_r_method(c.DEP_GRAPH_R_FILE, 'get_dep_edges')
-        return r_dep_edges(r_df, r_domain, self.noise_flag)
+        self.LOG.info("Starting to compute Dep-Graph...")
+        start = time.time()
+        robj = r_dep_edges(r_df, r_domain, self.noise_flag)
+        end = time.time()
+        self.LOG.info("Compute Dep-Graph complete in %d seconds." % (end-start))
+
+        return robj
