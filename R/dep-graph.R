@@ -91,6 +91,9 @@ fields = list(
 			dl <- length(.self$domain[[dl.name]])
 
 			mi <- mi.empirical(curr_xtab, unit = 'log')
+			print("======= mutual information ========")
+			print(paste(pair, mi, sep=": "))
+			print(mi)
 			CV <- sqrt(chi2 / (.self$N * (min(dk, dl) - 1)))
 			.filter_association_edges(pair, CV, .self$thresh)
 

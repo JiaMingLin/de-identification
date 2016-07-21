@@ -1,5 +1,6 @@
 #!/bin/bash
 
+service mysql restart
 # clear mysql
 mysql -e "drop database de_identification;"
 mysql -e "create database de_identification;"
