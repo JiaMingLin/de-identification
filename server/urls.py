@@ -17,12 +17,12 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from django.conf.urls import handler404
 import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^privacy/api/', include('api.urls')),
     url(r'^privacy/$', views.IndexView.as_view()),
+    url(r'^$', views.home),
 ]
-
-
