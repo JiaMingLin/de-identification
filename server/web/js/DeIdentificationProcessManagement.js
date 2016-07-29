@@ -2,6 +2,22 @@ function deIdentificationProcessManagement(){
 
 	var endpoint = UTILITIES.endpoint;
 	var dataPath = UTILITIES.data_path;
+	var loadingGifPath = "";
+	var currentPath = window.location.pathname;
+	//used for difference between dashboard path and DI path
+	if(currentPath === "/privacy/"){
+		//in dashboard page
+		loadingGifPath = 'web/images/ajax-loading.gif';
+	}else{
+		loadingGifPath = 'images/ajax-loading.gif';
+	}
+	var loadingOption ={
+		imgPath    : loadingGifPath,
+		tip: '請稍後...',
+		ajax: false
+	}
+	var loading = $.loading(loadingOption);
+
 
 	this.listSensitiveTable = function(data){
 		columns = data.col_names;	
@@ -64,15 +80,8 @@ function deIdentificationProcessManagement(){
 					
 					columnInfo += "</select></div></td>";
 					columnInfo += "<td>";
-					columnInfo += "<section style=\"border-style:inset;\">";
-					columnInfo += "<span class=\"attr_each\">" + columns[1];											
-					columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
-					columnInfo += "</span>";												
-					columnInfo += "</span>";											
-					columnInfo += "<span class=\"attr_each\">" + columns[2];											
-					columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\">";										
-					columnInfo += "</span>";											
-					columnInfo += "</span></section></td></tr>";
+					columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";										
+					columnInfo += "</td></tr>";
 				}else{
 				 	//it is not a selected attribute
 					columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columnName +"\"></label></td>";
@@ -83,15 +92,8 @@ function deIdentificationProcessManagement(){
 					columnInfo += "<option value=\"D\">類別型</option>";
 					columnInfo += "</select></div></td>";
 					columnInfo += "<td>";
-					columnInfo += "<section style=\"border-style:inset;\">";
-					columnInfo += "<span class=\"attr_each\">" + columns[1];											
-					columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
-					columnInfo += "</span>";												
-					columnInfo += "</span>";											
-					columnInfo += "<span class=\"attr_each\">" + columns[2];											
-					columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\">";										
-					columnInfo += "</span>";											
-					columnInfo += "</span></section></td></tr>";
+					columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";								
+					columnInfo += "</td></tr>";
 				}
 				$("#columnSettingBody").append(columnInfo);
 			}
@@ -110,15 +112,14 @@ function deIdentificationProcessManagement(){
 			columnInfo += "<option value=\"D\">類別型</option>";
 			columnInfo += "</select></div></td>";
 			columnInfo += "<td>";
-			columnInfo += "<section style=\"border-style:inset;\">";
-			columnInfo += "<span class=\"attr_each\">" + columns[1];											
-			columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
-			columnInfo += "</span>";												
-			columnInfo += "</span>";											
-			columnInfo += "<span class=\"attr_each\">" + columns[2];											
-			columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\">";										
-			columnInfo += "</span>";											
-			columnInfo += "</span></section></td></tr>";																				
+			// columnInfo += "<section style=\"border-style:inset;\">";
+			// columnInfo += "<span class=\"attr_each\">" + columns[1];											
+			// columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
+			// columnInfo += "</span>";
+			// columnInfo += "</span>";																																	
+			// columnInfo += "</section>"
+			columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";
+			columnInfo += "</td></tr>";																				
 											   
 			$("#columnSettingBody").append(columnInfo);
 			}
@@ -159,6 +160,12 @@ function deIdentificationProcessManagement(){
 				$("#sensitiveHead").html('');
 				$("#sensitiveBody").html('');
 				$("#columnSettingBody").html('');
+			},
+			beforeSend: function(){
+				loading.open();
+			},
+			complete: function() {
+				loading.close();
 			}
 		});
 	}
@@ -183,6 +190,12 @@ function deIdentificationProcessManagement(){
 			error: function() {
 				console.log("initiate DI task fail.");
 				$("#information").html('欄位資訊設定錯誤。');
+			},
+			beforeSend: function(){
+				loading.open();
+			},
+			complete: function() {
+				loading.close();
 			}
 		});
 
@@ -190,10 +203,26 @@ function deIdentificationProcessManagement(){
 	}
 
 	this.execDeIdentificationTask = function(requestBody) {
+		console.log("execDI requestBody:");
+		console.log(requestBody);
 		var taskID = requestBody.task_id;
 		var url = endpoint + "api/de-identification/" + taskID + "/job/";
 		var response = null;
 		$.ajax({
+			// xhr: function() {
+			// //for download progress bar
+			// 	var xhr = new window.XMLHttpRequest();
+			// 	xhr.addEventListener("progress",function(e){
+			// 		if(e.lengthComputable){
+			// 			var percentComplete = e.loaded / e.total;
+			// 			console.log("complete: " + percentComplete);
+			// 			console.log("complete(Round): " + Math.round(percentComplete * 100));
+			// 			$("#dptableprogress").css({ "width": Math.round(percentComplete * 100) + "%" });
+			// 			$("#dptableprogress > span").html(Math.round(percentComplete * 100)+"%");
+			// 		}
+			// 	},false);
+			// 	return xhr;
+			// },
 			type: "Post",
 			url: url,
 			headers:{
@@ -203,6 +232,9 @@ function deIdentificationProcessManagement(){
 			async: true,
 			processData: false,
 			data: JSON.stringify(requestBody),
+			beforeSend:function(){
+                    $('#dptableprogress').show();
+            },
 			success: function(data,textStatus) {
 				console.log("execute DI task success.");
 				// console.log(data);
@@ -235,6 +267,7 @@ function deIdentificationProcessManagement(){
 					console.log("success DI");
 					$("#information").parent().css('color','green');
 					$("#information").html('去識別化任務完成。');
+					$('#dptableprogress').hide();
 
 				}else if(textStatus == "error"){
 					//disable the stop button	
@@ -247,6 +280,7 @@ function deIdentificationProcessManagement(){
 				console.log("execute DI task fail.");
 				$("#information").html('去識別化任務發生錯誤。');
 			}
+		
 		});
 	}
 
@@ -271,10 +305,18 @@ function deIdentificationProcessManagement(){
 			error: function() {
 				console.log("get the task detail fail");
 				$("#information").html('讀取任務內容發生錯誤。');
+			},
+			beforeSend: function(){
+				//_showSpin();
+				loading.open();
+			},
+			complete: function() {
+				//_closeSpin();
+				loading.close();
 			}
 		});
 
-		console.log(response);
+		//console.log(response);
 		return response;
 	}
 

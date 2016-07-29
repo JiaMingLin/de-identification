@@ -1,5 +1,11 @@
 function dashboardManagement() {
 	var endpoint = UTILITIES.endpoint;
+	var loadingOption ={
+		imgPath    : 'web/images/ajax-loading.gif',
+		tip: '請稍後...',
+		ajax: false
+	}
+	var loading = $.loading(loadingOption);
 	deIdentificationProcessManagement = new deIdentificationProcessManagement();
 
 	this.listTasks = function (size,page) {
@@ -62,6 +68,12 @@ function dashboardManagement() {
 			},
 			error: function() {
 				
+			},
+			beforeSend: function(){
+				loading.open();
+			},
+			complete: function() {
+				loading.close();
 			}
 		});
 	}
@@ -92,6 +104,10 @@ function dashboardManagement() {
 				}else if(textStatus == "error"){
 					location.href = "/privacy/";
 				}
+				loading.close();
+			},
+			beforeSend: function(){
+				loading.open();
 			}
 		});
 
@@ -116,6 +132,12 @@ function dashboardManagement() {
 			},
 			error: function() {
 				
+			},
+			beforeSend: function(){
+				loading.open();
+			},
+			complete: function() {
+				loading.close();
 			}
 		});
 	}

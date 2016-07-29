@@ -3,12 +3,12 @@ $(function() {
 	var dataPath = UTILITIES.data_path;
 	var initDI_response = {};
 	var execDI_response = {};
-	var loadingOption ={
-		imgPath    : 'images/ajax-loading.gif',
-		tip: '請稍後...'
-	}
-	var loading = $.loading(loadingOption);
-	loading.ajax(true);
+	// var loadingOption ={
+	// 	imgPath    : 'images/ajax-loading.gif',
+	// 	tip: '請稍後...',
+	// 	ajax: false
+	// }
+	// var loading = $.loading(loadingOption);
 	var isDefault = true;
 	deIdentificationProcessManagement = new deIdentificationProcessManagement();
 
@@ -113,12 +113,20 @@ $(function() {
 		//disable or enable the column setting panel	
 		$("#columnSettingBody").find("input,select,section").prop('disabled',disabled);
 	}
-	
+
+	var _recoveryColumnSettingPanel = function(){
+		if($("#columnPanel").lobiPanel('isPinned') == false)
+			$("#columnPanel").lobiPanel('pin');
+		if($("#columnPanel").lobiPanel('isOnFullScreen') == true)
+			$("#columnPanel").lobiPanel('toSmallSize');
+	}
+
 	//To check wether display record or not
 	_checkRender();
 
 	//click confirm button
 	$("#fileconfirm").click(function(){
+		//_showSpin();
 		$("#filenameinput").prop('disabled',true);
 		var fileName = $("#filenameinput").val();
 		var data = {};
@@ -126,6 +134,16 @@ $(function() {
 		//for list default column setting
 		data.default = true;		
 		deIdentificationProcessManagement.showSensitiveTableAndColumnSetting(data);
+
+		//get ready for user driven mechanism
+		var attrs = JSON.parse(window.localStorage.getItem("columns"));
+		$('input[name="columnSet"]').tagsinput({
+			typeahead: {
+		    source: attrs
+		  	},
+		  	freeInput: true
+		});
+		//_closeSpin();
 	});
 
 	$("#filecancel").click(function(){		
@@ -156,7 +174,7 @@ $(function() {
 
 	//click column setting confirm button
 	$("#columnconfirm").click(function(){
-		//loading.open();
+		_recoveryColumnSettingPanel();
 		var jsonArray = [];
 		_columnSettingPanelControl(true);
 		// $('#columnSettingBody tr').each(function() {
@@ -172,12 +190,44 @@ $(function() {
 		//begin to initiate the DI task
 		initDI_response = _initDI();
 		_execButtonReady();
-		//loading.close();
 	});
 
 	//click column setting cancel button
 	$("#columncancel").click(function(){
 		_columnSettingPanelControl(false);
+		_recoveryColumnSettingPanel();
+	});
+
+	// $(document).on('click','input[name="columnSet"]',function(){
+	// 	$(this).typeahead({source:[{id: "someId1", name: "Height"}, 
+ //            {id: "someId2", name: "Weight"}], 
+ //            autoSelect: true});
+	// 		if($(this).prop('disabled') == false){
+	// 		$(this).typeahead();
+	// 			$(this).change(function() {
+	// 	    	var current = $(this).typeahead("getActive");
+	// 	    	console.log(current);
+	// 		    if (current) {
+	// 		        // Some item from your model is active!
+	// 		        if (current.name == $(this).val()) {
+
+	// 		            // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
+	// 		        } else {
+	// 		            // This means it is only a partial match, you can either add a new item 
+	// 		            // or take the active if you don't want new items
+	// 		        }
+	// 		    } else {
+	// 		        // Nothing is active so it is a new value (or maybe empty value)
+	// 		    }
+	// 			});
+	// 	}
+	// });
+	
+	$(document).on('itemAdded','input[name="columnSet"]',function(){
+		 setTimeout(function(){
+        $(">input[type=text]",".bootstrap-tagsinput").val("");
+    	}, 1);
+		$(".bootstrap-tagsinput").css('width','100%');
 	});
 
 	//click column setting reset button
@@ -195,10 +245,35 @@ $(function() {
 		}
 	});
 
+	$("#columnPanel").lobiPanel({
+	    reload: false,
+	    close: false,
+	    editTitle: false
+	});
+
+	//if column setting panel`s fullscreen action is triggered
+	$('#columnPanel').on('onFullScreen.lobiPanel', function(ev, lobiPanel){
+    	$("#columnSettingBody").parent().parent().css("height","100%");
+    	$(".bootstrap-tagsinput").css('width','100%');
+	});
+	//if column setting panel collapsed from fullscreen action is triggered
+	$('#columnPanel').on('onSmallSize.lobiPanel', function(ev, lobiPanel){
+    	$("#columnSettingBody").parent().parent().css("height","200px");
+	});
+	//This event is triggered during the resize
+	$('#columnPanel').on('onResize.lobiPanel', function(ev, lobiPanel){
+    	$("#columnSettingBody").parent().parent().css("height","100%");
+    	$(".bootstrap-tagsinput").css('width','100%');
+	});
+	//if column setting panel`s pin action is triggered
+	$('#columnPanel').on('onPin.lobiPanel', function(ev, lobiPanel){
+    	$("#columnSettingBody").parent().parent().css("height","200px");
+	});
+
 	//execute the De-Identification task
 	$("#execDI").click(function(){
 		
-		if($("#filenameinput").prop('disabled') == false && $("#filenameinput").val() == ""){
+		if($("#filenameinput").val() == ""){
 			$("#information").html('請輸入檔案。');
 			return;
 		}
@@ -212,8 +287,10 @@ $(function() {
 			}
 		}
 
+		//if init object is empty,must prepare the init object in order to execute DI job
 		if($.isEmptyObject(initDI_response) == true){
-			if(isDefault){
+			//console.log("default DI task? " + isDefault);
+			if(isDefault == true || isDefault == "true"){
 				//conflict happened
 				$("#information").html('去識別化任務發生錯誤。');
 				return;
@@ -239,13 +316,15 @@ $(function() {
 		if(!$("#execDI").prop('disabled')){
 			$("#execDI").prop('disabled',true);
 		}
-
+		console.log("init object:");
+		console.log(initDI_response);
 		_execDI(initDI_response);
 	});
 
 	//detect the privacy level options changed
 	$("#PL-options").on('change',function(){	
 		_execButtonReady();
+		$("#information").html('');
 	});
 
 	
@@ -253,17 +332,18 @@ $(function() {
 	$(window).on('keydown',function(e){
 		var keycode = e.keyCode;
 		//console.log("keycode: " + keycode);
-		if(keycode == 13){
-			//press enter
-			$("#fileconfirm").click();
-		}else if(keycode == 116){
+		if(keycode == 116){
 			//press F5
 			e.preventDefault();
 			$("#filenameinput").prop('disabled',false);
 			$("#fileclear").click();
 			window.localStorage.removeItem("info");
 			window.location.href = "/privacy/web/DeIdentificationProcess.html?default=true";
-		}
+		 }
+		//else if(keycode == 13){
+		// 	//press enter
+		// 	//$("#fileconfirm").click();
+		// }
 	});
 
 	
