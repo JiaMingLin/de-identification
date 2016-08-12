@@ -1,7 +1,8 @@
+import os
+import common.constant as c
+
 from django.test import TestCase
 from api.serializers import TaskSerializer, JobSerializer
-
-import common.constant as c
 
 class TestFull(TestCase):
 
@@ -9,7 +10,7 @@ class TestFull(TestCase):
 
 		self.data_dir = c.TEST_FILE_PATH
 		# noises
-		self.privacy_levels = [1,2,3,4,5]
+		self.privacy_levels = [1,2]
 
 		# test cases
 		self.cases = [
@@ -46,8 +47,8 @@ class TestFull(TestCase):
 		task = TaskSerializer()
 		task_obj = task.create(data_input)
 
+		self.save_merged_jtree(task_obj)
 		for lv in self.privacy_levels:
-			print "Injecting noise %s with jtree %s" %(self.get_eps(lv), task_obj.jtree_strct)
 			privacy_input = {
 				"privacy_level":lv,
 				"epsilon":self.get_eps(lv),
@@ -56,6 +57,19 @@ class TestFull(TestCase):
 			serializer = JobSerializer(data = privacy_input)
 			if(serializer.is_valid()): serializer.save()
 
+
+	def save_merged_jtree(self, task):
+		task_id = task.task_id
+		jtree = task.jtree_strct
+
+		parent = c.MEDIATE_DATA_DIR % {'task_id': task_id}
+		if not os.path.exists(parent):
+			os.makedirs(parent)
+
+		file_name = 'jtree.display'
+		file_path = os.path.join(parent, file_name)
+		with open(file_path, 'w+') as jtree_file:
+			jtree_file.write(jtree)
 
 	def get_eps(self, level):
 		corr = {
