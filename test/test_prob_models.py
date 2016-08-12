@@ -23,7 +23,8 @@ class DependencyGraphTests(TestCase):
 		Test the Dependency graph computation
 		"""
 		dep_graph = DependencyGraph(self.data)
-		edges = dep_graph.get_dep_edges(display = True)
+		edges = dep_graph.get_dep_edges(display = False)
+
 		#print self.data.get_domain()
 		#self.assertEqual(len(edges) == 3, True)
 

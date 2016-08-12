@@ -63,10 +63,12 @@ Inference <- setRefClass(
 			noisy.freq <- .self$cluster.noisy.freq
 			cliques <- .self$jtree$cliques
 			ans <- list()
+			# the each element in "match_ids" is the index of "cluster" which contains the clique.
 			match_ids <- unlist(lapply(seq_along(cliques), function(cid) match_clique_to_cluster(cid)))
 			for (i in seq_len(length(cliques))) {
 				cl <- .self$cluster[[match_ids[i]]]
 				cq <- cliques[[i]]
+				# find the domain for each nodes in cluster.
 				curr_cl_levels <- lapply(cl, function(x) domain$levels[[x]])
 				index <- data.table(do.call(CJ, curr_cl_levels))
 				setnames(index, cl)

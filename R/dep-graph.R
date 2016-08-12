@@ -64,6 +64,7 @@ fields = list(
 
 			expected_sum <- .get_xtable_expected_sum(curr_xtab)
 			chi2 <- sum((curr_xtab - expected_sum) ** 2 / expected_sum, na.rm = TRUE)
+
 			mi <- mi.empirical(curr_xtab, unit = 'log')
 			CV <- sqrt(chi2 / (.self$N * (min(dk, dl) - 1)))
 
@@ -90,20 +91,19 @@ fields = list(
 			dk <- length(.self$domain[[dk.name]])
 			dl <- length(.self$domain[[dl.name]])
 
-			mi <- mi.empirical(curr_xtab, unit = 'log')
-			print("======= mutual information ========")
-			print(paste(pair, mi, sep=": "))
-			print(mi)
+			#mi <- mi.empirical(curr_xtab, unit = 'log')
 			CV <- sqrt(chi2 / (.self$N * (min(dk, dl) - 1)))
 			.filter_association_edges(pair, CV, .self$thresh)
-
-			CV2.LH <- mi
-			CV2.RH <- (.self$thresh^ 2) * (min(dk, dl) - 1) / 2
-			.append_pairwise_association_table(
-				dk.name, dl.name,
-				dk, dl, mi,
-				CV, CV2.LH, CV2.RH
-			)
+			
+			#CV2.LH <- mi
+			#CV2.RH <- (.self$thresh^ 2) * (min(dk, dl) - 1) / 2
+			
+			#.append_pairwise_association_table(
+			#	dk.name, dl.name,
+			#	dk, dl, mi,
+			#	CV, CV2.LH, CV2.RH
+			#)
+			
 		}	
 	},
 
@@ -130,7 +130,7 @@ fields = list(
 		csums <- matrix(csums, nrow = 1, ncol = length(csums))
 		table.sum <- sum(rsums)
 		expected_sum <- rsums %*% csums / table.sum
-		return(expected_sum) 
+		return(expected_sum)
 	},
 
 	.filter_association_edges = function(pair, measure, bar) {

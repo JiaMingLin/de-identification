@@ -24,6 +24,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		field = ('task_id', 'task_name', 'data_path','selected_attrs','jtree_strct', 'dep_graph', 'start_time', 'end_time', 'status')
 
 	def create(self, validated_data):
+
 		selected_attrs = self.convert_selected_attrs(validated_data['selected_attrs'])
 		data = DataUtils(
 			file_path = validated_data['data_path'], 
@@ -36,8 +37,13 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		nodes = data.get_nodes_name()
 		
 		# dependency graph
+		white_list = []
+		if 'white_list' in validated_data.keys():
+			white_list = validated_data['white_list']
+
 		dep_graph = DependencyGraph(data)
-		edges = dep_graph.get_dep_edges()
+		edges = dep_graph.get_dep_edges(display = True)
+		edges = self.merge_edges(edges, white_list)
 
 		# create task to get task_id
 		task_obj = Task.objects.create(
@@ -53,7 +59,6 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		task_folder = self.create_task_folder(task_obj.task_id)
 
 		# junction tree
-		print self.get_jtree_file_path(task_obj.task_id)
 		jtree = JunctionTree(
 			edges, 
 			nodes, 
@@ -71,6 +76,10 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		self.save_coarse_data(task_folder, data)
 		return task_obj
 
+	def merge_edges(self, edges, white_list):
+		import rpy2.robjects as ro
+		return ro.Vector([ro.StrVector(e) for e in edges + white_list])
+		
 	
 	def convert_selected_attrs(self, attrs_ls):
 		#attrs_ls = ast.literal_eval(attrs_ls)
