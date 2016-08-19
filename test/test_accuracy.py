@@ -12,6 +12,9 @@ class TestFull(TestCase):
 		# noises
 		self.privacy_levels = [1,2]
 
+		# number of runs
+		self.nrun = 5
+
 		# test cases
 		self.cases = [
 			(

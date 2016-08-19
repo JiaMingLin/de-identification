@@ -26,6 +26,7 @@ RUN mkdir log/ && \
     ./clean.sh
 
 ADD start.sh /opt/de-identification/start.sh
+RUN chmod +x /opt/de-identification/start.sh
 
 VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
 EXPOSE 8080
