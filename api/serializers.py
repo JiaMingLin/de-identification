@@ -21,10 +21,15 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 
 	class Meta:
 		model = Task
-		field = ('task_id', 'task_name', 'data_path','selected_attrs','jtree_strct', 'dep_graph', 'start_time', 'end_time', 'status')
+		field = ('task_id', 'task_name', 'data_path','selected_attrs','jtree_strct','white_list', 'dep_graph', 'start_time', 'end_time', 'status')
 
 	def create(self, validated_data):
+		return self.task_build_process(validated_data)
+	
+	def update(self, instance, validated_data):
+		return self.task_build_process(validated_data, instance)
 
+	def task_build_process(self, validated_data, instance = None):
 		selected_attrs = self.convert_selected_attrs(validated_data['selected_attrs'])
 		data = DataUtils(
 			file_path = validated_data['data_path'], 
@@ -35,31 +40,37 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		data.data_coarsilize()
 		domain = data.get_domain()
 		nodes = data.get_nodes_name()
-		
+
 		# dependency graph
 		white_list = validated_data['white_list']
 		dep_graph = DependencyGraph(data, white_list = white_list)
 		edges = dep_graph.get_dep_edges(display = True)
 
-		# create task to get task_id
-		task_obj = Task.objects.create(
-			selected_attrs = validated_data['selected_attrs'],
-			task_name = validated_data['task_name'],
-			data_path = validated_data['data_path'], # the original data path
-			dep_graph = str(dep_graph.get_dep_edges(display = True)),
-			valbin_map = str(data.get_valbin_maps()),
-			domain = str(domain.items()), # this is the domain of coarsed data, and sould keep cols ordering.
-			white_list = white_list
-		)
+		if instance is None:
+			# create task to get task_id
+			instance = Task.objects.create(
+				selected_attrs = validated_data['selected_attrs'],
+				task_name = validated_data['task_name'],
+				data_path = validated_data['data_path'] # the original data path
+			)
+		else:
+			instance.selected_attrs = validated_data['selected_attrs']
+			instance.task_name = validated_data['task_name']
+			instance.data_path = validated_data['data_path'] # the original data path
+		
+		instance.dep_graph = str(dep_graph.get_dep_edges(display = True))
+		instance.valbin_map = str(data.get_valbin_maps())
+		instance.domain = str(domain.items()) # this is the domain of coarsed data, and sould keep cols ordering.
+		instance.white_list = white_list
 
 		# create folder for task
-		task_folder = self.create_task_folder(task_obj.task_id)
+		task_folder = self.create_task_folder(instance.task_id)
 
 		# junction tree
 		jtree = JunctionTree(
 			edges, 
 			nodes, 
-			self.get_jtree_file_path(task_obj.task_id) # the path to save junction tree file
+			self.get_jtree_file_path(instance.task_id) # the path to save junction tree file
 		)
 
 		# optimize marginal
@@ -67,12 +78,13 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		optimized_jtree = var_reduce.main()
 
 		# update task to save the optimized jtree
-		task_obj.jtree_strct = str(optimized_jtree)
-		task_obj.save()
+		instance.jtree_strct = str(optimized_jtree)
+		instance.save()
 
 		self.save_coarse_data(task_folder, data)
-		return task_obj
-	
+		return instance
+
+
 	def convert_selected_attrs(self, attrs_ls):
 		#attrs_ls = ast.literal_eval(attrs_ls)
 		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))
