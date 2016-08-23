@@ -9,7 +9,7 @@ class DependencyGraph(Base):
     # The dependency graph
     dep_graph = None
 
-    def __init__(self, data, noise_flag = True):
+    def __init__(self, data, noise_flag = True, white_list = []):
         """
         __init__
         Input:
@@ -28,13 +28,21 @@ class DependencyGraph(Base):
         self.noise_flag = noise_flag
 
         self.dep_graph = self._build_dep_graph(r_df, rdomain)
+        self.white_list = white_list
 
 
-    def get_dep_edges(self, display = False):
+    def get_dep_edges(self, display = True):
+        import rpy2.robjects as ro
+        from itertools import combinations
 
-        if(display == True):
-            return [list(rls) for rls in list(self.dep_graph)]
-        return self.dep_graph
+        edges = [list(rls) for rls in list(self.dep_graph)]
+        pairwise_white_list = reduce(lambda acc, curr: acc+curr
+                                    ,[list(combinations(cluster, 2)) for cluster in self.white_list]
+                                    ,[])
+
+        if display is True:
+            return edges + pairwise_white_list
+        return ro.Vector([ro.StrVector(e) for e in edges + pairwise_white_list])
 
     def _build_dep_graph(self, r_df, r_domain):
         r_dep_edges = self.get_r_method(c.DEP_GRAPH_R_FILE, 'get_dep_edges')

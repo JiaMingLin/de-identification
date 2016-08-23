@@ -23,15 +23,18 @@ class DependencyGraphTests(TestCase):
 		Test the Dependency graph computation
 		"""
 		dep_graph = DependencyGraph(self.data)
-		edges = dep_graph.get_dep_edges(display = False)
-
+		edges = dep_graph.get_dep_edges()
 		#print self.data.get_domain()
 		#self.assertEqual(len(edges) == 3, True)
+
+	def test_dep_graph_with_white_list(self):
+		dep_graph = DependencyGraph(self.data, white_list = [['Age', 'Income', 'TRV'], ['DGF', 'HTN']])
+		edges = dep_graph.get_dep_edges()
 
 	def test_dep_graph_without_noise(self):
 		dep_graph = DependencyGraph(self.data, noise_flag = False)
 		self.assertEqual(
-			dep_graph.get_dep_edges(display=True) == [['Height', 'HTN'], ['Weight', 'HTN'], ['Income', 'TRV']],
+			dep_graph.get_dep_edges() == [['Height', 'HTN'], ['Weight', 'HTN'], ['Income', 'TRV']],
 			True)
 
 class JunctionTreeTests(TestCase):
@@ -39,16 +42,23 @@ class JunctionTreeTests(TestCase):
 	def setUp(self):
 		self.data = DataUtils(TESTING_FILE)
 		self.dep_graph = DependencyGraph(self.data)
-		self.edges = self.dep_graph.get_dep_edges(display=True)
+		self.edges = self.dep_graph.get_dep_edges()
 		self.nodes = self.data.get_nodes_name()
 		self.jtree_path = c.TEST_JTREE_FILE_PATH
 
 	def test_jtree_without_noise(self):
 		dep_graph = DependencyGraph(self.data, noise_flag = False)
-		edges = dep_graph.get_dep_edges(display=True)
+		edges = dep_graph.get_dep_edges()
 		jtree = JunctionTree(edges, self.nodes, self.jtree_path)
 		cliques = jtree.get_jtree()['cliques']
 		self.assertEqual(cliques == [['HTN', 'Height'], ['HTN', 'Weight'], ['Income', 'TRV'], ['Age'], ['DGF']], True)
+
+	def test_jtree_with_white_list(self):
+		dep_graph = DependencyGraph(self.data, white_list = [['Age', 'Income', 'TRV'], ['DGF', 'HTN']])
+		edges = dep_graph.get_dep_edges()
+		jtree = JunctionTree(edges, self.nodes, self.jtree_path)
+		cliques = jtree.get_jtree()['cliques']
+		self.assertEqual(cliques == [['HTN', 'Height'], ['HTN', 'Weight'], ['HTN', 'DGF'], ['Income', 'TRV', 'Age']], True)
 
 	def test_build_jtree_then_check_jtree_file(self):
 		self.TestA()

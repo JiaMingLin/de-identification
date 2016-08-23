@@ -37,13 +37,9 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		nodes = data.get_nodes_name()
 		
 		# dependency graph
-		white_list = []
-		if 'white_list' in validated_data.keys():
-			white_list = validated_data['white_list']
-
-		dep_graph = DependencyGraph(data)
+		white_list = validated_data['white_list']
+		dep_graph = DependencyGraph(data, white_list = white_list)
 		edges = dep_graph.get_dep_edges(display = True)
-		edges = self.merge_edges(edges, white_list)
 
 		# create task to get task_id
 		task_obj = Task.objects.create(
@@ -52,7 +48,8 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 			data_path = validated_data['data_path'], # the original data path
 			dep_graph = str(dep_graph.get_dep_edges(display = True)),
 			valbin_map = str(data.get_valbin_maps()),
-			domain = str(domain.items()) # this is the domain of coarsed data, and sould keep cols ordering.
+			domain = str(domain.items()), # this is the domain of coarsed data, and sould keep cols ordering.
+			white_list = white_list
 		)
 
 		# create folder for task
@@ -75,11 +72,6 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 
 		self.save_coarse_data(task_folder, data)
 		return task_obj
-
-	def merge_edges(self, edges, white_list):
-		import rpy2.robjects as ro
-		return ro.Vector([ro.StrVector(e) for e in edges + white_list])
-		
 	
 	def convert_selected_attrs(self, attrs_ls):
 		#attrs_ls = ast.literal_eval(attrs_ls)
