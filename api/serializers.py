@@ -29,71 +29,111 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 	def update(self, instance, validated_data):
 		return self.task_build_process(validated_data, instance)
 
-	def task_build_process(self, validated_data, instance = None):
-		selected_attrs = self.convert_selected_attrs(validated_data['selected_attrs'])
+	def task_build_process(self, request, instance = None):
+		data = None
+
+		domain = None
+		nodes = None
+
+		create_flag = False
+		if instance is None:
+			# create task to get task_id
+			instance = Task.objects.create(
+				selected_attrs = request['selected_attrs'],
+				task_name = request['task_name'],
+				data_path = request['data_path'] # the original data path
+			)
+			create_flag = True
+
+		if self.is_pre_process_skip(request, instance, create_flag) is False:
+			# when create, 
+			# update data path, attributes, 
+			instance.selected_attrs = request['selected_attrs']
+			instance.task_name = request['task_name']
+			instance.data_path = request['data_path'] # the original data path
+			data = self.data_pre_processing(request, instance)
+			domain = data.get_domain()
+			nodes = data.get_nodes_name()
+
+			edges, cust_edges = self.build_dep_graph(request, data)
+
+			instance.dep_graph = str(edges)
+			instance.valbin_map = str(data.get_valbin_maps())
+			instance.domain = str(domain.items()) # this is the domain of coarsed data, and sould keep cols ordering.
+		else:
+			# when update dep-graph structure
+			edges = ast.literal_eval(instance.dep_graph)
+			cust_edges = self.update_dep_graph(request, edges)
+			
+			domain = collections.OrderedDict(ast.literal_eval(instance.domain))
+			nodes = domain.keys()
+
+		white_list = self.get_white_list(request)
+		instance.white_list = white_list
+
+		# create folder for task
+		task_folder = self.create_task_folder(instance.task_id)
+		self.save_coarse_data(task_folder, data)
+
+		optimized_jtree = self.build_jtree(instance.task_id, cust_edges, nodes, domain)
+		# update task to save the optimized jtree
+		instance.jtree_strct = str(optimized_jtree)
+		instance.save()
+
+		return instance
+
+	def data_pre_processing(self, request, instance = None):
+		selected_attrs = self.convert_selected_attrs(request['selected_attrs'])
 		data = DataUtils(
-			file_path = validated_data['data_path'], 
+			file_path = request['data_path'], 
 			selected_attrs = selected_attrs
 		)
 		# coarsilize
 		# TODO: Should add the sample rate.
 		data.data_coarsilize()
-		domain = data.get_domain()
-		nodes = data.get_nodes_name()
+		return data
 
+	def build_dep_graph(self, request, data):
 		# dependency graph
-		white_list = validated_data['white_list']
-		dep_graph = DependencyGraph(data, white_list = white_list)
+		white_list = self.get_white_list(request)
+		dep_graph = DependencyGraph(data)
 		edges = dep_graph.get_dep_edges(display = True)
 
-		if instance is None:
-			# create task to get task_id
-			instance = Task.objects.create(
-				selected_attrs = validated_data['selected_attrs'],
-				task_name = validated_data['task_name'],
-				data_path = validated_data['data_path'] # the original data path
-			)
-		else:
-			instance.selected_attrs = validated_data['selected_attrs']
-			instance.task_name = validated_data['task_name']
-			instance.data_path = validated_data['data_path'] # the original data path
-		
-		instance.dep_graph = str(dep_graph.get_dep_edges(display = True))
-		instance.valbin_map = str(data.get_valbin_maps())
-		instance.domain = str(domain.items()) # this is the domain of coarsed data, and sould keep cols ordering.
-		instance.white_list = white_list
+		cust_edges = dep_graph.set_white_list(white_list) \
+							.get_dep_edges(display = True)
+		return edges, cust_edges
 
-		# create folder for task
-		task_folder = self.create_task_folder(instance.task_id)
+	def update_dep_graph(self, request, edges):
+		white_list = self.get_white_list(request)
+		dep_graph = DependencyGraph(edges = edges)
+		cust_edges = dep_graph.set_white_list(white_list) \
+							.get_dep_edges(display = True)
+		return cust_edges
 
+	def build_jtree(self,task_id, edges, nodes, domain):
 		# junction tree
 		jtree = JunctionTree(
 			edges, 
 			nodes, 
-			self.get_jtree_file_path(instance.task_id) # the path to save junction tree file
+			self.get_jtree_file_path(task_id) # the path to save junction tree file
 		)
 
 		# optimize marginal
 		var_reduce = VarianceReduce(domain, jtree.get_jtree()['cliques'], 0.2)
 		optimized_jtree = var_reduce.main()
+		return optimized_jtree
 
-		# update task to save the optimized jtree
-		instance.jtree_strct = str(optimized_jtree)
-		instance.save()
-
-		self.save_coarse_data(task_folder, data)
-		return instance
-
-
-	def convert_selected_attrs(self, attrs_ls):
-		#attrs_ls = ast.literal_eval(attrs_ls)
-		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))
-
+	def get_white_list(self, request):
+		white_list = request['white_list'] if 'white_list' in request.keys() else "[]"
+		if not isinstance(white_list, list):
+			white_list = ast.literal_eval(white_list)
+		return white_list
 
 	def save_coarse_data(self, task_folder, data):
 		# TODO: to deal with failure
 		file_path = os.path.join(task_folder,c.COARSE_DATA_NAME)
-		data.save(file_path)
+		if data is not None:
+			data.save(file_path)
 
 class JobSerializer(serializers.ModelSerializer, Base):
 
@@ -221,7 +261,3 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			}
 		}
 		return result
-
-	def convert_selected_attrs(self, attrs_ls):
-		attrs_ls = ast.literal_eval(attrs_ls)
-		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))

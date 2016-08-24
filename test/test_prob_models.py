@@ -37,6 +37,17 @@ class DependencyGraphTests(TestCase):
 			dep_graph.get_dep_edges() == [['Height', 'HTN'], ['Weight', 'HTN'], ['Income', 'TRV']],
 			True)
 
+	def test_dep_graph_contruct_from_edges(self):
+		edges = [['A','B'], ['B','C'], ['C', 'D'], ['D', 'E']]
+		dep_graph = DependencyGraph(edges = edges)
+		self.assertEqual(dep_graph.get_dep_edges() == edges, True)
+
+	def test_dep_graph_add_white_list(self):
+		edges = [['A','B'], ['B','C'], ['C', 'D'], ['D', 'E'], ['F']]
+		white_list = [['A','B', 'C'], ['C', 'D', 'F']]
+		dep_graph = DependencyGraph(edges = edges)
+		self.assertEqual(dep_graph.set_white_list(white_list).get_dep_edges() == [['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'E'], ['F'], ('A', 'B'), ('A', 'C'), ('B', 'C'), ('C', 'D'), ('C', 'F'), ('D', 'F')], True)
+
 class JunctionTreeTests(TestCase):
 
 	def setUp(self):

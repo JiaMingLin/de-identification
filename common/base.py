@@ -2,6 +2,8 @@ import logging
 import rpy2.robjects as robjects
 from logging.handlers import TimedRotatingFileHandler
 
+import ast
+import collections
 import os
 import common.constant as c
 
@@ -30,6 +32,35 @@ class Base(object):
 		if not os.path.exists(folder):
 			os.makedirs(folder)
 		return folder
+
+	def is_pre_process_skip(self, request, instance, create_flag):
+		# when update, 
+		# if attributes spec, data path, change then redo pre-processing
+		if create_flag is True:
+			return False
+
+		if not isinstance(instance, dict):
+			tmp = dict()
+			tmp['data_path'] = instance.data_path
+			tmp['selected_attrs'] = instance.selected_attrs
+			instance = tmp
+
+		# compare data path
+		if request['data_path'] != instance['data_path']:
+			return False
+
+		# compare selected attributes
+		selected_attrs_request = self.convert_selected_attrs(request['selected_attrs'])
+		selected_attrs_original = self.convert_selected_attrs(instance['selected_attrs'])
+
+		if sorted(selected_attrs_request.items(), key=lambda x: x[0]) != sorted(selected_attrs_original.items(), key=lambda x: x[0]):
+			return False
+
+		return True
+
+	def convert_selected_attrs(self, attrs_ls):
+		attrs_ls = ast.literal_eval(str(attrs_ls))
+		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))
 
 	@staticmethod
 	def get_logger(name):

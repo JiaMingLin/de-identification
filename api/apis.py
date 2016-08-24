@@ -27,19 +27,19 @@ class TaskListCreateView(APIView):
 	def post(self, request, format = None):
 		"""
 		Request
-        =================================
-        task_name:
-        file_path:
-            The original file path.
-        selected_attrs:
-            The user specified attributes
-            [{'attr_name':'A', 'dtype':'C'}, 
-             {'attr_name':'B','dtype':'D'},...]
-        Response
-        =================================
+		=================================
+		task_name:
+		file_path:
+			The original file path.
+		selected_attrs:
+			The user specified attributes
+			[{'attr_name':'A', 'dtype':'C'}, 
+			 {'attr_name':'B','dtype':'D'},...]
+		Response
+		=================================
 		"""
 		serializer = TaskSerializer(data=request.data)
-        
+		
 		if(serializer.is_valid()):
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -53,6 +53,19 @@ class TaskRetrieveUpdateDestroyView(APIView):
 		task.selected_attrs = ast.literal_eval(task.selected_attrs)
 		serializer = TaskSerializer(task)
 		return Response(serializer.data)
+
+	def put(self, request, pk, format=None):
+		task = get_object_or_404(Task, pk = pk)
+		serializer = TaskSerializer(task, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	def delete(self, request, pk, format=None):
+		task = get_object_or_404(Task, pk = pk)
+		task.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
 
 class JobListCreateView(APIView):
 	def get(self, request, task_id, format = None):
@@ -68,6 +81,7 @@ class JobListCreateView(APIView):
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class JobRetrieveUpdateDestroyView(APIView):
 
