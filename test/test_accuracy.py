@@ -13,7 +13,7 @@ class TestFull(TestCase):
 		self.privacy_levels = [1,2]
 
 		# number of runs
-		self.nrun = 5
+		self.nrun = 2
 
 		# test cases
 		self.cases = [
@@ -35,6 +35,16 @@ class TestFull(TestCase):
 			)
 		]
 
+	def get_eps(self, level):
+		corr = {
+			1: 0.01,
+			2: 0.1,
+			3: 1,
+			4: 10,
+			5: 100
+		}
+		return corr[level]
+
 	def test_full(self):
 		for data_name, domain, white_list in self.cases:
 			self.diff_privacy(data_name, domain, self.privacy_levels, white_list = white_list)
@@ -47,18 +57,24 @@ class TestFull(TestCase):
 			"selected_attrs": domain,
 			"white_list": white_list
 		}
-		task = TaskSerializer()
-		task_obj = task.create(data_input)
+		task_obj = None
+		for i in range(self.nrun):
+			task = TaskSerializer()
+			if i == 0:
+				task_obj = task.create(data_input)
+			else:
+				task_obj = task.update(task_obj, data_input)
 
-		self.save_merged_jtree(task_obj)
-		for lv in self.privacy_levels:
-			privacy_input = {
-				"privacy_level":lv,
-				"epsilon":self.get_eps(lv),
-				"task_id": task_obj.task_id
-			}
-			serializer = JobSerializer(data = privacy_input)
-			if(serializer.is_valid()): serializer.save()
+			self.save_merged_jtree(task_obj)
+			for lv in self.privacy_levels:
+				privacy_input = {
+					"privacy_level":lv,
+					"epsilon":self.get_eps(lv),
+					"task_id": task_obj.task_id,
+					"exp_round":i
+				}
+				serializer = JobSerializer(data = privacy_input)
+				if(serializer.is_valid()): serializer.save()
 
 
 	def save_merged_jtree(self, task):
@@ -73,16 +89,6 @@ class TestFull(TestCase):
 		file_path = os.path.join(parent, file_name)
 		with open(file_path, 'w+') as jtree_file:
 			jtree_file.write(jtree)
-
-	def get_eps(self, level):
-		corr = {
-			1: 0.01,
-			2: 0.1,
-			3: 1,
-			4: 10,
-			5: 100
-		}
-		return corr[level]
 
 
 

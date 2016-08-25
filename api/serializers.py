@@ -140,7 +140,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 	statistics_err = serializers.JSONField(required=False)
 	class Meta:
 		model = Job
-		field = ('dp_id', 'task_id', 'privacy_level', 'epsilon', 'status', 'synthetic_path', 'log_path', 'start_time', 'end_time')
+		field = ('dp_id', 'task_id', 'privacy_level', 'epsilon', 'status', 'exp_round', 'synthetic_path', 'log_path', 'start_time', 'end_time')
 
 	# The Job is not going to be modified.
 	def create(self, validated_data):
@@ -177,7 +177,10 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		sim_df = self.data_generalize(sim_df, valbin_map, selected_attrs)
 
 		# Save the synthetic data to file system.
-		synthetic_path = self.save_sim_data(sim_df, task_id, privacy_level)
+		if 'exp_round' in validated_data.keys():
+			synthetic_path = self.save_sim_data_exp(sim_df, task_id, privacy_level, int(validated_data['exp_round']))
+		else:
+			synthetic_path = self.save_sim_data(sim_df, task_id, privacy_level)
 
 		# Save metadata to database
 		
@@ -205,17 +208,29 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		data.data_generalize()
 		return data.get_pandas_df()
 
-	def save_sim_data(self, dataframe, task_id, privacy_level):
+	def save_sim_data(self, dataframe, task_id, privacy_level, spec_file_name = None):
 		# TODO: to deal with failure
 		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}
 		if not os.path.exists(folder):
 			os.makedirs(folder)
+
 		file_name = c.SIM_DATA_NAME_PATTERN % {'privacy_level':privacy_level}
+		if spec_file_name is not None:
+			file_name = spec_file_name
+		
 		file_path = os.path.join(folder,file_name)
 		dataframe.to_csv(file_path, index = False)
 
 		# return the download path
 		return c.SIM_DATA_URI_PATTERN % {'task_id':task_id, 'file_name':file_name}
+
+	def save_sim_data_exp(self, dataframe, task_id, privacy_level, exp_round):
+		spec_file_name = "sim_round_%(exp_round)s_level_%(privacy_level)s.csv" % {
+				'exp_round': exp_round,
+				'privacy_level': privacy_level
+		}
+		return self.save_sim_data(dataframe, task_id, privacy_level, spec_file_name = spec_file_name)
+
 
 	def get_statistical_error(self, task_id, sim_coarsed_df):
 		"""
