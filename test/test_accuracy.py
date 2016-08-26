@@ -8,7 +8,7 @@ class TestFull(TestCase):
 
 	def setUp(self):
 
-		self.data_dir = c.TEST_FILE_PATH
+		self.data_dir = os.path.join(c.TEST_FILE_PATH, 'exp')
 		# noises
 		self.privacy_levels = [1,2]
 
@@ -18,20 +18,8 @@ class TestFull(TestCase):
 		# test cases
 		self.cases = [
 			(
-				"data2.dat", 
-				{
-					"names": ["Age","Height","Weight","Income","TRV","HTN","DGF"],
-					"types": ["C", "C", "C", "C", "C", "D", "D"]
-				},
-				[["Age", "Income"], ['Income', 'TRV']]
-			),
-			(
-				"data2.dat", 
-				{
-					"names": ["Age","Height","Weight","Income","TRV","HTN","DGF"],
-					"types": ["C", "C", "C", "C", "C", "D", "D"]
-				},
-				[]
+				"data2",
+				[["Age", "Income", "TRV"]]
 			)
 		]
 
@@ -46,14 +34,14 @@ class TestFull(TestCase):
 		return corr[level]
 
 	def test_full(self):
-		for data_name, domain, white_list in self.cases:
+		for data_name, white_list in self.cases:
+			domain = self.read_domain_file(data_name)
 			self.diff_privacy(data_name, domain, self.privacy_levels, white_list = white_list)
-		
 
 	def diff_privacy(self, data_name, domain, eps_ls, white_list = []):
 		data_input = {
-			"task_name": data_name,
-			"data_path": "%s/%s" % (self.data_dir, data_name),
+			"task_name": "%s.dat" % data_name,
+			"data_path": "%s/%s.dat" % (self.data_dir, data_name),
 			"selected_attrs": domain,
 			"white_list": white_list
 		}
@@ -89,6 +77,23 @@ class TestFull(TestCase):
 		file_path = os.path.join(parent, file_name)
 		with open(file_path, 'w+') as jtree_file:
 			jtree_file.write(jtree)
+
+	def read_domain_file(self, data_name):
+		import re
+		file_pattern = '%s.domain' % data_name
+		domain_path = os.path.join(self.data_dir, file_pattern)
+		names = []
+		dtypes = []
+		with open(domain_path, 'r') as domain:
+			content = domain.readline()
+			while len(content) > 2:
+				splited_line = re.split('\s+', content)
+				names.append(splited_line[0])
+				dtypes.append(splited_line[1])
+				content = domain.readline()
+
+		return {'names': names, 'types': dtypes }
+
 
 
 
