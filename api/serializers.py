@@ -84,10 +84,18 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 
 	def data_pre_processing(self, request, instance = None):
 		selected_attrs = self.convert_selected_attrs(request['selected_attrs'])
-		data = DataUtils(
-			file_path = request['data_path'], 
-			selected_attrs = selected_attrs
-		)
+		if 'names' in request.keys():
+			data = DataUtils(
+				file_path = request['data_path'], 
+				selected_attrs = selected_attrs,
+				names = request['names']
+			)
+		else:
+			data = DataUtils(
+				file_path = request['data_path'], 
+				selected_attrs = selected_attrs
+			)
+		
 		# coarsilize
 		# TODO: Should add the sample rate.
 		data.data_coarsilize()
@@ -275,4 +283,6 @@ class JobSerializer(serializers.ModelSerializer, Base):
 				'std':std_error
 			}
 		}
+		LOG = Base.get_logger("get_statistical_error")
+		LOG.info('Statistical errors summary: %s ' % str(result))
 		return result

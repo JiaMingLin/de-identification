@@ -11,7 +11,7 @@ from numpy import linspace, searchsorted, diff
 class DataUtils(Base):
 
 	
-	def __init__(self, file_path = None , pandas_df = None, selected_attrs = None, valbin_maps = None):
+	def __init__(self, file_path = None , pandas_df = None, selected_attrs = None, valbin_maps = None, names=None):
 		"""
 		Parameter
 			file_path:
@@ -24,21 +24,27 @@ class DataUtils(Base):
 		"""
 		self.LOG = Base.get_logger("DataUtils")
 		self.valbin_maps = dict() if valbin_maps is None else valbin_maps
-		self.dataframe = self._loading(file_path, pandas_df)
+		self.dataframe = self._loading(file_path, pandas_df, names)
 
-		if(selected_attrs != None):
+		if selected_attrs is not None:
 			self.selected_attrs = selected_attrs
+			# the 'selected_attrs' is ordered
 			self.dataframe = self.dataframe[selected_attrs.keys()]
 
 		self.preview_count = 5
 		
 
-	def _loading(self, file_path, pandas_df):
+	def _loading(self, file_path, pandas_df, names = None):
 		if pandas_df is None:			
 			self.LOG.info("Reading dataframe from file...")
 
 			start = time.time()
-			pandas_df = pd.read_csv(file_path)
+
+			if names is not None:
+				pandas_df = pd. read_csv(file_path, header = None, names = names)
+			else:
+				pandas_df = pd. read_csv(file_path)
+
 			end = time.time()
 			self.LOG.info("Reading dataframe from file complete in %d seconds." % (end-start))
 

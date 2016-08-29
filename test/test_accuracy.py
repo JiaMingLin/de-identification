@@ -43,7 +43,8 @@ class TestFull(TestCase):
 			"task_name": "%s.dat" % data_name,
 			"data_path": "%s/%s.dat" % (self.data_dir, data_name),
 			"selected_attrs": domain,
-			"white_list": white_list
+			"white_list": white_list,
+			"names": domain['names']
 		}
 		task_obj = None
 		for i in range(self.nrun):
@@ -86,8 +87,12 @@ class TestFull(TestCase):
 		dtypes = []
 		with open(domain_path, 'r') as domain:
 			content = domain.readline()
-			while len(content) > 2:
+			while len(content) > 0:
 				splited_line = re.split('\s+', content)
+
+				if splited_line[1] not in ['C', 'D']:
+					content = domain.readline()
+					continue
 				names.append(splited_line[0])
 				dtypes.append(splited_line[1])
 				content = domain.readline()
