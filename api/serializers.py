@@ -99,19 +99,16 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		return instance
 
 	def data_pre_processing(self, request, instance = None):
+		specified_c_domain = request['selected_attrs']['specified_c_domain'] if 'specified_c_domain' in request['selected_attrs'].keys() else None
+		names = request['names'] if 'names' in request.keys() else None
 		selected_attrs = self.convert_selected_attrs(request['selected_attrs'])
-		if 'names' in request.keys():
-			data = DataUtils(
-				file_path = request['data_path'], 
-				selected_attrs = selected_attrs,
-				names = request['names']
-			)
-		else:
-			data = DataUtils(
-				file_path = request['data_path'], 
-				selected_attrs = selected_attrs
-			)
 		
+		data = DataUtils(
+			file_path = request['data_path'], 
+			selected_attrs = selected_attrs,
+			names = names,
+			specified_c_domain = specified_c_domain
+		)
 		# coarsilize
 		# TODO: Should add the sample rate.
 		data.data_coarsilize()
@@ -199,7 +196,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		sim_df = inference.execute()
 
 		# compute the errors rate
-		statistics_err = self.get_statistical_error(task_id, sim_df)
+		statistics_err = self.get_statistical_error(task_id, sim_df, task.eps1_val , epsilon, task.white_list)
 
 		sim_df = self.data_generalize(sim_df, valbin_map, selected_attrs)
 
@@ -263,7 +260,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		return self.save_sim_data(dataframe, task_id, privacy_level, spec_file_name = spec_file_name)
 
 
-	def get_statistical_error(self, task_id, sim_coarsed_df):
+	def get_statistical_error(self, task_id, sim_coarsed_df, eps1, eps2, white_list):
 		"""
 		Compute the mean and standard varience error rates(Both coarse data).
 		Parameters
@@ -298,6 +295,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		mean_error = [str(rate)+'%' for rate in np.round(mean_error, decimals = 2)]
 		std_error = [str(rate)+'%' for rate in np.round(std_error, decimals = 2)]
 
+		self.print_pretty_summary(nodes, mean_error, std_error, eps1, eps2, white_list)
 		result = {
 			'attrs':nodes,
 			'measures':['mean', 'std'],
@@ -306,6 +304,17 @@ class JobSerializer(serializers.ModelSerializer, Base):
 				'std':std_error
 			}
 		}
-		LOG = Base.get_logger("get_statistical_error")
-		LOG.info('Statistical errors summary: %s ' % str(result))
+		
 		return result
+
+	def print_pretty_summary(self, nodes, mean_error, std_error, eps1, eps2, white_list):
+		LOG = Base.get_logger("Statical Accuracy Summary")
+		import pandas as pd
+		frame = pd.DataFrame({
+			'Attribures': nodes,
+			'Mean': mean_error,
+			'STD': std_error
+			})
+		LOG.info("eps1: %.2f, eps2: %.2f" % (eps1, eps2))
+		LOG.info("White List: %s" % str(white_list))
+		LOG.info('\n'+str(frame))

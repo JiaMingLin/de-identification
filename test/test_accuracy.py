@@ -13,10 +13,10 @@ class TestFull(TestCase):
 		self.eps1_levels = [2,3]
 
 		# noises
-		self.privacy_levels = [1,2]
+		self.privacy_levels = [2,4]
 
 		# number of runs
-		self.nrun = 3
+		self.nrun = 1
 
 		# test cases
 		self.cases = [
@@ -25,6 +25,9 @@ class TestFull(TestCase):
 				[["Age", "Income", "TRV"]]
 			)
 		]
+
+		# specified data domain
+		self.specified_data_domain = True
 
 	def get_eps(self, level):
 		corr = {
@@ -106,19 +109,27 @@ class TestFull(TestCase):
 		domain_path = os.path.join(self.data_dir, file_pattern)
 		names = []
 		dtypes = []
+		specified_c_domain = dict()
 		with open(domain_path, 'r') as domain:
 			content = domain.readline()
 			while len(content) > 0:
-				splited_line = re.split('\s+', content)
+				splited_line = re.split('\s+', content.strip())
 
 				if splited_line[1] not in ['C', 'D']:
 					content = domain.readline()
 					continue
+
+				if splited_line[1] is 'C':
+					specified_c_domain[splited_line[0]] = splited_line[3:]
+
 				names.append(splited_line[0])
 				dtypes.append(splited_line[1])
 				content = domain.readline()
 
-		return {'names': names, 'types': dtypes }
+		if self.specified_data_domain is True:
+			return {'names': names, 'types': dtypes, 'specified_c_domain': specified_c_domain}
+			
+		return {'names': names, 'types': dtypes}
 
 
 

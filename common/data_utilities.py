@@ -11,7 +11,7 @@ from numpy import linspace, searchsorted, diff
 class DataUtils(Base):
 
 	
-	def __init__(self, file_path = None , pandas_df = None, selected_attrs = None, valbin_maps = None, names=None):
+	def __init__(self, file_path = None , pandas_df = None, selected_attrs = None, valbin_maps = None, names=None, specified_c_domain = None):
 		"""
 		Parameter
 			file_path:
@@ -32,6 +32,7 @@ class DataUtils(Base):
 			self.dataframe = self.dataframe[selected_attrs.keys()]
 
 		self.preview_count = 5
+		self.specified_c_domain = specified_c_domain
 		
 
 	def _loading(self, file_path, pandas_df, names = None):
@@ -113,9 +114,12 @@ class DataUtils(Base):
 	def _continue_generalizer(self, coarsed_col):
 		self.LOG.info("Data generalizing for continuous column: %s" % (coarsed_col.name))
 		edges = self.valbin_maps[coarsed_col.name]
+		edges = np.array(edges).astype(float)
+
 		dedges = diff(edges)
-		dedges = np.append(dedges, [dedges[-1]])
-		generalizer = lambda coarse_val: int(np.round((edges[coarse_val-1] + edges[coarse_val-1]+dedges[coarse_val]) / 2.0, 2) * 100) / 100.0
+		dedges = [dedges[0]] + dedges + [dedges[-1]]
+		#
+		generalizer = lambda coarse_val: int(np.round((edges[coarse_val-1] + edges[coarse_val-1]) / 2.0, 2) * 100) / 100.0
 
 		if len(edges) <= c.MAX_BIN_NUMBER:
 			generalizer  = lambda coarse_val: coarse_val
@@ -134,13 +138,16 @@ class DataUtils(Base):
 		D = c.MAX_BIN_NUMBER
 		smax = max(col)+.5; smin = min(col)-.5
 		edges = []
-		uniques = col.unique()
-		if len(uniques) > D:
-			edges = linspace(smin, smax, D+1)
+		if self.specified_c_domain is not None:
+			edges = self.specified_c_domain[col.name]
 		else:
-			edges = sorted(uniques)
+			uniques = col.unique()
+			if len(uniques) > D:
+				edges = linspace(smin, smax, D+1)
+			else:
+				edges = sorted(uniques)
 
-		self.LOG.debug("Parse continous data (column name, max, min, bins) (%s, %0.1f, %0.1f, %d)" % (col.name, smax, smin, len(edges)))
+		self.LOG.info("Parse continous data (column name, max, min, bins) (%s, %0.1f, %0.1f, %d)" % (col.name, smax, smin, len(edges)))
 
 		self.valbin_maps[col.name] = list(edges)
 		Ncount = searchsorted(edges, list(col), 'right')
