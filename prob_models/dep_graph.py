@@ -12,7 +12,7 @@ class DependencyGraph(Base):
     # The dependency graph
     dep_graph = None
 
-    def __init__(self, data = None, edges = None, noise_flag = True, white_list = []):
+    def __init__(self, data = None, edges = None, noise_flag = True, white_list = [], eps1_val = c.EPSILON_1):
         """
         __init__
         Input:
@@ -24,6 +24,7 @@ class DependencyGraph(Base):
         """
         self.LOG = Base.get_logger("DepGraph")
         self.noise_flag = noise_flag
+        self.eps1_val = eps1_val
         if data is None:
            self.edges = edges
            self.edges_robj = self._get_edges_in_r(self.edges)
@@ -58,9 +59,9 @@ class DependencyGraph(Base):
 
     def _build_dep_graph(self, r_df, r_domain):
         r_dep_edges = self.get_r_method(c.DEP_GRAPH_R_FILE, 'get_dep_edges')
-        self.LOG.info("Starting to compute Dep-Graph...")
+        self.LOG.info("Starting to compute Dep-Graph with eps1: %.2f..." % self.eps1_val)
         start = time.time()
-        robj = r_dep_edges(r_df, r_domain, self.noise_flag)
+        robj = r_dep_edges(r_df, r_domain, self.noise_flag, self.eps1_val)
         end = time.time()
         self.LOG.info("Compute Dep-Graph complete in %d seconds." % (end-start))
 

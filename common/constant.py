@@ -20,11 +20,18 @@ TEST_PARSED_FILE = os.path.join(TEST_FILE_PATH, 'data2-coarse.dat')
 TEST_JTREE_FILE_PATH = os.path.join(TEST_FILE_PATH, 'data2.jtree')
 
 """
-System configuration
+System configurations
 """
 MAX_BIN_NUMBER = 30
 MEDIATE_DATA_DIR = os.path.join(ROOT_PATH, "mediate_data/task_%(task_id)s")
 COARSE_DATA_NAME = "coarse.csv"
 SIM_DATA_NAME_PATTERN = "sim_level_%(privacy_level)s.csv"
+SIM_DATA_NAME_PATTERN_EXP = "sim_esp1lv_%(eps_level)s_eps2lv_%(privacy_level)s.csv"
+
 SIM_DATA_URI_PATTERN = "task_%(task_id)s/%(file_name)s"
 LOG_FILE_PATH = os.path.join(ROOT_PATH, "log/de_identification.log")
+
+"""
+DPTable Default Configurations
+"""
+EPSILON_1 = 700

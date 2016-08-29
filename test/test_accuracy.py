@@ -9,11 +9,14 @@ class TestFull(TestCase):
 	def setUp(self):
 
 		self.data_dir = os.path.join(c.TEST_FILE_PATH, 'exp')
+		# epsilon.1
+		self.eps1_levels = [2,3]
+
 		# noises
 		self.privacy_levels = [1,2]
 
 		# number of runs
-		self.nrun = 2
+		self.nrun = 3
 
 		# test cases
 		self.cases = [
@@ -33,6 +36,16 @@ class TestFull(TestCase):
 		}
 		return corr[level]
 
+	def get_esp_1(self, level):
+		corr = {
+			1:0.05,
+			2:0.5,
+			3:5,
+			4:50,
+			5:500
+		}
+		return corr[level]
+
 	def test_full(self):
 		for data_name, white_list in self.cases:
 			domain = self.read_domain_file(data_name)
@@ -47,34 +60,42 @@ class TestFull(TestCase):
 			"names": domain['names']
 		}
 		task_obj = None
-		for i in range(self.nrun):
-			task = TaskSerializer()
-			if i == 0:
-				task_obj = task.create(data_input)
-			else:
-				task_obj = task.update(task_obj, data_input)
+		task = TaskSerializer()
+		for eps1_lv in self.eps1_levels:
 
-			self.save_merged_jtree(task_obj)
-			for lv in self.privacy_levels:
-				privacy_input = {
-					"privacy_level":lv,
-					"epsilon":self.get_eps(lv),
-					"task_id": task_obj.task_id,
-					"exp_round":i
-				}
-				serializer = JobSerializer(data = privacy_input)
-				if(serializer.is_valid()): serializer.save()
+			for i in range(self.nrun):
+				data_input['eps1_level'] = eps1_lv
+				data_input['eps1_val'] = self.get_esp_1(eps1_lv)
+				
+				if task_obj is None:
+					task_obj = task.task_build_process(data_input)
+				else:
+					task_obj = task.task_build_process(data_input, instance = task_obj, dep_graph_rebuild = True)
+
+				self.save_merged_jtree(task_obj)
+
+				for eps2_lv in self.privacy_levels:
+					privacy_input = {
+						"privacy_level":eps2_lv,
+						"epsilon":self.get_eps(eps2_lv),
+						"task_id": task_obj.task_id,
+						"exp_round":i
+					}
+					serializer = JobSerializer(data = privacy_input)
+					if(serializer.is_valid()): serializer.save()
+
 
 
 	def save_merged_jtree(self, task):
 		task_id = task.task_id
+		eps1_level = task.eps1_level
 		jtree = task.jtree_strct
 
 		parent = c.MEDIATE_DATA_DIR % {'task_id': task_id}
 		if not os.path.exists(parent):
 			os.makedirs(parent)
 
-		file_name = 'jtree.display'
+		file_name = 'jtree_eps1_%d.display' % eps1_level
 		file_path = os.path.join(parent, file_name)
 		with open(file_path, 'w+') as jtree_file:
 			jtree_file.write(jtree)

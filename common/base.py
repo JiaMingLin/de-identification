@@ -23,9 +23,10 @@ class Base(object):
 	def convert2rlistofvector(self, groups):
 		return [robjects.StrVector(grp) for grp in groups]
 
-	def get_jtree_file_path(self, task_id):
+	def get_jtree_file_path(self, task_id, eps1_level):
 		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}
-		return os.path.join(folder, 'jtree.rds')
+		file_name = 'jtree_eps1_%d.rds' % eps1_level
+		return os.path.join(folder, file_name)
 
 	def create_task_folder(self, task_id):
 		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}

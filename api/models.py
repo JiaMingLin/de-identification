@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+import common.constant as c
 
 # Create your models here.
 
@@ -35,6 +36,8 @@ class Task(models.Model):
     start_time = models.DateTimeField(auto_now_add = True)
     end_time = models.DateTimeField(null = True)
     status = models.PositiveSmallIntegerField(default = 0, choices=TASK_STATUS)
+    eps1_val = models.FloatField(default = float(c.EPSILON_1))
+    eps1_level = models.PositiveSmallIntegerField(default = 1)
 
     class Meta:
         ordering = ('start_time',)

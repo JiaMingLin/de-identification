@@ -21,7 +21,20 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 
 	class Meta:
 		model = Task
-		field = ('task_id', 'task_name', 'data_path','selected_attrs','jtree_strct','white_list', 'dep_graph', 'start_time', 'end_time', 'status')
+		field = (
+			'task_id',
+			'task_name',
+			'data_path',
+			'selected_attrs',
+			'jtree_strct',
+			'white_list',
+			'dep_graph',
+			'start_time',
+			'end_time',
+			'status',
+			'eps1_val',
+			'eps1_level'
+		)
 
 	def create(self, validated_data):
 		return self.task_build_process(validated_data)
@@ -29,7 +42,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 	def update(self, instance, validated_data):
 		return self.task_build_process(validated_data, instance)
 
-	def task_build_process(self, request, instance = None):
+	def task_build_process(self, request, instance = None, dep_graph_rebuild = False):
 		data = None
 
 		domain = None
@@ -45,12 +58,15 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 			)
 			create_flag = True
 
-		if self.is_pre_process_skip(request, instance, create_flag) is False:
+		if self.is_pre_process_skip(request, instance, create_flag) is False or dep_graph_rebuild is True:
 			# when create, 
 			# update data path, attributes, 
 			instance.selected_attrs = request['selected_attrs']
 			instance.task_name = request['task_name']
 			instance.data_path = request['data_path'] # the original data path
+			instance.eps1_val = request['eps1_val'] if 'eps1_val' in request.keys() else c.EPSILON_1
+			instance.eps1_level = request['eps1_level'] if 'eps1_level' in request.keys() else 1
+
 			data = self.data_pre_processing(request, instance)
 			domain = data.get_domain()
 			nodes = data.get_nodes_name()
@@ -75,7 +91,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		task_folder = self.create_task_folder(instance.task_id)
 		self.save_coarse_data(task_folder, data)
 
-		optimized_jtree = self.build_jtree(instance.task_id, cust_edges, nodes, domain)
+		optimized_jtree = self.build_jtree(instance, cust_edges, domain)
 		# update task to save the optimized jtree
 		instance.jtree_strct = str(optimized_jtree)
 		instance.save()
@@ -104,7 +120,8 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 	def build_dep_graph(self, request, data):
 		# dependency graph
 		white_list = self.get_white_list(request)
-		dep_graph = DependencyGraph(data)
+		eps1_val = request['eps1_val'] if 'eps1_val' in request.keys() else c.EPSILON_1
+		dep_graph = DependencyGraph(data, eps1_val = eps1_val)
 		edges = dep_graph.get_dep_edges(display = True)
 
 		cust_edges = dep_graph.set_white_list(white_list) \
@@ -118,12 +135,13 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 							.get_dep_edges(display = True)
 		return cust_edges
 
-	def build_jtree(self,task_id, edges, nodes, domain):
+	def build_jtree(self,task, edges, domain):
 		# junction tree
+		nodes = domain.keys()
 		jtree = JunctionTree(
 			edges, 
 			nodes, 
-			self.get_jtree_file_path(task_id) # the path to save junction tree file
+			self.get_jtree_file_path(task.task_id, task.eps1_level), # the path to save junction tree file
 		)
 
 		# optimize marginal
@@ -159,6 +177,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		# retrieve task information fram DB.
 		task = validated_data['task_id']
 		task_id = task.task_id
+		eps1_level = task.eps1_level
 		data_path = task.data_path
 		jtree_strct = ast.literal_eval(task.jtree_strct)
 		edges = ast.literal_eval(task.dep_graph)
@@ -172,7 +191,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 
 		inference = Inference(
 			self.get_coarse_data(task_id), 
-			self.get_jtree_file_path(task_id), 
+			self.get_jtree_file_path(task_id, eps1_level), 
 			domain, 
 			jtree_strct , 
 			epsilon)
@@ -186,7 +205,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 
 		# Save the synthetic data to file system.
 		if 'exp_round' in validated_data.keys():
-			synthetic_path = self.save_sim_data_exp(sim_df, task_id, privacy_level, int(validated_data['exp_round']))
+			synthetic_path = self.save_sim_data_exp(sim_df, task_id, privacy_level, eps1_level, int(validated_data['exp_round']))
 		else:
 			synthetic_path = self.save_sim_data(sim_df, task_id, privacy_level)
 
@@ -225,17 +244,21 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		file_name = c.SIM_DATA_NAME_PATTERN % {'privacy_level':privacy_level}
 		if spec_file_name is not None:
 			file_name = spec_file_name
-		
-		file_path = os.path.join(folder,file_name)
-		dataframe.to_csv(file_path, index = False)
+			# TODO: a parameter to specify no header output
+			file_path = os.path.join(folder,file_name)
+			dataframe.to_csv(file_path, index = False, header = False)
+		else:
+			file_path = os.path.join(folder,file_name)
+			dataframe.to_csv(file_path, index = False)
 
 		# return the download path
 		return c.SIM_DATA_URI_PATTERN % {'task_id':task_id, 'file_name':file_name}
 
-	def save_sim_data_exp(self, dataframe, task_id, privacy_level, exp_round):
-		spec_file_name = "sim_round_%(exp_round)s_level_%(privacy_level)s.csv" % {
+	def save_sim_data_exp(self, dataframe, task_id, privacy_level, eps1_level, exp_round):
+		spec_file_name = "sim_eps1lv_%(eps_lv)s_eps2lv_%(privacy_level)s_round_%(exp_round)s.csv" % {
 				'exp_round': exp_round,
-				'privacy_level': privacy_level
+				'privacy_level': privacy_level,
+				'eps_lv': eps1_level
 		}
 		return self.save_sim_data(dataframe, task_id, privacy_level, spec_file_name = spec_file_name)
 
