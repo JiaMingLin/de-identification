@@ -224,7 +224,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		# TODO: To deal with failure.
 		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}
 		file_path = os.path.join(folder,c.COARSE_DATA_NAME)
-		return file_path
+		return DataUtils(file_path = file_path)
 
 
 	def data_generalize(self, dataframe, valbin_map, selected_attrs):
@@ -276,7 +276,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			}
 		"""
 		# read the original coarse data first.
-		coarsed_data = DataUtils(self.get_coarse_data(task_id))
+		coarsed_data = self.get_coarse_data(task_id)
 		coarsed_df = coarsed_data.get_pandas_df()
 		nodes = coarsed_data.get_nodes_name()
 

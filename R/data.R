@@ -3,15 +3,15 @@ Data <- setRefClass(
 	
 	fields = list(
 		origin = "ANY",
-		data_path = "character",
+		data = "ANY",
 		domain = "ANY",
 		DB.size = "numeric"
 	),
 	
 	methods = list(
-		initialize = function(data_path, domain){
+		initialize = function(data, domain){
 			.self$domain <- list()
-			.self$data_path <- data_path
+			.self$data <- data
 			.self$domain$name <- unlist(domain['name'])
 			.self$domain$dsize <- domain['dsize']$dsize
 			.self$domain$levels <- domain['levels']$levels
@@ -20,16 +20,8 @@ Data <- setRefClass(
 
 		load_coarse_data = function() {
 			.self$origin <- list()
-			
-			rows <- read.csv(file = .self$data_path, 
-				header = FALSE,
-				skip=1,
-				col.names = .self$domain$name, 
-				colClasses = rep('factor', length(.self$domain$name)), 
-				check.names = FALSE
-			)
 
-			rows <- as.data.frame(rows)
+			rows <- .self$data
 			for (col.name in colnames(rows)) {
 				rows[col.name]<-lapply(rows[col.name], factor
 					, levels = .self$domain$levels[[col.name]])
@@ -37,7 +29,6 @@ Data <- setRefClass(
 
 			.self$origin <- rows
 			.self$DB.size = as.integer(nrow(rows))
-			print(paste("Dataset size:", .self$DB.size))
 		}
 	)
 )

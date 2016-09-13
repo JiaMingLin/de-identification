@@ -11,16 +11,35 @@ from numpy import linspace, searchsorted, diff
 class DataUtils(Base):
 
 	
-	def __init__(self, file_path = None , pandas_df = None, selected_attrs = None, valbin_maps = None, names=None, specified_c_domain = None):
-		"""
-		Parameter
-			file_path:
-				the path of original data
-			selected_attrs:
+	def __init__(
+		self, 
+		file_path = None, 
+		selected_attrs = None, 
+		pandas_df = None, 
+		valbin_maps = None, 
+		names=None, 
+		specified_c_domain = None
+		):
+		""" Loading data to warpped python object
+
+		Parameters
+		----------
+			file_path: string
+				The path of original data
+			selected_attrs: dict
 				{
 					"A":"C",
-					"B":"D",...
-				}			
+					"B":"D",
+					...
+				}
+			pandas_df: Pandas dataframe
+				Initialize with a pandas dataframe(TODO: deprecated)
+			valbin_maps: dict
+				A mapping of original values with coarse value
+			names: list, experiment
+				A list to specifiy the attributes' names when the input file has no header
+			specified_c_domain: dict, experiment
+				A mapping of continuous type attributes with the specified edges in coarse
 		"""
 		self.LOG = Base.get_logger("DataUtils")
 		self.valbin_maps = dict() if valbin_maps is None else valbin_maps
@@ -70,6 +89,9 @@ class DataUtils(Base):
 
 	def get_valbin_maps(self):
 		return self.valbin_maps
+
+	def get_count(self):
+		return len(self.dataframe.index)
 
 	def save(self, path):
 		self.dataframe.to_csv(path, index=False)

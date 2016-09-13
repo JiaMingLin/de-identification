@@ -9,6 +9,7 @@ R_SCRIPT_PATH = os.path.join(ROOT_PATH, 'R/')
 DEP_GRAPH_R_FILE = os.path.join(R_SCRIPT_PATH, "dep-graph.R")
 JTREE_R_FILE = os.path.join(R_SCRIPT_PATH, "jtree.R")
 INFERENCE_R_FILE = os.path.join(R_SCRIPT_PATH, "inference.R")
+SIMULATE_R_FILE = os.path.join(R_SCRIPT_PATH, "simulate.R")
 
 """
 Test file path

@@ -17,17 +17,17 @@ Inference <- setRefClass(
 		POTgrain = "ANY",
 		noise.flag = "logical"
 	),
-	
+
 	methods = list(
-		initialize = function(cluster, jtree_file, data_path, domain, noise.flag=TRUE, epsilon=0.0){
+		initialize = function(cluster, jtree_file, data, domain, noise.flag=TRUE, epsilon=0.0){
 			.self$cluster.noisy.freq <- list()
 			.self$cluster <- cluster
 			.self$epsilon <- epsilon
-			.self$data <- Data$new(data_path, domain)
+			.self$data <- Data$new(data, domain)
 			.self$jtree <- readRDS(jtree_file)
 			.self$noise.flag <- noise.flag
 		},
-		
+
 		inject_noise = function(){
 
 			margins <- .self$cluster
@@ -144,6 +144,15 @@ Inference <- setRefClass(
 				class(.self$POTlist) <- "extractPOT"
 			}
 		},
+
+		get_model = function() {
+			if (.self$noise.flag) {
+				curr.grain <- .self$POTgrain.consistent
+			}else {
+				curr.grain <- .self$POTgrain
+			}
+			return(curr.grain)
+		},
 		
 		message_passing = function() {
 			if(.self$noise.flag == TRUE){
@@ -169,14 +178,14 @@ Inference <- setRefClass(
 	)
 )
 
-do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, data_path, domain){
+do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, data, domain){
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
 	inference <- Inference$new(
 		cluster, 
 		jtree_path, 
-		data_path, 
+		data, 
 		domain, 
 		epsilon = epsilon, 
 		noise.flag = TRUE
@@ -192,10 +201,10 @@ do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, data_path, 
 
 	inference$message_passing()
 
-	return(inference$simulate())
+	return(inference$get_model())
 }
 
-do_inference_without_noise <- function(r_script_dir, cluster, jtree_path, data_path, domain){
+do_inference_without_noise <- function(r_script_dir, cluster, jtree_path, data, domain){
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
@@ -203,11 +212,11 @@ do_inference_without_noise <- function(r_script_dir, cluster, jtree_path, data_p
 	inference <- Inference$new(
 		cluster, 
 		jtree_path, 
-		data_path, 
+		data, 
 		domain, 
 		noise.flag = FALSE
 	)
 	inference$init_potential_data_table()
 	inference$message_passing()
-	return(inference$simulate())
+	return(inference$get_model())
 }
