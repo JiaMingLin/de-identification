@@ -83,6 +83,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'de_identification',
+	'USER': 'root',
+	'PASSWORD': 'iii',
     }
 }
 

@@ -7,6 +7,10 @@ import collections
 import os
 import common.constant as c
 
+spark_home = os.environ['SPARK_HOME']
+if len(spark_home) > 0:
+	from common.importer import *
+
 class Base(object):
 
 	logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s \t %(levelname)s \t %(message)s')
