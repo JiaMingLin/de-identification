@@ -66,9 +66,7 @@ class Simulate(Base):
 		self.size = size
 
 	def run(self):
-		# set partition number
-		partition_num = 40
-
+		
 		# broadcast the simulate R function obj
 		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
 		br_sim = sc.broadcast(simulate)
@@ -91,8 +89,8 @@ class Simulate(Base):
 
 			partial_df = sim_func(model, partial_size)
 			partial_df = pandas2ri.ri2py_dataframe(partial_df)
-			yield len(partial_df)
+			return iter(partial_df.to_dict('record'))
 
 		# make parallelize operation
-		result = sc.parallelize(range(partition_num), partition_num).mapPartitions(parallelize_sim)
-		print result.take(5)
+		sim_data = sc.parallelize(range(partition_num), partition_num).mapPartitions(parallelize_sim).toDF()
+		print sim_data.count()
