@@ -1,5 +1,4 @@
 try:
-
 	from pyspark import SparkConf, SparkContext, SQLContext
 	conf = (SparkConf()
         	.setMaster("yarn-client")
@@ -14,4 +13,4 @@ try:
 	partition_num = 400
 
 except:
-	print "run on local"
+	print 'run from local python command'

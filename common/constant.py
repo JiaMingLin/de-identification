@@ -36,3 +36,11 @@ LOG_FILE_PATH = os.path.join(ROOT_PATH, "log/de_identification.log")
 DPTable Default Configurations
 """
 EPSILON_1 = 700
+
+"""
+Data on HDFS path
+"""
+HDFS_MEDIAN_DATA = '/data/adults-median'
+HDFS_LARGE_DATA = 'data/adults-large'
+HDFS_HUGE_DATA = 'data/adults-huge'
+DOMAIN_FILE = os.path.join(ROOT_PATH, 'static/test/adults-coarse.domain'
