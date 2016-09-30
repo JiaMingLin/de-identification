@@ -63,7 +63,7 @@ class Simulate(Base):
 	from pyspark.sql import Row
 	def __init__(self, model, size):
 		self.model = model
-		self.size = size
+		self.size = 100000000
 
 	def run(self):
 		
