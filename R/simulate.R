@@ -1,5 +1,3 @@
-library(gRain)
-
 Simulate <- setRefClass(
 	"Simulate",
 	method = list(

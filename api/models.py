@@ -50,6 +50,7 @@ class Job(models.Model):
     epsilon = models.FloatField()
     status = models.PositiveSmallIntegerField(default = 0)
     exp_round = models.PositiveSmallIntegerField(default = 0)
+    min_freq = models.FloatField(default = 0.)
     synthetic_path = models.CharField(max_length = 300, blank = True)
     statistics_err = models.TextField(blank = True)
     log_path = models.CharField(max_length = 300, blank = True)

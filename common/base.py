@@ -7,6 +7,9 @@ import collections
 import os
 import common.constant as c
 
+r = robjects.r
+r.source(c.INIT_LIB_R_FILE)
+
 class Base(object):
 
 	logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s \t %(levelname)s \t %(message)s')

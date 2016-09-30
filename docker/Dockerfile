@@ -8,7 +8,7 @@ RUN apt-get update && \
 ADD my.cnf /etc/mysql/my.cnf
 
 # install python dep
-RUN pip install Django rpy2 djangorestframework cvxpy
+RUN pip install Django rpy2 djangorestframework cvxpy numexpr
 
 # install R dep
 # install required R packages

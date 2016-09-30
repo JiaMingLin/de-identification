@@ -1,6 +1,3 @@
-library(distr)
-library(data.table)
-library(gRain)
 Inference <- setRefClass(
 	"Inference",
 	

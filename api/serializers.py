@@ -163,19 +163,22 @@ class JobSerializer(serializers.ModelSerializer, Base):
 	statistics_err = serializers.JSONField(required=False)
 	class Meta:
 		model = Job
-		field = ('dp_id', 'task_id', 'privacy_level', 'epsilon', 'status', 'exp_round', 'synthetic_path', 'log_path', 'start_time', 'end_time')
+		field = ('dp_id', 'task_id', 'privacy_level', 'epsilon', 'status', 'exp_round', 'min_freq', 'synthetic_path', 'log_path', 'start_time', 'end_time')
 
 	# The Job is not going to be modified.
 	def create(self, validated_data):
 
 		privacy_level = validated_data['privacy_level']
 		epsilon = float(validated_data['epsilon'])
+		min_freq = float(validated_data['min_freq']) if 'min_freq' in validated_data.keys() else 0.
 
 		# retrieve task information fram DB.
 		task = validated_data['task_id']
 		task_id = task.task_id
 		eps1_level = task.eps1_level
 		data_path = task.data_path
+
+		# the jtree is optimized
 		jtree_strct = ast.literal_eval(task.jtree_strct)
 		edges = ast.literal_eval(task.dep_graph)
 		domain = collections.OrderedDict(ast.literal_eval(task.domain)) # This is the corsed domain
@@ -183,26 +186,32 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		selected_attrs = self.convert_selected_attrs(task.selected_attrs)
 		nodes = domain.keys()
 
-		# TODO: read coarse in python, and therefore, 
-		# the pandas dataframe can be reused in error rate estimations
+		# having the eps and cluster numbers, doing aggregation.
+		data = self.get_coarse_data(task)
+		if min_freq > 0:
+			cluster_num = len(jtree_strct)
+			thresh = self.get_freq_thresh(epsilon, cluster_num, min_freq)
+			data.aggregation(thresh)
+			domain = data.get_domain()
+			valbin_map = data.get_valbin_maps()
 
 		inference = Inference(
-			self.get_coarse_data(task_id), 
+			data, 
 			self.get_jtree_file_path(task_id, eps1_level), 
 			domain, 
-			jtree_strct , 
+			jtree_strct,
 			epsilon)
 
 		sim_df = inference.execute()
 
 		# compute the errors rate
-		statistics_err = self.get_statistical_error(task_id, sim_df, task.eps1_val , epsilon, task.white_list)
+		statistics_err = self.get_statistical_error(task, sim_df, task.eps1_val , epsilon, task.white_list, min_freq)
 
 		sim_df = self.data_generalize(sim_df, valbin_map, selected_attrs)
 
 		# Save the synthetic data to file system.
 		if 'exp_round' in validated_data.keys():
-			synthetic_path = self.save_sim_data_exp(sim_df, task_id, privacy_level, eps1_level, int(validated_data['exp_round']))
+			synthetic_path = self.save_sim_data_exp(sim_df, task_id, privacy_level, eps1_level, min_freq, int(validated_data['exp_round']))
 		else:
 			synthetic_path = self.save_sim_data(sim_df, task_id, privacy_level)
 
@@ -219,12 +228,20 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		return job_obj
 
 
-	def get_coarse_data(self, task_id):
+	def get_freq_thresh(self, epsilon, cluster_num, min_freq):
+		return ((5.99 * cluster_num) / epsilon) + min_freq
+
+	def get_coarse_data(self, task):
 		# TODO: Read coarse data from memory cach.
 		# TODO: To deal with failure.
-		folder = c.MEDIATE_DATA_DIR % {'task_id': task_id}
+		folder = c.MEDIATE_DATA_DIR % {'task_id': task.task_id}
 		file_path = os.path.join(folder,c.COARSE_DATA_NAME)
-		return DataUtils(file_path = file_path)
+		data = DataUtils(
+			file_path = file_path, 
+			valbin_maps = ast.literal_eval(task.valbin_map),
+			selected_attrs = self.convert_selected_attrs(task.selected_attrs)
+		)
+		return data
 
 
 	def data_generalize(self, dataframe, valbin_map, selected_attrs):
@@ -251,16 +268,17 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		# return the download path
 		return c.SIM_DATA_URI_PATTERN % {'task_id':task_id, 'file_name':file_name}
 
-	def save_sim_data_exp(self, dataframe, task_id, privacy_level, eps1_level, exp_round):
-		spec_file_name = "sim_eps1lv_%(eps_lv)s_eps2lv_%(privacy_level)s_round_%(exp_round)s.csv" % {
+	def save_sim_data_exp(self, dataframe, task_id, privacy_level, eps1_level,min_freq, exp_round):
+		spec_file_name = "sim_eps1lv_%(eps_lv)s_eps2lv_%(privacy_level)s_k_%(min_freq)s_round_%(exp_round)s.csv" % {
 				'exp_round': exp_round,
 				'privacy_level': privacy_level,
-				'eps_lv': eps1_level
+				'eps_lv': eps1_level,
+				'min_freq': int(min_freq)
 		}
 		return self.save_sim_data(dataframe, task_id, privacy_level, spec_file_name = spec_file_name)
 
 
-	def get_statistical_error(self, task_id, sim_coarsed_df, eps1, eps2, white_list):
+	def get_statistical_error(self, task, sim_coarsed_df, eps1, eps2, white_list, k):
 		"""
 		Compute the mean and standard varience error rates(Both coarse data).
 		Parameters
@@ -276,7 +294,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			}
 		"""
 		# read the original coarse data first.
-		coarsed_data = self.get_coarse_data(task_id)
+		coarsed_data = self.get_coarse_data(task)
 		coarsed_df = coarsed_data.get_pandas_df()
 		nodes = coarsed_data.get_nodes_name()
 
@@ -295,7 +313,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		mean_error = [str(rate)+'%' for rate in np.round(mean_error, decimals = 2)]
 		std_error = [str(rate)+'%' for rate in np.round(std_error, decimals = 2)]
 
-		self.print_pretty_summary(nodes, mean_error, std_error, eps1, eps2, white_list)
+		self.print_pretty_summary(nodes, mean_error, std_error, eps1, eps2, white_list, k)
 		result = {
 			'attrs':nodes,
 			'measures':['mean', 'std'],
@@ -307,7 +325,7 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		
 		return result
 
-	def print_pretty_summary(self, nodes, mean_error, std_error, eps1, eps2, white_list):
+	def print_pretty_summary(self, nodes, mean_error, std_error, eps1, eps2, white_list, k):
 		LOG = Base.get_logger("Statical Accuracy Summary")
 		import pandas as pd
 		frame = pd.DataFrame({
@@ -317,4 +335,5 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			})
 		LOG.info("eps1: %.2f, eps2: %.2f" % (eps1, eps2))
 		LOG.info("White List: %s" % str(white_list))
+		LOG.info("k-aggregate value: %d" % k)
 		LOG.info('\n'+str(frame))
