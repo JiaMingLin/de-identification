@@ -1,6 +1,9 @@
-from common.base import *
+import re
+import numpy as np
 
+from common.base import *
 from time import time
+
 
 class DataDist(Base):
 	"""
@@ -37,7 +40,7 @@ class DataDist(Base):
 
 		t1 = time()
 		self.LOG.info("Coalesce data starting...")
-		self.dataframe.coalesce(partitions)
+		self.dataframe = self.dataframe.coalesce(partitions)
 		self.dataframe.persist()
 		self.nrow = self.dataframe.count()
 		self.LOG.info("Coalesce data complete in %d sec." % (time() - t1))
@@ -63,7 +66,7 @@ class DataDist(Base):
 
 		domains = []
 
-		with open(file_path, 'r') as f:
+		with open(domains_path, 'r') as f:
 			first = readlinesplit(f.readline())
 			ncol = first[0]; nrow = first[1]
 			for line in f:
