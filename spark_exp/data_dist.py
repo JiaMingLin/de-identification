@@ -20,7 +20,7 @@ class DataDist(Base):
 		dataframe: spark dataframe
 			The spark dataframe. data_path and dataframe can not be specified or None at the same time.
 	"""
-	def __init__(self, domains_path, data_path = None, dataframe = None, partitions = 120):
+	def __init__(self, domains_path, data_path = None, dataframe = None):
 		
 		if (data_path is None and dataframe is None) or (data_path is not None and dataframe is not None):
 			raise Exception('The data_path and dataframe can not be specified or None at the same time')
@@ -38,20 +38,22 @@ class DataDist(Base):
 
 		self.LOG.info("Data has been loaded in %d sec.!!!" % (time() - t1))
 
+		"""
 		t1 = time()
 		self.LOG.info("Coalesce data starting...")
 		self.dataframe = self.dataframe.coalesce(partitions)
 		self.dataframe.persist()
 		self.nrow = self.dataframe.count()
 		self.LOG.info("Coalesce data complete in %d sec." % (time() - t1))
-
+		"""
 
 	def get_df(self):
 		return self.dataframe
-
+	"""
 	def get_nrow(self):
 		return self.nrow
-
+	"""
+	
 	def get_domain(self):
 		return self.domains
 
