@@ -190,7 +190,8 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		data = self.get_coarse_data(task)
 		if min_freq > 0:
 			cluster_num = len(jtree_strct)
-			thresh = self.get_freq_thresh(epsilon, cluster_num, min_freq)
+			# thresh = self.get_freq_thresh(epsilon, cluster_num, min_freq)
+			thresh = min_freq
 			data.aggregation(thresh)
 			domain = data.get_domain()
 			valbin_map = data.get_valbin_maps()
@@ -301,6 +302,14 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		# make sure the order
 		sim_coarsed_df = sim_coarsed_df[nodes]
 
+		"""
+		print '====='*10
+		print np.histogram(sim_coarsed_df['Age'], bins=20)[0]
+		print np.histogram(coarsed_df['Age'], bins=20)[0]
+		print len(np.histogram(sim_coarsed_df['Age'], bins=20)[0])
+		print len(np.histogram(coarsed_df['Age'], bins=20)[0])
+		"""
+		
 		coarsed_df_mean = np.array(coarsed_df.mean(), dtype = float)
 		coarsed_df_std = np.array(coarsed_df.std(), dtype = float)
 
