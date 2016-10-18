@@ -32,12 +32,13 @@ class DataDist(Base):
 		self.LOG.info("Starting to loading data...")
 		if dataframe is None:
 			self.data_path = data_path
-			self.dataframe = sqlContext.read.format('com.databricks.spark.csv').options(header='true', inferschema='true').load(data_path)
+			self.dataframe = sqlContext.parquetFile(data_path)
 		else:
 			self.dataframe = dataframe
 
 		self.LOG.info("Data has been loaded in %d sec.!!!" % (time() - t1))
-
+	
+		self.nrows = 0
 		"""
 		t1 = time()
 		self.LOG.info("Coalesce data starting...")
@@ -54,8 +55,28 @@ class DataDist(Base):
 		return self.nrow
 	"""
 	
-	def get_domain(self):
+	def get_domains(self):
 		return self.domains
+	
+	def get_nrows(self):
+		if self.nrows > 0:
+			return self.nrows
+		self.nrows = self.dataframe.count()
+	
+	def coalesce(self, num):
+		self.LOG.info("Coalesce data starting...")
+		t1 = time()
+		partitions_num = self.dataframe.rdd.getNumPartitions()
+		if num > partitions_num:
+			self.dataframe = self.dataframe.repartition(num)
+		elif num < partitions_num:
+			self.dataframe = self.dataframe.coalesce(num)
+		else:
+			return
+		self.dataframe.persist()
+		self.nrows = self.dataframe.count()
+		self.LOG.info("Coalesce data complete in %d sec." % (time() - t1))
+		
 
 	def read_domain(self, domains_path):
 		def readlinesplit(line):

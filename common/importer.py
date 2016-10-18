@@ -1,5 +1,6 @@
 try:
 	from pyspark import SparkConf, SparkContext, SQLContext
+	import common.constant as c
 	conf = (SparkConf()
         	.setMaster("yarn-client")
         	.setAppName("de_identification")

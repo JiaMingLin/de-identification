@@ -40,6 +40,8 @@ EPSILON_1 = 700
 """
 Data on HDFS path
 """
+DIST_FUNC_PATH = 'base_func_dist.py'
+HDFS_TEST_DATA = '/data/adults-test'
 HDFS_MEDIAN_DATA = '/data/adults-median'
 HDFS_LARGE_DATA = '/data/adults-large'
 HDFS_HUGE_DATA = '/data/adults-huge'

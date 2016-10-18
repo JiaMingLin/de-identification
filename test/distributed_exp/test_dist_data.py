@@ -1,7 +1,6 @@
 import os
 import common.constant as c
 
-
 from spark_exp.data_dist import DataDist
 from django.test import TestCase
 
