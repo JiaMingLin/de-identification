@@ -5,6 +5,7 @@ Inference <- setRefClass(
 		cluster = 'list',
 		epsilon = 'numeric',
 		data = "ANY",
+		histograms = "ANY", 
 		cluster.noisy.freq = "ANY",
 		jtree = "ANY",
 		clique.freq = "list",
@@ -16,11 +17,12 @@ Inference <- setRefClass(
 	),
 
 	methods = list(
-		initialize = function(cluster, jtree_file, data, domain, noise.flag=TRUE, epsilon=0.0){
+		initialize = function(cluster, jtree_file, histograms, domain, noise.flag=TRUE, epsilon=0.0){
 			.self$cluster.noisy.freq <- list()
 			.self$cluster <- cluster
 			.self$epsilon <- epsilon
-			.self$data <- Data$new(data, domain)
+			.self$data <- Data$new(domain)
+			.self$histograms <- histograms			
 			.self$jtree <- readRDS(jtree_file)
 			.self$noise.flag <- noise.flag
 		},
@@ -28,7 +30,7 @@ Inference <- setRefClass(
 		inject_noise = function(){
 
 			margins <- .self$cluster
-			t <- data.table(.self$data$origin)
+			#t <- data.table(.self$data$origin)
 			margin.noisy.freq <- list()
 			sen <- 1
 			num.margins<-length(margins)
@@ -36,9 +38,11 @@ Inference <- setRefClass(
 			Lap <- DExp(rate = 1 / b)
 			for (i in seq_len(length(margins))) {
 				cq <- margins[[i]]
-				setkeyv(t, cq)
-				curr_levels <- lapply(cq, function(x) levels(t[, get(x)]))
-				xxx <- t[do.call(CJ, curr_levels), list(freq = .N), allow.cartesian = T, by = .EACHI][, freq]
+
+				#setkeyv(t, cq)
+				#curr_levels <- lapply(cq, function(x) levels(t[, get(x)]))
+				#xxx <- t[do.call(CJ, curr_levels), list(freq = .N), allow.cartesian = T, by = .EACHI][, freq]
+				xxx <- get_freq(cq)
 				noises <- r(Lap)(length(xxx))
 				freq.noisy <- xxx + noises				
 				margin.noisy.freq[[i]] <- freq.noisy
@@ -47,7 +51,6 @@ Inference <- setRefClass(
 		},
 
 		consistency = function(){
-
 			consistency <- ConsistentMargin$new(.self$data$DB.size, .self$cluster, .self$data$domain, .self$cluster.noisy.freq)
 			.self$cluster.noisy.freq <- consistency$fix_negative_entry_approx(flag.set = FALSE)
 			.self$cluster.noisy.freq <- consistency$enforce_global_consistency()			
@@ -55,7 +58,6 @@ Inference <- setRefClass(
 		
 		set_clique_margin_from_cluster = function() {
 
-			t <- data.table(.self$data$origin)
 			domain <- .self$data$domain
 			noisy.freq <- .self$cluster.noisy.freq
 			cliques <- .self$jtree$cliques
@@ -100,16 +102,18 @@ Inference <- setRefClass(
 			seps<-.self$jtree$separators
 			ans <- vector("list", length(cliques))
 			N=.self$data$DB.size
-			t <- data.table(.self$data$origin)
+			#t <- data.table(.self$data$origin)
 			for (ii in seq_along(cliques)){
 
 				cq  <- cliques[[ii]]
 				sp  <- seps[[ii]]
-				setkeyv(t, cq)
-				curr_levels <- lapply(cq, function(x) levels(t[, get(x)]))
+				#setkeyv(t, cq)
+				#curr_levels <- lapply(cq, function(x) levels(t[, get(x)]))
 
-				xxx <- t[do.call(CJ, curr_levels), list(freq = .N), allow.cartesian = T, by = .EACHI]
-				.self$clique.freq[[ii]] <- xxx[, freq]
+				#xxx <- t[do.call(CJ, curr_levels), list(freq = .N), allow.cartesian = T, by = .EACHI]
+				xxx <- get_xtab(cq)
+				setDT(xxx)
+				.self$clique.freq[[ii]] <- get_freq(cq)
 		
 				if (length(cliques.noisy.freq) > 0) {
 					freq.noisy <- cliques.noisy.freq[[ii]]
@@ -171,49 +175,70 @@ Inference <- setRefClass(
 			if(is.null(curr.grain)) stop("POTgrain is not provided yet")
 			data.sim <- simulate.grain(curr.grain, num.of.syn)
 			return(data.sim)
+		},
+
+		get_xtab = function(clique){
+			keyname <- convert2keyname(clique)
+			hist <- .self$histograms[[keyname]]
+			return(hist)
+		},
+
+		get_freq = function(clique){
+			hist <- get_xtab(clique)
+			freq <- as.vector(hist$freq)
+			return(freq)
+		},
+
+		convert2keyname = function(clique){
+			return(paste(clique, collapse='_'))
 		}
 	)
 )
 
-do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, data, domain){
+do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, histograms, domain){
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
+	#print(histogramdds)
+	
 	inference <- Inference$new(
 		cluster, 
 		jtree_path, 
-		data, 
+		histograms,
 		domain, 
 		epsilon = epsilon, 
 		noise.flag = TRUE
 	)
 
 	inference$inject_noise()
-
+	
 	inference$consistency()
-
+	
 	inference$set_clique_margin_from_cluster()
-
+	
 	inference$init_potential_data_table()
-
+	
 	inference$message_passing()
-
+	
 	return(inference$get_model())
+	
 }
 
-do_inference_without_noise <- function(r_script_dir, cluster, jtree_path, data, domain){
+do_inference_without_noise <- function(r_script_dir, cluster, jtree_path, histograms, domain){
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
-
+	#print(histogramdds)
+	
 	inference <- Inference$new(
 		cluster, 
 		jtree_path, 
-		data, 
+		histograms, 
 		domain, 
 		noise.flag = FALSE
 	)
 	inference$init_potential_data_table()
 	inference$message_passing()
 	return(inference$get_model())
+	
 }

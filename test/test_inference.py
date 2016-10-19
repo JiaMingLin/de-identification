@@ -1,5 +1,6 @@
 from django.test import TestCase
 from dptable.inference import Inference
+from prob_models.jtree import JunctionTree
 from common.data_utilities import DataUtils
 
 import collections
@@ -11,7 +12,11 @@ TEST_PARSED_FILE = c.TEST_PARSED_FILE
 
 class TestInerence(TestCase):
 	def setUp(self):
+		nodes = ['Age', 'Height', 'Weight', 'Income', 'TRV', 'HTN', 'DGF']
+		edges = [['Height', 'HTN'], ['Weight', 'HTN'], ['Income', 'TRV']]
+		jtree = JunctionTree(edges, nodes)
 
+		cliques = jtree.get_jtree()['cliques']
 		opted_cluster = [['DGF'], ['Income', 'TRV'], ['Age'], ['Height', 'HTN'], ['Weight', 'HTN']]
 		domain = collections.OrderedDict([
 			('Age', [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85]), 
@@ -25,6 +30,7 @@ class TestInerence(TestCase):
 		data1 = DataUtils(file_path = TESTING_FILE)
 		self.inference = Inference(
 			data1, 
+			cliques,
 			JTREE_TEST_FILE,
 			domain, 
 			opted_cluster,
@@ -42,6 +48,7 @@ class TestInerence(TestCase):
 		data2 = DataUtils(file_path = TEST_PARSED_FILE)
 		self.inference_parsed = Inference(
 			data2, 
+			cliques,
 			JTREE_TEST_FILE, 
 			domain_parsed, 
 			opted_cluster , 

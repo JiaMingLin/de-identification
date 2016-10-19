@@ -5,7 +5,7 @@ import time
 
 class JunctionTree(Base):
 	
-	def __init__(self, edges, nodes, jtree_path):
+	def __init__(self, edges, nodes, jtree_path = None):
 		
 		edges = self.convert2rlistofvector(edges)
 
@@ -37,6 +37,8 @@ class JunctionTree(Base):
 		get_jtree = self.get_r_method(c.JTREE_R_FILE, 'get_jtree')
 		self.LOG.info("Starting to compute Junction Tree...")
 		start = time.time()
+		if jtree_path is None:
+			jtree_path = ""
 		robj =  get_jtree(edges, r_nodes, jtree_path)
 		end = time.time()
 		self.LOG.info("Compute Junction Tree complete in %d seconds." % (end-start))

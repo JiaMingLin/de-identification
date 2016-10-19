@@ -27,6 +27,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 			'data_path',
 			'selected_attrs',
 			'jtree_strct',
+			'opted_cluster',
 			'white_list',
 			'dep_graph',
 			'start_time',
@@ -91,9 +92,11 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		task_folder = self.create_task_folder(instance.task_id)
 		self.save_coarse_data(task_folder, data)
 
-		optimized_jtree = self.build_jtree(instance, cust_edges, domain)
+		jtree_strct, opted_cluster = self.build_jtree(instance, cust_edges, domain)
 		# update task to save the optimized jtree
-		instance.jtree_strct = str(optimized_jtree)
+		instance.jtree_strct = str(jtree_strct)
+		instance.opted_cluster = str(opted_cluster)
+
 		instance.save()
 
 		return instance
@@ -144,7 +147,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		# optimize marginal
 		var_reduce = VarianceReduce(domain, jtree.get_jtree()['cliques'], 0.2)
 		optimized_jtree = var_reduce.main()
-		return optimized_jtree
+		return jtree.get_jtree()['cliques'], optimized_jtree
 
 	def get_white_list(self, request):
 		white_list = request['white_list'] if 'white_list' in request.keys() else "[]"
@@ -178,8 +181,9 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		eps1_level = task.eps1_level
 		data_path = task.data_path
 
-		# the jtree is optimized
 		jtree_strct = ast.literal_eval(task.jtree_strct)
+		opted_cluster = ast.literal_eval(task.opted_cluster)
+
 		edges = ast.literal_eval(task.dep_graph)
 		domain = collections.OrderedDict(ast.literal_eval(task.domain)) # This is the corsed domain
 		valbin_map = ast.literal_eval(task.valbin_map)
@@ -198,9 +202,10 @@ class JobSerializer(serializers.ModelSerializer, Base):
 
 		inference = Inference(
 			data, 
+			jtree_strct, 
 			self.get_jtree_file_path(task_id, eps1_level), 
 			domain, 
-			jtree_strct,
+			opted_cluster,
 			epsilon)
 
 		sim_df = inference.execute()

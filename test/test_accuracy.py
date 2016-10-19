@@ -138,8 +138,3 @@ class TestFull(TestCase):
 			return {'names': names, 'types': dtypes, 'specified_c_domain': specified_c_domain}
 			
 		return {'names': names, 'types': dtypes}
-
-
-
-
-		
