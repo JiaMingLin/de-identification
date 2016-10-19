@@ -11,13 +11,13 @@ class TestFull(TestCase):
 
 		self.data_dir = os.path.join(c.TEST_FILE_PATH, 'exp')
 		# epsilon.1
-		self.eps1_levels = [2,3]
+		self.eps1_levels = [3]
 
 		# noises
-		self.privacy_levels = [2,4]
+		self.privacy_levels = [2,3]
 
 		# k
-		self.k_val = [0,1,10]
+		self.k_val = [10,50,250]
 
 		# number of runs
 		self.nrun = 1
@@ -26,7 +26,8 @@ class TestFull(TestCase):
 		self.cases = [
 			(
 				"data2",
-				[["Age", "Income", "TRV"]]
+				[]
+				#[["Age", "Income", "TRV"]]
 			)
 		]
 
@@ -137,8 +138,3 @@ class TestFull(TestCase):
 			return {'names': names, 'types': dtypes, 'specified_c_domain': specified_c_domain}
 			
 		return {'names': names, 'types': dtypes}
-
-
-
-
-		

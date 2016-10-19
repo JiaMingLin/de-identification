@@ -76,13 +76,21 @@ class DataUtils(Base):
 		sub_df = self.dataframe[:self.preview_count]
 		return sub_df
 
-	def get_pandas_df(self):
+	def get_df(self):
 		return self.dataframe
 
+	def get_pandas_df(self):
+		self.LOG.warn("DEPRECATED: To use get_df()")
+		return self.get_df()
+
+	def get_domains(self):
+		self.LOG.info("Get data domains")
+		domains = collections.OrderedDict((pair[0], list(set(pair[1]))) for pair in collections.OrderedDict(self.dataframe).items())
+		return domains
+
 	def get_domain(self):
-		self.LOG.info("Get data domain")
-		domain = collections.OrderedDict((pair[0], list(set(pair[1]))) for pair in collections.OrderedDict(self.dataframe).items())
-		return domain
+		self.LOG.warn("DEPRECATED: a typo...")
+		return self.get_domains()
 
 	def get_nodes_name(self):
 		return list(self.dataframe.columns.values)

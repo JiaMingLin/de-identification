@@ -1,5 +1,4 @@
 from common.base import Base
-from dptable.stats_functions import StatsFunctions
 from rpy2.robjects import pandas2ri
 
 import common.constant as c
@@ -51,6 +50,8 @@ class Inference(Base):
 		self.histogramdds = histogramdds
 
 	def execute(self):
+		self.jtreepy = sorted_internal(jtreepy)
+		self.jtree_path = jtree_path
 
 		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')
 		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
@@ -76,7 +77,6 @@ class Inference(Base):
 		return pandas_df.astype(int, copy=False)
 
 	def execute_without_noise(self):
-
 		do_inference_without_noise = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference_without_noise')
 		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
 

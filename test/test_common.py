@@ -25,7 +25,7 @@ class DataUtilitiesTests(TestCase):
 			'capital_loss':'C',
 			'hours_per_week':'C',
 			'native_country':'D',
-			'income':'D'
+			'salary_class':'D'
 		})		
 		self.data = DataUtils(file_path = TESTING_FILE, selected_attrs = self.selected_attrs)
 		self.data.data_coarsilize()

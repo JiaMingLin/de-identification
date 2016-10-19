@@ -208,7 +208,6 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		
 		inference = Inference(
 			data, 
-			jtree_strct, 
 			self.get_jtree_file_path(task_id, eps1_level), 
 			domain, 
 			opted_cluster,

@@ -1,6 +1,9 @@
 from django.test import TestCase
 from dptable.inference import Inference
+from dptable.stats_functions import StatsFunctions
+from prob_models.jtree import JunctionTree
 from common.data_utilities import DataUtils
+from common.base import *
 
 import collections
 import common.constant as c
@@ -9,10 +12,17 @@ TESTING_FILE = c.TEST_DATA_PATH
 JTREE_TEST_FILE = c.TEST_JTREE_FILE_PATH
 TEST_PARSED_FILE = c.TEST_PARSED_FILE
 
-class TestInerence(TestCase):
+class TestInerence(TestCase, Base):
 	def setUp(self):
+		nodes = ['Age', 'Height', 'Weight', 'Income', 'TRV', 'HTN', 'DGF']
+		edges = [['Height', 'HTN'], ['Weight', 'HTN'], ['Income', 'TRV']]
+		jtree = JunctionTree(edges, nodes)
 
+		cliques = jtree.get_jtree()['cliques']
 		opted_cluster = [['DGF'], ['Income', 'TRV'], ['Age'], ['Height', 'HTN'], ['Weight', 'HTN']]
+		combined_queries = self.combine_cliques_for_query(cliques, opted_cluster)
+		stats_func = StatsFunctions()
+				
 		domain = collections.OrderedDict([
 			('Age', [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85]), 
 			('Height', [137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200]), 
@@ -23,11 +33,13 @@ class TestInerence(TestCase):
 			('DGF', [0, 1])])
 		
 		data1 = DataUtils(file_path = TESTING_FILE)
+		histogramdds = stats_func.histogramdd_batch(data1, combined_queries)
 		self.inference = Inference(
 			data1, 
 			JTREE_TEST_FILE,
 			domain, 
 			opted_cluster,
+			histogramdds,
 			0.2)
 
 		domain_parsed = collections.OrderedDict([
@@ -40,11 +52,13 @@ class TestInerence(TestCase):
 			('DGF', [0, 1])])
 
 		data2 = DataUtils(file_path = TEST_PARSED_FILE)
+		histogramdds = stats_func.histogramdd_batch(data2, combined_queries)
 		self.inference_parsed = Inference(
-			data2, 
+			data2,
 			JTREE_TEST_FILE, 
 			domain_parsed, 
-			opted_cluster , 
+			opted_cluster,
+			histogramdds,
 			0.2)
 
 	def test_execute_inference(self):

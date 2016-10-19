@@ -29,6 +29,7 @@ class Task(models.Model):
     data_path = models.CharField(max_length = 300, blank = False)
     selected_attrs = models.TextField(blank = False)
     jtree_strct = models.TextField(max_length = 500, blank = True)
+    opted_cluster = models.TextField(max_length = 500, blank = True)
     white_list = models.TextField(blank = True)
     dep_graph = models.TextField(blank = True)
     valbin_map = models.TextField(blank = True)
