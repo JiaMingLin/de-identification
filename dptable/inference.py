@@ -50,9 +50,7 @@ class Inference(Base):
 		self.histogramdds = histogramdds
 
 	def execute(self):
-		self.jtreepy = sorted_internal(jtreepy)
-		self.jtree_path = jtree_path
-
+		
 		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')
 		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
 

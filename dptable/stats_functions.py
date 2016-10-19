@@ -24,7 +24,7 @@ class StatsFunctions(Base):
 			if agg_cnt_method is None:
 				agg_cnt_method = lambda df, clique: pd.DataFrame({'count(1)' : df.groupby(clique).size()}).reset_index()
 
-			agg_cnt = agg_cnt_method()
+			agg_cnt = agg_cnt_method(df, clique)
 			agg_cnt.columns = clique + ["freq"]
 
 			if len(agg_cnt.index) > 1000000:
