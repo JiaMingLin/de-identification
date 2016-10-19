@@ -65,6 +65,15 @@ class Base(object):
 	def convert_selected_attrs(self, attrs_ls):
 		attrs_ls = ast.literal_eval(str(attrs_ls))
 		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))
+	
+	def combine_cliques_for_query(self, jtree_cliques, merged_cliques):
+		jtree_cliques = [sorted(clique) for clique in jtree_cliques]
+		merged_cliques = [sorted(clique) for clique in merged_cliques]
+		comb = []
+		for e in jtree_cliques + merged_cliques:
+			if e not in comb:
+				comb += [e]
+		return comb
 
 	@staticmethod
 	def get_logger(name):

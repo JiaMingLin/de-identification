@@ -7,6 +7,7 @@ from prob_models.dep_graph import DependencyGraph
 from prob_models.jtree import JunctionTree
 from dptable.variance_reduce import VarianceReduce
 from dptable.inference import Inference
+from dptable.stats_functions import StatsFunctions
 
 import common.constant as c
 import numpy as np
@@ -27,6 +28,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 			'data_path',
 			'selected_attrs',
 			'jtree_strct',
+			'opted_cluster',
 			'white_list',
 			'dep_graph',
 			'start_time',
@@ -91,9 +93,11 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		task_folder = self.create_task_folder(instance.task_id)
 		self.save_coarse_data(task_folder, data)
 
-		optimized_jtree = self.build_jtree(instance, cust_edges, domain)
+		jtree_strct, opted_cluster = self.build_jtree(instance, cust_edges, domain)
 		# update task to save the optimized jtree
-		instance.jtree_strct = str(optimized_jtree)
+		instance.jtree_strct = str(jtree_strct)
+		instance.opted_cluster = str(opted_cluster)
+
 		instance.save()
 
 		return instance
@@ -144,7 +148,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		# optimize marginal
 		var_reduce = VarianceReduce(domain, jtree.get_jtree()['cliques'], 0.2)
 		optimized_jtree = var_reduce.main()
-		return optimized_jtree
+		return jtree.get_jtree()['cliques'], optimized_jtree
 
 	def get_white_list(self, request):
 		white_list = request['white_list'] if 'white_list' in request.keys() else "[]"
@@ -178,8 +182,9 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		eps1_level = task.eps1_level
 		data_path = task.data_path
 
-		# the jtree is optimized
 		jtree_strct = ast.literal_eval(task.jtree_strct)
+		opted_cluster = ast.literal_eval(task.opted_cluster)
+
 		edges = ast.literal_eval(task.dep_graph)
 		domain = collections.OrderedDict(ast.literal_eval(task.domain)) # This is the corsed domain
 		valbin_map = ast.literal_eval(task.valbin_map)
@@ -190,16 +195,24 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		data = self.get_coarse_data(task)
 		if min_freq > 0:
 			cluster_num = len(jtree_strct)
-			thresh = self.get_freq_thresh(epsilon, cluster_num, min_freq)
+			# thresh = self.get_freq_thresh(epsilon, cluster_num, min_freq)
+			thresh = min_freq
 			data.aggregation(thresh)
 			domain = data.get_domain()
 			valbin_map = data.get_valbin_maps()
-
+			
+		# get histogramdds
+		combined_queries = self.combine_cliques_for_query(jtree_strct, opted_cluster)
+		stats_func = StatsFunctions()
+		histogramdds = stats_func.histogramdd_batch(data, combined_queries)
+		
 		inference = Inference(
 			data, 
+			jtree_strct, 
 			self.get_jtree_file_path(task_id, eps1_level), 
 			domain, 
-			jtree_strct,
+			opted_cluster,
+			histogramdds,
 			epsilon)
 
 		sim_df = inference.execute()
@@ -301,6 +314,14 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		# make sure the order
 		sim_coarsed_df = sim_coarsed_df[nodes]
 
+		"""
+		print '====='*10
+		print np.histogram(sim_coarsed_df['Age'], bins=20)[0]
+		print np.histogram(coarsed_df['Age'], bins=20)[0]
+		print len(np.histogram(sim_coarsed_df['Age'], bins=20)[0])
+		print len(np.histogram(coarsed_df['Age'], bins=20)[0])
+		"""
+		
 		coarsed_df_mean = np.array(coarsed_df.mean(), dtype = float)
 		coarsed_df_std = np.array(coarsed_df.std(), dtype = float)
 
