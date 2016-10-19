@@ -22,7 +22,7 @@ class StatsFunctions(Base):
 		def get_aggregated_count(df, agg_cnt_method, clique):
 			#agg_cnt = df.groupby(*clique).agg({'*':'count'}).toPandas()
 			if agg_cnt_method is None:
-				agg_cnt_method = lambda: pd.DataFrame({'count(1)' : df.groupby(clique).size()}).reset_index()
+				agg_cnt_method = lambda df, clique: pd.DataFrame({'count(1)' : df.groupby(clique).size()}).reset_index()
 
 			agg_cnt = agg_cnt_method()
 			agg_cnt.columns = clique + ["freq"]
