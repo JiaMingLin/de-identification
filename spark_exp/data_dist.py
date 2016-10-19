@@ -58,6 +58,9 @@ class DataDist(Base):
 	def get_domains(self):
 		return self.domains
 	
+	def get_count(self):
+		return self.get_nrows()
+	
 	def get_nrows(self):
 		if self.nrows > 0:
 			return self.nrows
@@ -95,4 +98,4 @@ class DataDist(Base):
 			for line in f:
 				domains.append(readdomain(line))
 
-		return dict(domains)
+		return OrderedDict(domains)
