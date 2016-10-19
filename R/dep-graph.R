@@ -1,5 +1,3 @@
-library(distr)
-library(entropy)
 # TODO: Add the noise method.
 # TODO: Check the attributes are binerary or not.
 # TODO: Add a data structure of dep-graph for displaying.

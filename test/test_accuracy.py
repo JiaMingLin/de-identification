@@ -1,5 +1,6 @@
-import os
 import common.constant as c
+import itertools
+import os
 
 from django.test import TestCase
 from api.serializers import TaskSerializer, JobSerializer
@@ -10,10 +11,13 @@ class TestFull(TestCase):
 
 		self.data_dir = os.path.join(c.TEST_FILE_PATH, 'exp')
 		# epsilon.1
-		self.eps1_levels = [2,3]
+		self.eps1_levels = [3]
 
 		# noises
-		self.privacy_levels = [2,4]
+		self.privacy_levels = [2,3]
+
+		# k
+		self.k_val = [10,50,250]
 
 		# number of runs
 		self.nrun = 1
@@ -22,12 +26,13 @@ class TestFull(TestCase):
 		self.cases = [
 			(
 				"data2",
-				[["Age", "Income", "TRV"]]
+				[]
+				#[["Age", "Income", "TRV"]]
 			)
 		]
 
 		# specified data domain
-		self.specified_data_domain = True
+		self.specified_data_domain = False
 
 	def get_eps(self, level):
 		corr = {
@@ -64,6 +69,8 @@ class TestFull(TestCase):
 		}
 		task_obj = None
 		task = TaskSerializer()
+
+		comb_eps2_k = list(itertools.product(self.privacy_levels, self.k_val))
 		for eps1_lv in self.eps1_levels:
 
 			for i in range(self.nrun):
@@ -77,12 +84,13 @@ class TestFull(TestCase):
 
 				self.save_merged_jtree(task_obj)
 
-				for eps2_lv in self.privacy_levels:
+				for (eps2_lv, k) in comb_eps2_k:
 					privacy_input = {
 						"privacy_level":eps2_lv,
 						"epsilon":self.get_eps(eps2_lv),
 						"task_id": task_obj.task_id,
-						"exp_round":i
+						"exp_round":i,
+						"min_freq":k
 					}
 					serializer = JobSerializer(data = privacy_input)
 					if(serializer.is_valid()): serializer.save()
@@ -130,8 +138,3 @@ class TestFull(TestCase):
 			return {'names': names, 'types': dtypes, 'specified_c_domain': specified_c_domain}
 			
 		return {'names': names, 'types': dtypes}
-
-
-
-
-		

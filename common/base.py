@@ -10,6 +10,8 @@ import common.constant as c
 spark_home = os.environ['SPARK_HOME']
 if len(spark_home) > 0:
 	from common.importer import *
+r = robjects.r
+r.source(c.INIT_LIB_R_FILE)
 
 class Base(object):
 

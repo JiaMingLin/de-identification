@@ -5,7 +5,7 @@ import numpy as np
 import random as rand
 import common.constant as c
 from common.base import Base
-from numpy import linspace, searchsorted, diff
+from numpy import linspace, searchsorted, diff, bincount
 
 
 class DataUtils(Base):
@@ -76,13 +76,21 @@ class DataUtils(Base):
 		sub_df = self.dataframe[:self.preview_count]
 		return sub_df
 
-	def get_pandas_df(self):
+	def get_df(self):
 		return self.dataframe
 
+	def get_pandas_df(self):
+		self.LOG.warn("DEPRECATED: To use get_df()")
+		return self.get_df()
+
+	def get_domains(self):
+		self.LOG.info("Get data domains")
+		domains = collections.OrderedDict((pair[0], list(set(pair[1]))) for pair in collections.OrderedDict(self.dataframe).items())
+		return domains
+
 	def get_domain(self):
-		self.LOG.info("Get data domain")
-		domain = collections.OrderedDict((pair[0], list(set(pair[1]))) for pair in collections.OrderedDict(self.dataframe).items())
-		return domain
+		self.LOG.warn("DEPRECATED: a typo...")
+		return self.get_domains()
 
 	def get_nodes_name(self):
 		return list(self.dataframe.columns.values)
@@ -137,11 +145,13 @@ class DataUtils(Base):
 		self.LOG.info("Data generalizing for continuous column: %s" % (coarsed_col.name))
 		edges = self.valbin_maps[coarsed_col.name]
 		edges = np.array(edges).astype(float)
-
-		dedges = diff(edges)
-		dedges = [dedges[0]] + dedges + [dedges[-1]]
 		#
-		generalizer = lambda coarse_val: int(np.round((edges[coarse_val-1] + edges[coarse_val-1]) / 2.0, 2) * 100) / 100.0
+		def generalizer(coarse_val):
+			if coarse_val >= len(edges) :
+				return edges[-1]
+
+			locate_val = edges[coarse_val] + edges[coarse_val-1]
+			return np.round(locate_val / 2.0, 2) * 100 / 100.0
 
 		if len(edges) <= c.MAX_BIN_NUMBER:
 			generalizer  = lambda coarse_val: coarse_val
@@ -174,3 +184,74 @@ class DataUtils(Base):
 		self.valbin_maps[col.name] = list(edges)
 		Ncount = searchsorted(edges, list(col), 'right')
 		return pd.Series(Ncount)
+
+	def aggregation(self, thresh):
+		self.LOG.info('minmal threshold %.2f ' % thresh)
+		for (attr, mappings) in self.valbin_maps.items():
+			if self.selected_attrs[attr] == 'C':
+				values = self.dataframe[attr]
+
+				self.dataframe[attr], self.valbin_maps[attr] = self.agg_on_attribute(
+					values,
+					thresh,
+					mappings
+				)
+
+
+	def agg_on_attribute(self, values, thresh, interval_edges):
+		agg_map = self.get_agg_map(values, thresh)
+		attr_groups = list(zip(*agg_map)[1])
+		value_map = dict([(e, i+1) for i, grp in enumerate(attr_groups) for e in grp ])
+		new_edges = [edge for i, edge in enumerate(interval_edges) if value_map.values()[i-1] != value_map.values()[i]]
+		if len(new_edges) == 0:
+			new_edges = [interval_edges[0], interval_edges[-1]]
+
+		return values.map(dict(value_map)), new_edges
+
+	def get_agg_map(self, values, thresh):
+		cnt = bincount(values)
+		cnt_bins = zip(bincount(values), range(len(cnt) + 1))
+		# cache the outliners' levels and sum of level countings.
+		agg = 0; q = []
+	
+	 	#the aggregated result
+		result = []
+
+		for cnt, _bin in cnt_bins:
+			if cnt <= thresh:
+				# cache those level counting less than threshold
+				q += [(cnt, _bin)]; agg += cnt
+			else:
+				if len(q) > 0:
+					# if the level cache is not empty
+					# the current level should aggregate with cache
+					q += [(cnt, _bin)]
+					agg += cnt
+				else:
+					result += [(cnt, [_bin], np.array([cnt]))]
+			# when the sum of cached level countings large than threhold
+			# trigger the aggregation and clean cache.
+			if agg > thresh:
+				result += [self.multi_combine(q)]
+				q = []; agg = 0
+
+		tail = self.multi_combine(q)
+		if tail is not None:
+			# the tail might be less than k
+			if tail[0] <= thresh:
+				result[-1] = self.combine_two(tail, result[-1])
+			else:
+				result += [tail]
+		return result
+
+	def multi_combine(self, queue):
+		if len(queue) == 0: return None
+		cnts = np.zeros(len(queue))
+		cates = []
+		for i, cnt_cate in enumerate(queue):
+			cnts[i] = cnt_cate[0]
+			cates += [cnt_cate[1]]
+		return (sum(cnts), cates, cnts)
+
+	def combine_two(self, tail, e):
+		return (tail[0]+e[0], tail[1]+e[1], np.concatenate((tail[2], e[2]), axis = 0))
