@@ -7,6 +7,7 @@ from prob_models.dep_graph import DependencyGraph
 from prob_models.jtree import JunctionTree
 from dptable.variance_reduce import VarianceReduce
 from dptable.inference import Inference
+from dptable.stats_functions import StatsFunctions
 
 import common.constant as c
 import numpy as np
@@ -199,13 +200,18 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			data.aggregation(thresh)
 			domain = data.get_domain()
 			valbin_map = data.get_valbin_maps()
-
+			
+		# get histogramdds
+		combined_queries = self.combine_cliques_for_query(jtree_strct, opted_cluster)
+		stats_func = StatsFunctions()
+		histogramdds = stats_func.histogramdd_batch(data, combined_queries)
+		
 		inference = Inference(
 			data, 
-			jtree_strct, 
 			self.get_jtree_file_path(task_id, eps1_level), 
 			domain, 
 			opted_cluster,
+			histogramdds,
 			epsilon)
 
 		sim_df = inference.execute()

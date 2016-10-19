@@ -1,5 +1,4 @@
 from common.base import Base
-from dptable.stats_functions import StatsFunctions
 from rpy2.robjects import pandas2ri
 
 import common.constant as c
@@ -10,7 +9,14 @@ import time
 
 
 class Inference(Base):
-	def __init__(self, data, jtreepy, jtree_path, domain, cluster, epsilon = 0.0):
+	def __init__(self, 
+		data, 
+		jtree_path, 
+		domain, 
+		cluster, 
+		histogramdds, 
+		epsilon = 0.0
+	):
 		"""
 		Initialize the inference class.
 		TODO: 1. refactor, the data_path, edges, nodes, domain 
@@ -19,18 +25,6 @@ class Inference(Base):
 			data: the pandas dataframe
 			TODO: Because the DPTable algorithm construct lots of attributes when reading data,
 					to using memory cache, one should refector the inference step of DPTable.
-		param
-			jtreepy: the junction tree
-			{
-				'cliques':[
-					[1,2,3],
-					[2,3,4],...
-				],
-				'separators':[
-					[2,3],...
-				],
-				'parents':[1,2,3,4,...]
-			}
 
 		param
 			domain: data information with format in dictionary
@@ -52,14 +46,11 @@ class Inference(Base):
 
 		sorted_internal = lambda ls2: [sorted(ls) for ls in ls2]
 		self.cluster = sorted_internal(cluster)
-		self.jtreepy = sorted_internal(jtreepy)
 		self.jtree_path = jtree_path
-		self.stat_funcs = StatsFunctions()
+		self.histogramdds = histogramdds
 
 	def execute(self):
-		combined = self.combine_cliques_for_query(self.jtreepy, self.cluster)
-		histogramdds = self.stat_funcs.histogramdd_batch(self.data, combined)
-
+		
 		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')
 		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
 
@@ -71,7 +62,7 @@ class Inference(Base):
 			self.convert2rlistofvector(self.cluster), 
 			self.jtree_path, 
 			self.epsilon, 
-			self.convert2rhistogramdd(histogramdds),
+			self.convert2rhistogramdd(self.histogramdds),
 			self.rdomain
 		)
 
@@ -84,7 +75,6 @@ class Inference(Base):
 		return pandas_df.astype(int, copy=False)
 
 	def execute_without_noise(self):
-		histogramdds = self.stat_funcs.histogramdd_batch(self.data, self.cluster)
 		do_inference_without_noise = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference_without_noise')
 		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
 
@@ -92,7 +82,7 @@ class Inference(Base):
 			c.R_SCRIPT_PATH, 
 			self.cluster, 
 			self.jtree_path, 
-			self.convert2rhistogramdd(histogramdds),
+			self.convert2rhistogramdd(self.histogramdds),
 			self.rdomain
 		)
 		sim_data = simulate(model, self.data_size)
@@ -102,7 +92,6 @@ class Inference(Base):
 
 	def convert2rdataframe(self, pandas_df):
 		return com.convert_to_r_dataframe(pandas_df)
-
 
 	def convert2rhistogramdd(self, histogramdds):
 
@@ -146,13 +135,3 @@ class Inference(Base):
 			('nrows', nrows)
 		])
 		return rdomain
-
-	def combine_cliques_for_query(self, jtree_cliques, merged_cliques):
-		jtree_cliques = [sorted(clique) for clique in jtree_cliques]
-		merged_cliques = [sorted(clique) for clique in merged_cliques]
-
-		comb = []
-		for e in jtree_cliques + merged_cliques:
-			if e not in comb:
-				comb += [e]
-		return comb
