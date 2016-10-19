@@ -99,6 +99,9 @@ class DataUtils(Base):
 		return self.valbin_maps
 
 	def get_count(self):
+		return self.get_nrows()
+	
+	def get_nrows(self):
 		return len(self.dataframe.index)
 
 	def save(self, path):

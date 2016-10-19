@@ -1,6 +1,4 @@
 from common.base import Base
-from rpy2.robjects import pandas2ri
-from dptable.simulate import Simulate
 
 import common.constant as c
 import pandas.rpy.common as com
