@@ -8,6 +8,7 @@ from prob_models.jtree import JunctionTree
 from dptable.variance_reduce import VarianceReduce
 from dptable.inference import Inference
 from dptable.stats_functions import StatsFunctions
+from dptable.simulate import Simulate
 
 import common.constant as c
 import numpy as np
@@ -214,7 +215,9 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			histogramdds,
 			epsilon)
 
-		sim_df = inference.execute()
+		model = inference.execute()
+		simulator = Simulate(model, data.get_nrows())
+		sim_df = simulator.run()
 
 		# compute the errors rate
 		statistics_err = self.get_statistical_error(task, sim_df, task.eps1_val , epsilon, task.white_list, min_freq)

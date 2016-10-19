@@ -1,5 +1,4 @@
 from common.base import Base
-from rpy2.robjects import pandas2ri
 
 import common.constant as c
 import pandas.rpy.common as com
@@ -51,9 +50,7 @@ class Inference(Base):
 
 	def execute(self):
 		
-		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')
-		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
-
+		do_inference = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference')		
 
 		self.LOG.info("Starting to do inferences...")
 		start = time.time()
@@ -66,17 +63,13 @@ class Inference(Base):
 			self.rdomain
 		)
 
-		sim_data = simulate(model, self.data_size)
-
 		end = time.time()
 		self.LOG.info("Doing inferences complete in %d seconds." % (end-start))
 
-		pandas_df = pandas2ri.ri2py_dataframe(sim_data)
-		return pandas_df.astype(int, copy=False)
+		return model
 
 	def execute_without_noise(self):
 		do_inference_without_noise = self.get_r_method(c.INFERENCE_R_FILE, 'do_inference_without_noise')
-		simulate = self.get_r_method(c.SIMULATE_R_FILE, 'simulate')
 
 		model = do_inference_without_noise(
 			c.R_SCRIPT_PATH, 
@@ -85,10 +78,7 @@ class Inference(Base):
 			self.convert2rhistogramdd(self.histogramdds),
 			self.rdomain
 		)
-		sim_data = simulate(model, self.data_size)
-
-		pandas_df = pandas2ri.ri2py_dataframe(sim_data)
-		return pandas_df.astype(int, copy=False)
+		return model
 
 	def convert2rdataframe(self, pandas_df):
 		return com.convert_to_r_dataframe(pandas_df)

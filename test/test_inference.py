@@ -1,6 +1,7 @@
 from django.test import TestCase
 from dptable.inference import Inference
 from dptable.stats_functions import StatsFunctions
+from dptable.simulate import Simulate
 from prob_models.jtree import JunctionTree
 from common.data_utilities import DataUtils
 from common.base import *
@@ -62,19 +63,27 @@ class TestInerence(TestCase, Base):
 			0.2)
 
 	def test_execute_inference(self):
-		df = self.inference.execute()
+		model = self.inference.execute()
+		simulator = Simulate(model, 1000)
+		df = simulator.run()
 		print df.mean()
 
 	def test_execute_inference_without_noise(self):
-		df = self.inference.execute_without_noise()
+		model = self.inference.execute_without_noise()
+		simulator = Simulate(model, 1000)
+		df = simulator.run()
 		print df.mean()
 
 	def test_execute_inference_with_parsed_domain(self):
-		df = self.inference_parsed.execute()
+		model = self.inference_parsed.execute()
+		simulator = Simulate(model, 1000)
+		df = simulator.run()
 		print df.mean()
 
 	def test_execute_inference_with_parsed_domain_without_noise(self):
-		df = self.inference_parsed.execute_without_noise()
+		model = self.inference_parsed.execute_without_noise()
+		simulator = Simulate(model, 1000)
+		df = simulator.run()
 		print df.mean()
 
 
