@@ -75,6 +75,20 @@ class Base(object):
 				comb += [e]
 		return comb
 
+	def save_merged_jtree(self, task):
+		task_id = task.task_id
+		eps1_level = task.eps1_level
+		jtree = task.jtree_strct
+
+		parent = c.MEDIATE_DATA_DIR % {'task_id': task_id}
+		if not os.path.exists(parent):
+			os.makedirs(parent)
+
+		file_name = 'jtree_eps1_%d.display' % eps1_level
+		file_path = os.path.join(parent, file_name)
+		with open(file_path, 'w+') as jtree_file:
+			jtree_file.write(jtree)
+
 	@staticmethod
 	def get_logger(name):
 		# TODO: The logger would be returned multiple instances as this method called.

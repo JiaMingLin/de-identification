@@ -101,6 +101,9 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 
 		instance.save()
 
+		# save the display tree file
+		self.save_merged_jtree(instance)
+
 		return instance
 
 	def data_pre_processing(self, request, instance = None):
