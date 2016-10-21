@@ -32,7 +32,7 @@ class TestFull(TestCase):
 		]
 
 		# specified data domain
-		self.specified_data_domain = False
+		self.specified_data_domain = True
 
 	def get_eps(self, level):
 		corr = {
