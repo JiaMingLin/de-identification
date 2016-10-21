@@ -12,6 +12,7 @@ rm -rf mediate_data/*
 rm  api/migrations/00*
 
 # remove logs
+mkdir log
 rm log/*
 
 python manage.py makemigrations
