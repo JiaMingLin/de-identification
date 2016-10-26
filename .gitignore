@@ -4,3 +4,6 @@ migrations/000*.py
 mediate_data
 mediate_data/*
 log/*
+.DS_Store
+static/test/exp/*
+api/migration/*_initial.py

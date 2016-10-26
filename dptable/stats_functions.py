@@ -50,10 +50,3 @@ class StatsFunctions(Base):
 
 	def histogramdd(self, data, clique, agg_cnt_method = None):
 		return self.histogramdd_batch(data, [clique])
-
-	
-
-	
-
-
-

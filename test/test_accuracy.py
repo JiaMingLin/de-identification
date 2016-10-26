@@ -15,7 +15,7 @@ class TestFull(TestCase, Base):
 		self.eps1_levels = [3]
 
 		# noises
-		self.privacy_levels = [2,3]
+		self.privacy_levels = [2,4]
 
 		# k
 		self.k_val = [10,50,250]

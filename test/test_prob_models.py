@@ -25,13 +25,13 @@ class DependencyGraphTests(TestCase):
 		dep_graph = DependencyGraph(self.data)
 		edges = dep_graph.get_dep_edges()
 		#print self.data.get_domain()
-		#self.assertEqual(len(edges) == 3, True)
+		self.assertEqual(len(edges) == 3, True)
 
 	def test_dep_graph_with_white_list(self):
 		dep_graph = DependencyGraph(self.data, white_list = [['Age', 'Income', 'TRV'], ['DGF', 'HTN']])
 		edges = dep_graph.get_dep_edges()
 
-	def test_dep_graph_without_noise(self):
+	def dep_graph_without_noise(self):
 		dep_graph = DependencyGraph(self.data, noise_flag = False)
 		self.assertEqual(
 			dep_graph.get_dep_edges() == [['Height', 'HTN'], ['Weight', 'HTN'], ['Income', 'TRV']],

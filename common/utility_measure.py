@@ -57,6 +57,10 @@ class UserQuery(Base):
 	def get_query_count(self, df, query):
 		return len(df.query(query))
 
+class StatsErrorRate(Base):
+	def __init__(self):
+		pass
+
 
 
 

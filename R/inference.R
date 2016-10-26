@@ -190,6 +190,7 @@ Inference <- setRefClass(
 		},
 
 		convert2keyname = function(clique){
+			clique = sort(clique)
 			return(paste(clique, collapse='_'))
 		}
 	)
