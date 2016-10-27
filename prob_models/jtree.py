@@ -22,13 +22,15 @@ class JunctionTree(Base):
 		}
 		"""
 		names = list(self.jtree.names)
+
 		jtreepy = dict()
 		for name in names:
 			index = names.index(name)
 			if name != 'parents':
-				jtreepy[name] = [list(component) for component in list(self.jtree[index])]
+				
+				jtreepy[name] = [list(component) if not isinstance(component, str) else [str(component)] for component in list(self.jtree[index])]
 			else:
-				jtreepy[name] = list(self.jtree[index])		
+				jtreepy[name] = list(self.jtree[index])
 		return jtreepy
 
 	def _build_jtree(self, edges, nodes, jtree_path):

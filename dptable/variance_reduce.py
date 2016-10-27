@@ -9,7 +9,7 @@ import cvxpy as cvx
 
 class VarianceReduce(Base):
 
-	def __init__(self, domain, jtree, _lambda=0.2):
+	def __init__(self, domain, jtreepy, _lambda=0.2):
 		"""
 		Using linear programming method to find a less noise variance.
 		param:
@@ -27,11 +27,11 @@ class VarianceReduce(Base):
 		self.node_card = [len(vals) for vals in domain.values()]
 		self._lambda = float(_lambda)
 		self.max_iter = 20
-		self.jtree = jtree
+		self.jtree = jtreepy
 		self.nodes_num = len(self.node_card)
-		self.cliques_num = len(jtree)
-		self.cnum = range(2, len(jtree)+1) if len(jtree) >=2 else [1]
-		self.jtree_in_node_index = [self.find_subset_index(clique) for clique in jtree]
+		self.cliques_num = len(jtreepy)
+		self.cnum = range(2, len(jtreepy)+1) if len(jtreepy) >=2 else [1]
+		self.jtree_in_node_index = [self.find_subset_index(clique) for clique in jtreepy]
 
 	def main(self, display = True):
 		"""
@@ -42,6 +42,10 @@ class VarianceReduce(Base):
 			display: specify the returned node in clusters is 
 					showed as its name or index.
 		"""
+		if self.cliques_num == 1:
+			self.LOG.info("There is only one clique in jtree, don't need to merge.")
+			return self.jtree
+
 		self.LOG.info("Starting to merge cliques...")
 		start = time.time()
 		cnum = self.cnum

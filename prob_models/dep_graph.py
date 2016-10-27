@@ -50,6 +50,7 @@ class DependencyGraph(Base):
 									,[])
 		if display is False:
 			return _get_edges_in_r(self.edges + pairwise_white_list)
+		
 		return self.edges + pairwise_white_list
 
 	def set_white_list(self, white_list):
