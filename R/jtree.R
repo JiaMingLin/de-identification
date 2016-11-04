@@ -24,7 +24,7 @@ get_jtree <- function(edges, nodes, jtree_path, display=TRUE){
 	return(jtreepy)
 }
 
-save_jtree <- function(object, path){
+save_jtree <- function(jtree, path){
 	if(nchar(path)>1){
 		saveRDS(jtree, file=path)	
 	}
