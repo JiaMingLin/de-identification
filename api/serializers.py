@@ -110,12 +110,14 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		specified_c_domain = request['selected_attrs']['specified_c_domain'] if 'specified_c_domain' in request['selected_attrs'].keys() else None
 		names = request['names'] if 'names' in request.keys() else None
 		selected_attrs = self.convert_selected_attrs(request['selected_attrs'])
+		chunk_size = request['chunk_size'] if 'chunk_size' in request.keys() else -1
 		
 		data = DataUtils(
 			file_path = request['data_path'], 
 			selected_attrs = selected_attrs,
 			names = names,
-			specified_c_domain = specified_c_domain
+			specified_c_domain = specified_c_domain,
+			chunk_size = chunk_size
 		)
 		# coarsilize
 		# TODO: Should add the sample rate.

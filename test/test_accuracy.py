@@ -15,10 +15,10 @@ class TestFull(TestCase, Base):
 		self.eps1_levels = [3]
 
 		# noises
-		self.privacy_levels = [2,4]
+		self.privacy_levels = [3]
 
 		# k
-		self.k_val = [10,50,250]
+		self.k_val = [10]
 
 		# number of runs
 		self.nrun = 1
@@ -26,14 +26,16 @@ class TestFull(TestCase, Base):
 		# test cases
 		self.cases = [
 			(
-				"data2",
+				"data_fin_title",
 				[]
-				#[["Age", "Income", "TRV"]]
 			)
 		]
 
 		# specified data domain
-		self.specified_data_domain = True
+		self.specified_data_domain = False
+
+		# specify the chunk size
+		self.chunk_size = 1000000
 
 	def get_eps(self, level):
 		corr = {
@@ -66,7 +68,8 @@ class TestFull(TestCase, Base):
 			"data_path": "%s/%s.dat" % (self.data_dir, data_name),
 			"selected_attrs": domain,
 			"white_list": white_list,
-			"names": domain['names']
+			"names": domain['names'],
+			"chunk_size": self.chunk_size
 		}
 		task_obj = None
 		task = TaskSerializer()

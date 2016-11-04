@@ -18,7 +18,8 @@ class DataUtils(Base):
 		pandas_df = None, 
 		valbin_maps = None, 
 		names=None, 
-		specified_c_domain = None
+		specified_c_domain = None,
+		chunk_size = -1
 		):
 		""" Loading data to warpped python object
 
@@ -43,7 +44,11 @@ class DataUtils(Base):
 		"""
 		self.LOG = Base.get_logger("DataUtils")
 		self.valbin_maps = dict() if valbin_maps is None else valbin_maps
-		self.dataframe = self._loading(file_path, pandas_df, names)
+		self.chunk_size = chunk_size
+		if chunk_size > 0:
+			self.dataframe = self._loading_chunk(file_path, pandas_df, names)
+		else:
+			self.dataframe = self._loading(file_path, pandas_df, names)
 
 		if selected_attrs is not None:
 			self.selected_attrs = selected_attrs
@@ -61,15 +66,36 @@ class DataUtils(Base):
 			start = time.time()
 
 			if names is not None:
-				pandas_df = pd. read_csv(file_path, header = None, names = names)
+				pandas_df = pd.read_csv(file_path, header = None, names = names)
 			else:
-				pandas_df = pd. read_csv(file_path)
+				pandas_df = pd.read_csv(file_path)
 
 			end = time.time()
 			self.LOG.info("Reading dataframe from file complete in %d seconds." % (end-start))
 
 		self.LOG.info("Reading dataframe from cache...")
 		return pandas_df
+
+	def _loading_chunk(self, file_path, pandas_df, names = None):
+		if pandas_df is not None:
+			self.LOG.info("Reading dataframe from cache...")
+			return pandas_df
+
+		self.LOG.info("Reading dataframe from file chunk...")
+		start = time.time()
+		if names is not None:
+			chunks = pd.read_csv(file_path, header = None, names = names, chunksize = self.chunk_size)
+		else:
+			chunks = pd.read_csv(file_path, chunksize = self.chunk_size)
+
+		for chunk in chunks:
+			pandas_df = chunk
+			break
+
+		end = time.time()
+		self.LOG.info("Reading dataframe from file chunk complete in %d seconds." % (end-start))
+		return pandas_df
+
 
 	def data_preview(self, format = None):
 		self.LOG.info("Preview data")
@@ -147,6 +173,7 @@ class DataUtils(Base):
 	def _continue_generalizer(self, coarsed_col):
 		self.LOG.info("Data generalizing for continuous column: %s" % (coarsed_col.name))
 		edges = self.valbin_maps[coarsed_col.name]
+		print edges
 		edges = np.array(edges).astype(float)
 		#
 		def generalizer(coarse_val):
@@ -156,8 +183,8 @@ class DataUtils(Base):
 			locate_val = edges[coarse_val] + edges[coarse_val-1]
 			return np.round(locate_val / 2.0, 2) * 100 / 100.0
 
-		if len(edges) <= c.MAX_BIN_NUMBER:
-			generalizer  = lambda coarse_val: coarse_val
+		#if len(edges) < c.MAX_BIN_NUMBER:
+		#	generalizer  = lambda coarse_val: coarse_val
 
 		#generalizer = lambda coarse_val: rand.uniform(edges[coarse_val-1], edges[coarse_val-1]+dedges[coarse_val])
 		return coarsed_col.apply(generalizer)
