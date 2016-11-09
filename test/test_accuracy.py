@@ -28,6 +28,14 @@ class TestFull(TestCase, Base):
 			(
 				"data_fin_title",
 				[]
+			),
+			(
+				"data2",
+				[]
+			),
+			(
+				"test_chinese",
+				[]
 			)
 		]
 
@@ -35,7 +43,7 @@ class TestFull(TestCase, Base):
 		self.specified_data_domain = False
 
 		# specify the chunk size
-		self.chunk_size = 1000000
+		self.chunk_size = 100000
 
 	def get_eps(self, level):
 		corr = {
@@ -107,23 +115,27 @@ class TestFull(TestCase, Base):
 		names = []
 		dtypes = []
 		specified_c_domain = dict()
+		date_format = dict()
 		with open(domain_path, 'r') as domain:
 			content = domain.readline()
 			while len(content) > 0:
 				splited_line = re.split('\s+', content.strip())
 
-				if splited_line[1] not in ['C', 'D']:
+				if splited_line[1] not in ['C', 'D', 'T']:
 					content = domain.readline()
 					continue
 
 				if splited_line[1] is 'C':
 					specified_c_domain[splited_line[0]] = splited_line[3:]
 
+				if splited_line[1] is 'T':
+					date_format[splited_line[0]] = splited_line[2:]
+
 				names.append(splited_line[0])
 				dtypes.append(splited_line[1])
 				content = domain.readline()
 
 		if self.specified_data_domain is True:
-			return {'names': names, 'types': dtypes, 'specified_c_domain': specified_c_domain}
+			return {'names': names, 'types': dtypes, 'specified_c_domain': specified_c_domain, 'date_format': date_format}
 			
-		return {'names': names, 'types': dtypes}
+		return {'names': names, 'types': dtypes, 'date_format': date_format}

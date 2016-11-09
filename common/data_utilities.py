@@ -5,6 +5,7 @@ import numpy as np
 import random as rand
 import common.constant as c
 from common.base import Base
+from datetime import datetime
 from numpy import linspace, searchsorted, diff, bincount
 
 
@@ -19,7 +20,8 @@ class DataUtils(Base):
 		valbin_maps = None, 
 		names=None, 
 		specified_c_domain = None,
-		chunk_size = -1
+		chunk_size = -1,
+		date_format = None
 		):
 		""" Loading data to warpped python object
 
@@ -57,6 +59,7 @@ class DataUtils(Base):
 
 		self.preview_count = 5
 		self.specified_c_domain = specified_c_domain
+		self.date_format = date_format
 		
 
 	def _loading(self, file_path, pandas_df, names = None):
@@ -146,6 +149,8 @@ class DataUtils(Base):
 				df[attr_name] = self._discrete_parser(col, sorted_uniques)
 			elif attr_type == 'C':
 				df[attr_name] = self._continue_parser(col)
+			elif attr_type == 'T':
+				df[attr_name] = self._date_parser(col, self.date_format[attr_name])
 		self.dataframe = df
 
 	def data_generalize(self):
@@ -155,7 +160,7 @@ class DataUtils(Base):
 		for (attr_name, attr_type) in self.selected_attrs.items():
 			col = df[attr_name]
 			unique_vals = list(col.unique())
-			if attr_type == 'D':
+			if attr_type in ['D', 'T']:
 				df[attr_name] = self._discrete_generalizer(col)
 			elif attr_type == 'C':
 				df[attr_name] = self._continue_generalizer(col)
@@ -164,7 +169,7 @@ class DataUtils(Base):
 
 	def _discrete_generalizer(self, coarsed_col):
 
-		self.LOG.debug("Data generalizing for discrete column: %s" % (coarsed_col.name))
+		self.LOG.info("Data generalizing for discrete column: %s" % (coarsed_col.name))
 		mapping = self.valbin_maps[coarsed_col.name]
 		reversed_map = dict(zip(mapping.values(), mapping.keys()))
 		return coarsed_col.map(reversed_map)
@@ -173,7 +178,6 @@ class DataUtils(Base):
 	def _continue_generalizer(self, coarsed_col):
 		self.LOG.info("Data generalizing for continuous column: %s" % (coarsed_col.name))
 		edges = self.valbin_maps[coarsed_col.name]
-		print edges
 		edges = np.array(edges).astype(float)
 		#
 		def generalizer(coarse_val):
@@ -190,7 +194,7 @@ class DataUtils(Base):
 		return coarsed_col.apply(generalizer)
 
 	def _discrete_parser(self, col, unique_vals):
-		self.LOG.debug("Parse discrete data (%s, %d)" % (col.name, len(unique_vals)))
+		self.LOG.info("Parse discrete data (column_name, domain_size) = (%s, %d)" % (col.name, len(unique_vals)))
 
 		reverse_mapping = dict([(item[1], item[0]) for item in enumerate(unique_vals)])
 		self.valbin_maps[col.name] = reverse_mapping
@@ -214,6 +218,19 @@ class DataUtils(Base):
 		self.valbin_maps[col.name] = list(edges)
 		Ncount = searchsorted(edges, list(col), 'right')
 		return pd.Series(Ncount)
+
+	def _date_parser(self, col, f):
+		self.LOG.info("Parse datetime data (column_name) = (%s)" % (col.name))
+		source_format = f[0]
+		target_format = f[1]
+
+		target_parser = lambda d: (datetime.strptime(str(d), source_format)).strftime(target_format)
+		if target_format == 'weekday':
+			target_parser = lambda d: (datetime.strptime(str(d), source_format)).weekday()
+		
+		col = col.apply(target_parser)
+		sorted_uniques = sorted(set(col))
+		return self._discrete_parser(col, sorted_uniques)
 
 	def aggregation(self, thresh):
 		self.LOG.info('minmal threshold %.2f ' % thresh)

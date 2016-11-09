@@ -28,6 +28,8 @@ RUN mkdir log/ && \
 ADD start.sh /opt/de-identification/start.sh
 RUN chmod +x /opt/de-identification/start.sh
 
+ENV PYTHONIOENCODING=utf_8
+
 VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
 EXPOSE 8080
 

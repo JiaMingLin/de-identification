@@ -22,7 +22,8 @@ Inference <- setRefClass(
 			.self$cluster <- cluster
 			.self$epsilon <- epsilon
 			.self$data <- Data$new(domain)
-			.self$histograms <- histograms			
+			.self$histograms <- histograms
+			print(jtree_file)
 			.self$jtree <- readRDS(jtree_file)
 			.self$noise.flag <- noise.flag
 		},
@@ -200,7 +201,7 @@ do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, histograms,
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
-	#print(histogramdds)
+	source(paste(r_script_dir, 'time_measure.R', sep='/'))
 	
 	inference <- Inference$new(
 		cluster, 
@@ -210,16 +211,21 @@ do_inference <- function(r_script_dir, cluster, jtree_path, epsilon, histograms,
 		epsilon = epsilon, 
 		noise.flag = TRUE
 	)
+	tm <- TimeMeasure$new("Inference")
 
+	tm$start("Noises Injection")
 	inference$inject_noise()
+	tm$check()
 	
+	tm$start("Marginals Consistency")
 	inference$consistency()
-	
 	inference$set_clique_margin_from_cluster()
-	
+	tm$check()
+
+	tm$start("Data Model Initialize")
 	inference$init_potential_data_table()
-	
 	inference$message_passing()
+	tm$check()
 	
 	return(inference$get_model())
 	
@@ -229,7 +235,7 @@ do_inference_without_noise <- function(r_script_dir, cluster, jtree_path, histog
 
 	source(paste(r_script_dir, 'data.R', sep='/'))
 	source(paste(r_script_dir, 'consistency.R', sep='/'))
-	#print(histogramdds)
+	source(paste(r_script_dir, 'time_measure.R', sep='/'))
 	
 	inference <- Inference$new(
 		cluster, 
