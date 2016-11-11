@@ -26,15 +26,7 @@ class TestFull(TestCase, Base):
 		# test cases
 		self.cases = [
 			(
-				"data_fin_title",
-				[]
-			),
-			(
 				"data2",
-				[]
-			),
-			(
-				"test_chinese",
 				[]
 			)
 		]
