@@ -23,7 +23,6 @@ Inference <- setRefClass(
 			.self$epsilon <- epsilon
 			.self$data <- Data$new(domain)
 			.self$histograms <- histograms
-			print(jtree_file)
 			.self$jtree <- readRDS(jtree_file)
 			.self$noise.flag <- noise.flag
 		},

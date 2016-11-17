@@ -12,10 +12,10 @@ class TestFull(TestCase, Base):
 
 		self.data_dir = os.path.join(c.TEST_FILE_PATH, 'exp')
 		# epsilon.1
-		self.eps1_levels = [3]
+		self.eps1_levels = [5]
 
 		# noises
-		self.privacy_levels = [3]
+		self.privacy_levels = [5]
 
 		# k
 		self.k_val = [10]
@@ -28,13 +28,17 @@ class TestFull(TestCase, Base):
 			(
 				"data2",
 				[]
+			),
+			(
+				"data_fin_title",
+				[]
 			)
 		]
 
 		# specified data domain
 		self.specified_data_domain = False
 
-		# specify the chunk size
+		# specify the chunk size, -1 to be the whole dataset
 		self.chunk_size = 100000
 
 	def get_eps(self, level):
@@ -53,7 +57,7 @@ class TestFull(TestCase, Base):
 			2:0.5,
 			3:5,
 			4:50,
-			5:500
+			5:700
 		}
 		return corr[level]
 

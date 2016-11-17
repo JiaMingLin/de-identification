@@ -24,7 +24,7 @@ class Task(models.Model):
         (1, 'FINISH'),
         (2, 'ERROR'),
     )
-    task_id = models.AutoField(primary_key = True)
+    task_id = models.CharField(primary_key = True)
     task_name = models.CharField(max_length = 100, blank = False)
     data_path = models.CharField(max_length = 300, blank = False)
     selected_attrs = models.TextField(blank = False)
@@ -45,7 +45,7 @@ class Task(models.Model):
 
 
 class Job(models.Model):
-    dp_id = models.AutoField(primary_key = True)
+    dp_id = models.CharField(primary_key = True)
     task_id = models.ForeignKey(Task, on_delete=models.CASCADE)
     privacy_level = models.PositiveSmallIntegerField(default = 0)
     epsilon = models.FloatField()
