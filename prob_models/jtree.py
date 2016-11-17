@@ -34,7 +34,6 @@ class JunctionTree(Base):
 		return jtreepy
 
 	def _build_jtree(self, edges, nodes, jtree_path):
-
 		r_nodes = robjects.StrVector(nodes)
 		get_jtree = self.get_r_method(c.JTREE_R_FILE, 'get_jtree')
 		self.LOG.info("Starting to compute Junction Tree...")

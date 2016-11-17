@@ -26,12 +26,8 @@ class TestFull(TestCase, Base):
 		# test cases
 		self.cases = [
 			(
-				"data2",
-				[]
-			),
-			(
 				"data_fin_title",
-				[]
+				[['beg_date', 'end_date']]
 			)
 		]
 

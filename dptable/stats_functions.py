@@ -27,8 +27,8 @@ class StatsFunctions(Base):
 			agg_cnt = agg_cnt_method(df, clique)
 			agg_cnt.columns = clique + ["freq"]
 
-			if len(agg_cnt.index) > 1000000:
-				raise Exception('There are more than 1M combinations in the clique: %s, please consider to drop some features or make data coarse' % str(clique))
+			if (len(agg_cnt.index) > c.MAX_ARRARY_LENGTH) and (c.MAX_ARRARY_LENGTH != -1):
+				raise Exception('There are more than %d combinations in the clique: %s, please consider to drop some features or make data coarse' % (c.MAX_ARRARY_LENGTH, str(clique)))
 			return agg_cnt
 
 		def fill_empty(agg_cnt):

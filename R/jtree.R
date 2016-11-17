@@ -1,5 +1,4 @@
 get_jtree <- function(edges, nodes, jtree_path, display=TRUE){
-	
 	jtreepy <- list()
 	if(length(edges) == 0){
 		jtreepy <- gen_psudo_tree(nodes)
