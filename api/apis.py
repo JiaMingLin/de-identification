@@ -2,12 +2,18 @@ import json
 from .models import Task, Job
 from .serializers import TaskSerializer, JobSerializer
 from common.data_utilities import DataUtils
+from common.base import *
+from celery.result import AsyncResult
+from celery.task.control import revoke, inspect
+
+from datetime import datetime
 from django.http import Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+import common.constant as c
 
 """
 The De-Identification Index page
@@ -88,7 +94,7 @@ class JobRetrieveUpdateDestroyView(APIView):
 	def get(self, request, pk, task_id, format = None):
 		job = get_object_or_404(Job, pk = pk)
 		import ast
-		job.statistics_err = ast.literal_eval(job.statistics_err)
+		job.statistics_err = ast.literal_eval(job.statistics_err) if len(job.statistics_err) > 0 else ''
 		serializer = JobSerializer(job)
 		return Response(serializer.data)
 
@@ -112,3 +118,56 @@ class DataPreview(APIView):
 		})
 		result = json.dumps(result)
 		return Response(result, status = status.HTTP_200_OK)
+
+
+class ProcessControlListView(APIView):
+	def post(self, request, format = None):
+		i = inspect()
+		result = 'Fail'
+		key = 'proc_ids'
+		req_obj = request.data
+
+		if key in req_obj.keys():
+			ids = req_obj[key]
+			#procs = i.query_task(ids = ['2d45fae0-9b4d-4c03-93c7-3388df9b30e1', '98c36c8b-f4b7-435d-a716-3605625ca9dc', '7c43315f-4629-4f87-8361-bca48c5c9d71', '33ecc028-bd0c-4672-8e97-8b9db9653960'])
+			#procs = i.query_task()
+			procs = i.revoked()
+		else:
+			result = 'There is no key "%s" in request body.' % key
+
+		result = json.dumps(result)
+		return Response(result, status.HTTP_200_OK)
+
+class ProcessControlView(APIView):
+
+	def get(self, request, proc_id, format = None):
+		result = dict()
+		proc = AsyncResult(proc_id)
+
+		try:
+			data = proc.result
+			result[c.CELERY_PRO_PERCENT] = data[c.CELERY_PRO_PERCENT]
+			result[c.PRO_NAME] = data[c.PRO_NAME]
+		except:
+			print "process exit"
+
+		result[c.CELERY_STATUS] = ProcessStatus.get_code(str(proc.status).upper())
+
+		return Response(result, status = status.HTTP_200_OK)
+
+	def delete(self, request, proc_id, format = None):
+		data = 'Fail'
+		instance = None
+		try:
+			revoke(proc_id, terminate=True)
+			instance = get_object_or_404(Job, proc_id = proc_id)
+		except:
+			instance = get_object_or_404(Task, proc_id = proc_id)
+
+		instance.status = ProcessStatus.get_code('REVOKED')
+		instance.end_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
+		instance.save()
+		result = dict({
+				c.CELERY_STATUS: ProcessStatus.get_code('REVOKED')
+			})
+		return Response(result, status = status.HTTP_200_OK) 

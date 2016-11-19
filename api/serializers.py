@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import Task, Job
 
 from common.data_utilities import DataUtils
-from common.base import Base
+from common.base import *
+from .celery_tasks import *
 from prob_models.dep_graph import DependencyGraph
 from prob_models.jtree import JunctionTree
 from dptable.variance_reduce import VarianceReduce
@@ -40,17 +41,37 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		)
 
 	def create(self, validated_data):
-		return self.task_build_process(validated_data)
+		# create the task first to obtain the task id
+		instance = Task.objects.create(
+			selected_attrs = validated_data['selected_attrs'],
+			task_name = validated_data['task_name'],
+			data_path = validated_data['data_path'] # the original data path
+		)
+		validated_data['task_id'] = instance.task_id
+
+		# submit the back ground process to obtain the process id to track status
+		back_proc = create_process.delay(validated_data)
+		
+		instance.proc_id = back_proc.id
+		instance.status = ProcessStatus.get_code(back_proc.state)
+		instance.save()
+		return instance
+		#return self.task_build_process(validated_data)
 	
 	def update(self, instance, validated_data):
-		return self.task_build_process(validated_data, instance)
+		validated_data['task_id'] = instance.task_id
+		back_proc = create_process.delay(validated_data)
+		instance.proc_id = back_proc.id
+		instance.status = ProcessStatus.get_code(back_proc.state)
+		instance.save()
+		return instance
+		#return self.task_build_process(validated_data, instance)
 
+"""
 	def task_build_process(self, request, instance = None, dep_graph_rebuild = False):
 		data = None
-
 		domain = None
 		nodes = None
-
 		create_flag = False
 		if instance is None:
 			# create task to get task_id
@@ -78,7 +99,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 
 			instance.dep_graph = str(edges)
 			instance.valbin_map = str(data.get_valbin_maps())
-			instance.domain = str(domain.items()) # this is the domain of coarsed data, and sould keep cols ordering.
+			instance.domain = str(domain.items()) # this is the domain of coarse data, and sould keep cols ordering.
 		else:
 			# when update dep-graph structure
 			edges = ast.literal_eval(instance.dep_graph)
@@ -169,6 +190,7 @@ class TaskSerializer(serializers.ModelSerializer, Base):
 		file_path = os.path.join(task_folder,c.COARSE_DATA_NAME)
 		if data is not None:
 			data.save(file_path)
+"""
 
 class JobSerializer(serializers.ModelSerializer, Base):
 
@@ -179,7 +201,23 @@ class JobSerializer(serializers.ModelSerializer, Base):
 
 	# The Job is not going to be modified.
 	def create(self, validated_data):
-		self.job_build_process(validated_data)
+		# TODO: check the level of job is exist or not, if yes, retrieve the existed one
+
+		# create a new job instance and a new back grounded process
+		job = Job.objects.create(
+			task_id = validated_data['task_id'],
+			privacy_level = validated_data['privacy_level'],
+			epsilon = float(validated_data['epsilon'])
+		)
+		validated_data['task_id'] = validated_data['task_id'].task_id
+		validated_data['dp_id'] = job.dp_id
+		back_proc = create_anonymity.delay(validated_data)
+		
+		job.proc_id = back_proc.id
+		job.status = ProcessStatus.get_code(back_proc.state)
+		job.save()
+
+		return job
 
 	def job_build_process(self, validated_data):
 
@@ -226,6 +264,8 @@ class JobSerializer(serializers.ModelSerializer, Base):
 			epsilon)
 
 		model = inference.execute()
+
+		# simulate
 		simulator = Simulate(model, data.get_nrows())
 		sim_df = simulator.run()
 

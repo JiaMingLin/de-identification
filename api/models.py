@@ -19,12 +19,8 @@ De-Identification Task Entity
 """
 class Task(models.Model):
 
-    TASK_STATUS = (
-        (0, 'WAITTING'),
-        (1, 'FINISH'),
-        (2, 'ERROR'),
-    )
-    task_id = models.CharField(primary_key = True)
+    task_id = models.AutoField(primary_key = True)
+    proc_id = models.CharField(max_length = 100, blank = True)
     task_name = models.CharField(max_length = 100, blank = False)
     data_path = models.CharField(max_length = 300, blank = False)
     selected_attrs = models.TextField(blank = False)
@@ -36,7 +32,7 @@ class Task(models.Model):
     domain = models.TextField(blank = True)
     start_time = models.DateTimeField(auto_now_add = True)
     end_time = models.DateTimeField(null = True)
-    status = models.PositiveSmallIntegerField(default = 0, choices=TASK_STATUS)
+    status = models.PositiveSmallIntegerField(default = 0)
     eps1_val = models.FloatField(default = float(c.EPSILON_1))
     eps1_level = models.PositiveSmallIntegerField(default = 1)
 
@@ -45,7 +41,8 @@ class Task(models.Model):
 
 
 class Job(models.Model):
-    dp_id = models.CharField(primary_key = True)
+    dp_id = models.AutoField(primary_key = True)
+    proc_id = models.CharField(max_length = 100, blank = True)
     task_id = models.ForeignKey(Task, on_delete=models.CASCADE)
     privacy_level = models.PositiveSmallIntegerField(default = 0)
     epsilon = models.FloatField()

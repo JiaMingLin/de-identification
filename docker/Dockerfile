@@ -30,11 +30,23 @@ WORKDIR /opt/de-identification
 RUN mkdir log/ && \
     ./clean.sh
 
+# install redis and celery
+ADD celery.conf /etc/supervisor/conf.d/celery.conf
+RUN apt-get install software-properties-common -y --force-yes && \
+    add-apt-repository -y ppa:rwky/redis && \
+    apt-get update && \
+    apt-get install redis-server -y && \
+    pip install celery redis supervisor && \
+    apt-get install supervisor && \
+    service supervisor restart && \
+    supervisorctl reread && \
+    supervisorctl update
+
 ADD start.sh /opt/de-identification/start.sh
 RUN chmod +x /opt/de-identification/start.sh
 
-#VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
-VOLUME ["/opt/de-identification/"]
+VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
+#VOLUME ["/opt/de-identification/"]
 EXPOSE 8080
 
-#ENTRYPOINT /opt/de-identification/start.sh
+ENTRYPOINT /opt/de-identification/start.sh

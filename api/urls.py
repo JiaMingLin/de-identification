@@ -11,4 +11,6 @@ urlpatterns += [
     url(r'^de-identification/(?P<pk>[0-9]+)/$', apis.TaskRetrieveUpdateDestroyView.as_view()),
     url(r'^de-identification/(?P<task_id>[0-9]+)/job/$', apis.JobListCreateView.as_view()),
     url(r'^de-identification/(?P<task_id>[0-9]+)/job/(?P<pk>[0-9]+)/$', apis.JobRetrieveUpdateDestroyView.as_view()),
+    url(r'^de-identification/proc/$', apis.ProcessControlListView.as_view()),
+    url(r'^de-identification/proc/(?P<proc_id>.*)$', apis.ProcessControlView.as_view()),
 ]

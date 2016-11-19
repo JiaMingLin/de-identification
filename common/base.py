@@ -62,6 +62,11 @@ class Base(object):
 
 		return True
 
+	def get_str_obj(self, str_obj):
+		if isinstance(str_obj, str):
+			return ast.literal_eval(str_obj)
+		return str_obj
+
 	def convert_selected_attrs(self, attrs_ls):
 		attrs_ls = ast.literal_eval(str(attrs_ls))
 		return collections.OrderedDict(zip(attrs_ls['names'], attrs_ls['types']))
@@ -75,11 +80,7 @@ class Base(object):
 				comb += [e]
 		return comb
 
-	def save_merged_jtree(self, task):
-		task_id = task.task_id
-		eps1_level = task.eps1_level
-		jtree = task.jtree_strct
-
+	def save_merged_jtree(self, task_id, eps1_level, jtree):
 		parent = c.MEDIATE_DATA_DIR % {'task_id': task_id}
 		if not os.path.exists(parent):
 			os.makedirs(parent)
@@ -87,7 +88,8 @@ class Base(object):
 		file_name = 'jtree_eps1_%d.display' % eps1_level
 		file_path = os.path.join(parent, file_name)
 		with open(file_path, 'w+') as jtree_file:
-			jtree_file.write(jtree)
+			jtree_file.write(str(jtree))
+		return file_path
 
 	@staticmethod
 	def get_logger(name):
@@ -102,3 +104,30 @@ class Base(object):
 		logger = logging.getLogger(name)
 		logger.addHandler(handler)
 		return logger
+
+class ProcessStatus():
+
+	@staticmethod
+	def get_code(str_name):
+		mappings = dict({
+			'WAITTING':0,
+			'PENDING':1,
+			'PROGRESS':2,
+			'SUCCESS':3,
+			'REVOKED':4,
+			'FAILURE':5
+		})
+		return mappings[str_name]
+
+	@staticmethod
+	def get_name(code):
+		mappings = dict({
+			'WAITTING':0,
+			'PENDING':1,
+			'PROGRESS':2,
+			'SUCCESS':3,
+			'REVOKED':4,
+			'FAILURE':5
+		})
+		reverse = dict(zip(mappings.values(), mappings.keys()))
+		return reverse[code]
