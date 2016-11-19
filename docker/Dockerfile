@@ -35,9 +35,8 @@ ADD celery.conf /etc/supervisor/conf.d/celery.conf
 RUN apt-get install software-properties-common -y --force-yes && \
     add-apt-repository -y ppa:rwky/redis && \
     apt-get update && \
-    apt-get install redis-server -y && \
+    apt-get install redis-server supervisor -y && \
     pip install celery redis supervisor && \
-    apt-get install supervisor && \
     service supervisor restart && \
     supervisorctl reread && \
     supervisorctl update
