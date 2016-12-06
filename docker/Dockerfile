@@ -27,9 +27,6 @@ RUN git clone https://github.com/JiaMingLin/de-identification.git && \
 
 WORKDIR /opt/de-identification
 
-RUN mkdir log/ && \
-    ./clean.sh
-
 # install redis and celery
 ADD celery.conf /etc/supervisor/conf.d/celery.conf
 RUN apt-get install software-properties-common -y --force-yes && \
@@ -40,6 +37,9 @@ RUN apt-get install software-properties-common -y --force-yes && \
     service supervisor restart && \
     supervisorctl reread && \
     supervisorctl update
+
+RUN mkdir log/ && \
+    ./clean.sh
 
 ADD start.sh /opt/de-identification/start.sh
 RUN chmod +x /opt/de-identification/start.sh

@@ -19,10 +19,10 @@ class TestFull(TestCase, Base):
 		self.eps1_levels = [5]
 
 		# noises
-		self.privacy_levels = [5]
+		self.privacy_levels = [1,2,3,4,5]
 
 		# k
-		self.k_val = [10]
+		self.k_val = [0]
 
 		# number of runs
 		self.nrun = 1
@@ -32,10 +32,6 @@ class TestFull(TestCase, Base):
 			(
 				"data2",
 				[]
-			),
-			(
-				"data2",
-				[['Age', 'Income'], ['HTN', 'Age']]
 			)
 		]
 

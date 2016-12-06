@@ -202,7 +202,7 @@ class DataUtils(Base):
 
 	def _continue_parser(self, col):
 		D = c.MAX_BIN_NUMBER
-		smax = max(col)+.5; smin = min(col)-.5
+		smax = max(col)+.5; smin = min(col)
 		edges = []
 		if self.specified_c_domain is not None:
 			edges = self.specified_c_domain[col.name]
