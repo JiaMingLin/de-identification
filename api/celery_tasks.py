@@ -168,7 +168,7 @@ class Preprocess(Base):
 		self.dep_graph = str(self.edges)
 
 	def get_white_list(self, request):
-		white_list = request['white_list'] if 'white_list' in request.keys() else "[]"
+		white_list = request['white_list'] if 'white_list' in request.keys() and len(request['white_list']) > 0 else "[]"
 		if not isinstance(white_list, list):
 			white_list = ast.literal_eval(white_list)
 		return white_list

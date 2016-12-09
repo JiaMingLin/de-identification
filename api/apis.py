@@ -1,6 +1,7 @@
 import json
-from .models import Task, Job
-from .serializers import TaskSerializer, JobSerializer
+from .enums import *
+from .models import Task, Job, UtilityMeasure
+from .serializers import TaskSerializer, JobSerializer, UtilityMeasureSerializer
 from common.data_utilities import DataUtils
 from common.base import *
 from celery.result import AsyncResult
@@ -44,7 +45,10 @@ class TaskListCreateView(APIView):
 		Response
 		=================================
 		"""
-		serializer = TaskSerializer(data=request.data)
+		data = request.data
+		data['opted_cluster'] = ''
+		data['white_list'] = ''
+		serializer = TaskSerializer(data=data)
 		
 		if(serializer.is_valid()):
 			serializer.save()
@@ -57,11 +61,17 @@ class TaskRetrieveUpdateDestroyView(APIView):
 		task = get_object_or_404(Task, pk = pk)
 		import ast
 		task.selected_attrs = ast.literal_eval(task.selected_attrs)
+		task.opted_cluster = ast.literal_eval(task.opted_cluster)
+		task.white_list = ast.literal_eval(task.white_list)
 		serializer = TaskSerializer(task)
 		return Response(serializer.data)
 
 	def put(self, request, pk, format=None):
 		task = get_object_or_404(Task, pk = pk)
+		serializer = TaskSerializer(task, data=request.data)
+		task.selected_attrs = ast.literal_eval(task.selected_attrs)
+		task.opted_cluster = ast.literal_eval(task.opted_cluster)
+		task.white_list = request.data['white_list']
 		serializer = TaskSerializer(task, data=request.data)
 		if serializer.is_valid():
 			serializer.save()
@@ -156,7 +166,7 @@ class ProcessControlView(APIView):
 		return Response(result, status = status.HTTP_200_OK)
 
 	def delete(self, request, proc_id, format = None):
-		data = 'Fail'
+		data = 'INIT'
 		instance = None
 		try:
 			revoke(proc_id, terminate=True)
@@ -170,4 +180,71 @@ class ProcessControlView(APIView):
 		result = dict({
 				c.CELERY_STATUS: ProcessStatus.get_code('REVOKED')
 			})
-		return Response(result, status = status.HTTP_200_OK) 
+		return Response(result, status = status.HTTP_200_OK)
+
+class UtilityMeasureHTMLListView(APIView):
+	def get(self, request, req_type, format = None):
+		result = 'INIT'
+		if req_type == 'v_methods':
+			result = EvalMethodEnums.get_names()
+		elif req_type == 'algorithms':
+			result = MLAlgorithmEnums.get_names()
+		else:
+			result = json.dumps('Query Type not Found')
+
+		return Response(result, status = status.HTTP_200_OK)
+
+class UtilityMeasureListCreateView(APIView):
+	def get(self, request, format = None):
+		result = 'INIT'
+		objs = UtilityMeasure.objects.all()
+		serializer = UtilityMeasureSerializer(objs, many = True)
+		return Response(serializer.data, status = status.HTTP_200_OK)
+
+	def post(self, request, format = None):
+		result = 'INIT'
+	
+		data = request.data
+		data["ml_measure"] = ''
+		data["ml_result"] = ''
+		data["query_results"] = ''
+		serializer = UtilityMeasureSerializer(data=data)
+		
+		if(serializer.is_valid()):
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UtilityMeasureRetrieveUpdateDestroyView(APIView):
+	def get(self, request, analysis_id, format = None):
+		result = 'INIT'
+		obj = get_object_or_404(UtilityMeasure, pk = analysis_id)
+		import ast
+		obj.task_ids = ast.literal_eval(obj.task_ids)
+		obj.ml_config = ast.literal_eval(obj.ml_config)
+		obj.ml_measure = ast.literal_eval(obj.ml_measure)
+		obj.ml_result = ast.literal_eval(obj.ml_result)
+		obj.user_queries = ast.literal_eval(obj.user_queries)
+		obj.query_results = ast.literal_eval(obj.query_results)
+
+		serializer = UtilityMeasureSerializer(obj)
+
+		return Response(serializer.data, status = status.HTTP_200_OK)
+
+	def put(self, request, analysis_id, format=None):
+		obj = get_object_or_404(UtilityMeasure, pk = pk)
+		import ast
+		obj.task_ids = ast.literal_eval(obj.task_ids)
+		obj.ml_config = ast.literal_eval(obj.ml_config)
+		obj.user_queries = ast.literal_eval(obj.user_queries)
+
+		serializer = UtilityMeasureSerializer(task, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	def delete(self, request, analysis_id, format=None):
+		obj = get_object_or_404(UtilityMeasure, pk = pk)
+		obj.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)

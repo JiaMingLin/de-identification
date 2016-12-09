@@ -1,10 +1,10 @@
 import common.constant as c
 from django.test import TestCase
-from common.utility_measure import UserQuery
 from common.data_utilities import DataUtils
+from utility_measure.measure_func import UserQuery
 
 TEST_DATA_PATH = c.TEST_ORIGIN_DATA_PATH
-class TestUtilityMeasure(TestCase):
+class TestMeasureFunc(TestCase):
 	def setUp(self):
 		self.queries = [
 			"Age > 50 and workclass == 'Self-emp-not-inc'",

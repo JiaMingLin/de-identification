@@ -62,7 +62,7 @@ class Job(models.Model):
 class UtilityMeasure(models.Model):
     analysis_id = models.AutoField(primary_key = True)
     task_ids = models.CharField(blank = True, max_length = 30)
-    proc_id = models.CharField(max_length = 100)
+    proc_id = models.CharField(max_length = 100, blank = True)
     ml_config = models.TextField(blank = True)
     ml_measure = models.TextField(blank = True)
     ml_result = models.TextField(blank = True)

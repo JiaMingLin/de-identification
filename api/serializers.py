@@ -1,15 +1,16 @@
 from rest_framework import serializers
-from .models import Task, Job
+from .models import Task, Job, UtilityMeasure
 
 from common.data_utilities import DataUtils
 from common.base import *
 from .celery_tasks import *
-from prob_models.dep_graph import DependencyGraph
-from prob_models.jtree import JunctionTree
 from dptable.variance_reduce import VarianceReduce
 from dptable.inference import Inference
 from dptable.stats_functions import StatsFunctions
 from dptable.simulate import Simulate
+from prob_models.dep_graph import DependencyGraph
+from prob_models.jtree import JunctionTree
+from utility_measure.celery_tasks import *
 
 import common.constant as c
 import numpy as np
@@ -21,7 +22,8 @@ import collections
 # TODO: All the operations/methods should NOT gather in this file, it is too long to read.
 class TaskSerializer(serializers.ModelSerializer, Base):
 	selected_attrs = serializers.JSONField()
-
+	opted_cluster = serializers.JSONField()
+	white_list = serializers.JSONField()
 	class Meta:
 		model = Task
 		field = (
@@ -202,17 +204,24 @@ class JobSerializer(serializers.ModelSerializer, Base):
 	# The Job is not going to be modified.
 	def create(self, validated_data):
 		# TODO: check the level of job is exist or not, if yes, retrieve the existed one
-
-		# create a new job instance and a new back grounded process
-		job = Job.objects.create(
+		job_ls = Job.objects.filter(
 			task_id = validated_data['task_id'],
-			privacy_level = validated_data['privacy_level'],
-			epsilon = float(validated_data['epsilon'])
+			privacy_level = validated_data['privacy_level']
 		)
+		if len(job_ls) == 0:
+			job = Job.objects.create(
+				task_id = validated_data['task_id'],
+				privacy_level = validated_data['privacy_level'],
+				epsilon = float(validated_data['epsilon'])
+			)
+		else:
+			job = job_ls[0]
+			job.epsilon = validated_data['epsilon']
+
 		validated_data['task_id'] = validated_data['task_id'].task_id
 		validated_data['dp_id'] = job.dp_id
 		back_proc = create_anonymity.delay(validated_data)
-		
+
 		job.proc_id = back_proc.id
 		job.status = ProcessStatus.get_code(back_proc.state)
 		job.save()
@@ -410,3 +419,42 @@ class JobSerializer(serializers.ModelSerializer, Base):
 		LOG.info("White List: %s" % str(white_list))
 		LOG.info("k-aggregate value: %d" % k)
 		LOG.info('\n'+str(frame))
+
+class UtilityMeasureSerializer(serializers.ModelSerializer, Base):
+
+	task_ids = serializers.JSONField()
+	ml_config = serializers.JSONField()
+	ml_measure = serializers.JSONField()
+	ml_result = serializers.JSONField()
+	user_queries = serializers.JSONField()
+	query_results = serializers.JSONField()
+
+	class Meta:
+		model = UtilityMeasure
+		field = ('analysis_id', 'task_ids', 'proc_id', 'ml_config', 'ml_measure', 'ml_result', 'user_queries', 'query_results', 'status', 'start_time', 'end_time')
+
+	def create(self, validated_data):
+		# create the task first to obtain the task id
+		instance = UtilityMeasure.objects.create(
+			task_ids = validated_data['task_ids'],
+			ml_config = validated_data['ml_config'],
+			user_queries = validated_data['user_queries']
+		)
+
+		# submit the back ground process to obtain the process id to track status
+		validated_data['analysis_id'] = instance.analysis_id
+		back_proc = create_utility_measure.delay(validated_data)
+		
+		instance.proc_id = back_proc.id
+		instance.status = ProcessStatus.get_code(back_proc.state)
+		instance.save()
+		return instance
+		#return self.task_build_process(validated_data)
+	
+	def update(self, instance, validated_data):
+		validated_data['analysis_id'] = instance.analysis_id
+		back_proc = create_utility_measure.delay(validated_data)
+		instance.proc_id = back_proc.id
+		instance.status = ProcessStatus.get_code(back_proc.state)
+		instance.save()
+		return instance
