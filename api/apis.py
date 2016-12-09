@@ -1,9 +1,9 @@
 import json
-from .enums import *
 from .models import Task, Job, UtilityMeasure
 from .serializers import TaskSerializer, JobSerializer, UtilityMeasureSerializer
-from common.data_utilities import DataUtils
 from common.base import *
+from common.data_utilities import DataUtils
+from common.enums import *
 from celery.result import AsyncResult
 from celery.task.control import revoke, inspect
 
