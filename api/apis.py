@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 import common.constant as c
+import numpy as np
 
 """
 The De-Identification Index page
@@ -185,14 +186,33 @@ class ProcessControlView(APIView):
 class UtilityMeasureHTMLListView(APIView):
 	def get(self, request, req_type, format = None):
 		result = 'INIT'
-		if req_type == 'v_methods':
-			result = EvalMethodEnums.get_names()
-		elif req_type == 'algorithms':
-			result = MLAlgorithmEnums.get_names()
-		else:
-			result = json.dumps('Query Type not Found')
+		try:
+			if req_type == 'v_methods':
+				result = EvalMethodEnums.get_names()
+			elif req_type == 'algorithms':
+				result = MLAlgorithmEnums.get_names()
+			elif req_type == 'target':
+				
+				from urlparse import urlparse, parse_qs
+				task_ids = parse_qs(request.GET.urlencode())['task_ids'][0].split('|')
+				result = self._find_attrs_mititasks(np.asarray(task_ids).astype(int))
+			else:
+				result = json.dumps('Query Type not Found')
+		except Exception as e:
+			return Response(json.dumps(str(e)), status = status.HTTP_400_BAD_REQUEST)
 
 		return Response(result, status = status.HTTP_200_OK)
+
+	def _find_attrs_mititasks(self, task_ids):
+		import ast
+		task_objs = Task.objects.filter(task_id__in=list(task_ids))
+		selected_attr_names = [np.array(ast.literal_eval(obj.selected_attrs)['names']) for obj in task_objs]
+		for i in range(len(selected_attr_names)-1):
+			if len(selected_attr_names[i]) != len(selected_attr_names[i+1]):
+				raise Exception("The attributes of the selected tasks are not consisted.")
+			if not (selected_attr_names[i] == selected_attr_names[i+1]).all():
+				raise Exception("The attributes of the selected tasks are not consisted.")
+		return list(selected_attr_names[0])
 
 class UtilityMeasureListCreateView(APIView):
 	def get(self, request, format = None):
