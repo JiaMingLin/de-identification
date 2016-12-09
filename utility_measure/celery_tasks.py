@@ -7,6 +7,8 @@ from api.models import *
 from common.enums import *
 from common.base import *
 
+from datetime import datetime
+
 @shared_task
 def create_utility_measure(request):
 	
@@ -46,6 +48,8 @@ def create_utility_measure(request):
 	instance.ml_measure = json.dumps(MeasureEnums.get_names())
 	instance.ml_result = json.dumps(list(ml_result))
 	instance.query_results = json.dumps(list(user_query_scores))
+	instance.status = ProcessStatus.get_code('SUCCESS')
+	instance.end_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
 	instance.save()
 
 	process_update(c.CELERY_PROGRESS, 100, 'Analysis Complete', is_celery)
