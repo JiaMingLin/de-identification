@@ -30,8 +30,8 @@ def create_utility_measure(request):
 	# get the scores for simulated data
 	process_update(c.CELERY_PROGRESS, 10, 'Machine Learning Analysis', is_celery)
 	ml_config = request['ml_config']
-	ml = MLScoring(task_ids, measure, ml_config['algorithm'], ml_config['method'], ml_config['target'])
-	ml_result = ml.get_scores()
+	ml = MLScoring(task_ids, measure, ml_config['algorithm_id'], ml_config['method_id'], ml_config['target'])
+	ml_results = ml.get_scores()
 
 	# ======================
 	# User Queries Part
@@ -46,7 +46,7 @@ def create_utility_measure(request):
 			analysis_id = request['analysis_id']
 		)
 	instance.ml_measure = json.dumps(MeasureEnums.get_names())
-	instance.ml_result = json.dumps(list(ml_result))
+	instance.ml_results = json.dumps(list(ml_results))
 	instance.query_results = json.dumps(list(user_query_scores))
 	instance.status = ProcessStatus.get_code('SUCCESS')
 	instance.end_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')

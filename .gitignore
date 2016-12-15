@@ -7,3 +7,5 @@ log/*
 .DS_Store
 static/test/exp/*
 api/migration/*_initial.py
+server/web/*
+*.csv

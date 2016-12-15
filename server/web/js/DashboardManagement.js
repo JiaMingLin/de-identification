@@ -29,6 +29,7 @@ function dashboardManagement() {
 					var startTime = data[i].start_time;
 					var endTime = data[i].end_time;
 					var status = data[i].status;
+					var procId = data[i].proc_id;
 
 					if (startTime == null) {
 						startTime = "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp—";
@@ -43,25 +44,25 @@ function dashboardManagement() {
 
 					switch(status){
 						case 0:
-						status = "等待中";
+						statusName = "等待中";
 						break;
 						case 1:
-						status = "執行中";
+						statusName = "執行中";
 						break;
 						case 2:
-						status = "錯誤發生";
+						statusName = "錯誤發生";
 						break;
 						case 3:
-						status = "已完成";
+						statusName = "已完成";
 						break;
 					}				
 
-					jobsInfo += "<tr>";
-					jobsInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\""+ taskId +"\"></label></td>";
+					jobsInfo += "<tr id=\"task"+taskId+"\" data-procid=\""+procId+"\" data-status=\""+status+"\">";
+					jobsInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" data-taskid=\""+taskId+"\" value=\""+ taskId +"\"></label></td>";
 					jobsInfo += "<td>" + taskName + "</td>";
 					jobsInfo += "<td>開始： "+ startTime +"<br/>";
 					jobsInfo += "結束： "+ endTime +"</td>";
-					jobsInfo += "<td>"+ status +"</td>";
+					jobsInfo += "<td class='job_status'>"+ statusName +"</td>";
 					jobsInfo += "</tr>";
 					$("#dpJobListBody").append(jobsInfo);
 				};
@@ -119,7 +120,7 @@ function dashboardManagement() {
 		var url = endpoint + "api/de-identification/" + task_id; 
 
 		$.ajax({
-			type: "Delete",
+			type: "DELETE",
 			url: url,
 			headers:{
 				"Content-Type":"application/json"
@@ -128,7 +129,8 @@ function dashboardManagement() {
 			processData: false,
 			//data: JSON.stringify(requestBody),
 			success: function(data) {
-				
+				var trId=$("#task"+task_id);
+				trId.remove();
 			},
 			error: function() {
 				
@@ -140,6 +142,63 @@ function dashboardManagement() {
 				loading.close();
 			}
 		});
+	}
+	this.deleteAnalysis = function (requestBody) {
+		var analysis_id = requestBody.ana_id;
+		var url = endpoint + "api/de-identification/utility/" + analysis_id; 
+
+		$.ajax({
+			type: "DELETE",
+			url: url,
+			headers:{
+				"Content-Type":"application/json"
+			},
+			dataType: "json",
+			processData: false,
+			//data: JSON.stringify(requestBody),
+			success: function(data) {
+				var trId=$("#ana"+analysis_id);
+				trId.remove();
+			},
+			error: function() {
+				
+			},
+			beforeSend: function(){
+				loading.open();
+			},
+			complete: function() {
+				loading.close();
+			}
+		});
+	}
+	this.stopProc = function (requestBody) {
+		var trId=$("#"+requestBody.list_type+requestBody.task_id)
+		var procId=trId.attr("data-procid");
+		var status=trId.attr("data-status");
+		//console.log(procId+", "+status)
+		if(status==1){
+			url=endpoint+"api/de-identification/proc/"+procId;
+			$.ajax({
+				type: "DELETE",
+				url: url,
+				headers:{
+					"Content-Type":"application/json;charset=utf-8"
+				},
+				async: false,
+				success: function(data) {
+					trId.find(".job_status").text("等待中");
+				},
+				error: function() {
+				},
+				beforeSend: function(){
+					loading.open();
+				},
+				complete: function() {
+					loading.close();
+				}
+			});
+		}
+		
 	}
 
 	var _parseInfo = function(jsonData){
@@ -159,4 +218,81 @@ function dashboardManagement() {
 		console.log(inputData);
 		window.localStorage.setItem("info",JSON.stringify(inputData));
 	}
+
+	//get data synthesis list
+	this.listDataSynthesis=function(){
+		var dataSynthesisList="";
+		var url = endpoint + "api/de-identification/utility/";
+		$.ajax({
+			type: "GET",
+			url: url,
+			headers:{
+				"Content-Type":"application/json;charset=utf-8"
+			},
+			//dataType: "json",
+			async: false,
+			//processData: false,
+			//data: {'proc_id':proc_id},
+			success: function(data) {
+				console.log(data);
+				//var DataSynthesisList = "";
+				$("#dataSynthesisBody").html("");
+				for (var i = 0; i < data.length; i++) {
+					
+					var analysisId = data[i].analysis_id;
+					var analysisName = data[i].analysis_name;
+					var startTime = data[i].start_time;
+					var endTime = data[i].end_time;
+					var status = data[i].status;
+					var procId = data[i].proc_id;
+
+					if (startTime == null) {
+						startTime = "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp—";
+					}else{
+						startTime = startTime.replace(/[TZ\.]/g," ");
+					}
+					if (endTime == null) {
+						endTime = "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp—";
+					}else{
+						endTime = endTime.replace(/[TZ\.]/g," ");
+					}
+
+					switch(status){
+						case 0:
+						statusName = "等待中";
+						break;
+						case 1:
+						statusName = "執行中";
+						break;
+						case 2:
+						statusName = "錯誤發生";
+						break;
+						case 3:
+						statusName = "已完成";
+						break;
+					}				
+
+					dataSynthesisList += "<tr id=\"ana"+analysisId+"\" data-procid=\""+procId+"\" data-status=\""+status+"\">";
+					dataSynthesisList += "<td><label class=\"checkbox-inline\"><input data-anaid=\""+analysisId+"\" type=\"checkbox\" value=\""+ analysisId +"\"></label></td>";
+					dataSynthesisList += "<td>" + analysisName + "</td>";
+					dataSynthesisList += "<td>開始： "+ startTime +"<br/>";
+					dataSynthesisList += "結束： "+ endTime +"</td>";
+					dataSynthesisList += "<td class='job_status'>"+ statusName +"</td>";
+					dataSynthesisList += "</tr>";					
+				};
+				$("#dataSynthesisBody").append(dataSynthesisList);
+				//$("#dataSynthesisBody").append();
+			},
+			error: function() {
+
+			},
+			beforeSend: function(){
+				//loading.open();
+			},
+			complete: function() {
+				//loading.close();
+			}
+		});
+	}
+	
 }

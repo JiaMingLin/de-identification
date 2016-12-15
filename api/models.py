@@ -61,11 +61,12 @@ class Job(models.Model):
 
 class UtilityMeasure(models.Model):
     analysis_id = models.AutoField(primary_key = True)
+    analysis_name = models.CharField(blank = True, max_length = 30)
     task_ids = models.CharField(blank = True, max_length = 30)
     proc_id = models.CharField(max_length = 100, blank = True)
     ml_config = models.TextField(blank = True)
     ml_measure = models.TextField(blank = True)
-    ml_result = models.TextField(blank = True)
+    ml_results = models.TextField(blank = True)
     user_queries = models.TextField(blank = True)
     query_results = models.TextField(blank = True)
     status = models.PositiveSmallIntegerField(default = 0)
@@ -81,8 +82,8 @@ class UtilityMeasure(models.Model):
     def setml_measure(self, value):
         self.ml_measure = json.dumps(value)
 
-    def setml_result(self, value):
-        self.ml_result = json.dumps(value)
+    def setml_results(self, value):
+        self.ml_results = json.dumps(value)
 
     def setuser_queries(self, value):
         self.user_queries = json.dumps(value)
@@ -99,8 +100,8 @@ class UtilityMeasure(models.Model):
     def getml_measure(self):
         return json.loads(self.ml_measure)
 
-    def getml_result(self):
-        return json.loads(self.ml_result)
+    def getml_results(self):
+        return json.loads(self.ml_results)
 
     def getuser_queries(self):
         return json.loads(self.user_queries)

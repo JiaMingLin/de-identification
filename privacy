@@ -61,9 +61,9 @@
 	         6. 使用者可藉由資料分析功能比較與原始資料之統計差異性。<br/>" data-trigger="hover" data-html="true"></span></h2>
 	         <div class="box_inside">
       			<div class="btn_set"><a role="button" class="btn btn-primary" id="cDPTableTask" href="/privacy/web/DeIdentificationProcess.html?default=true">建立</a>
-      			<button role="button" class="btn btn-primary" id="eDPTableTask" disabled>編輯</button>
-      			<button role="button" class="btn btn-primary" id="dDPTableTask" disabled>刪除</button>
-      			<button role="button" class="btn btn-primary" id="sDPTableTask" disabled>停止</button></div><!-- btn_set -->
+      			<a role="button" class="btn btn-primary" id="eDPTableTask">編輯</a>
+      			<a role="button" class="btn btn-primary" id="dDPTableTask">刪除</a>
+      			<a role="button" class="btn btn-primary" id="sDPTableTask">停止</a></div><!-- btn_set -->
       			<table class="table table-hover table-bordered" style="">
 							<thead style="">
 					            <tr>
@@ -86,21 +86,21 @@
       			<div class="box_inside">
       			<div class="btn_set">
       			<a role="button" href="/privacy/web/DataSynthesis.html" class="btn btn-primary" id="cAnalysisTask">建立</a>
-      			<button role="button" class="btn btn-primary" id="eAnalysisTask" disabled>檢視</button>
-      			<button role="button" class="btn btn-primary" id="dAnalysisTask" disabled>刪除</button>
-      			<button role="button" class="btn btn-primary" id="sAnalysisTask" disabled>停止</button></div><!-- btn_set -->
+      			<a role="button" class="btn btn-primary" id="eAnalysisTask">檢視</a>
+      			<a role="button" class="btn btn-primary" id="dAnalysisTask">刪除</a>
+      			<a role="button" class="btn btn-primary" id="sAnalysisTask">停止</a></div><!-- btn_set -->
 
       			<table class="table table-hover table-bordered" style="">
 					<thead style="">
 			            <tr>
-			                <th><label class="checkbox-inline"><input type="checkbox" id="ANTableCheckAll" value=""><strong>全選</strong></label></th>
+			                <th><label class="checkbox-inline"><input type="checkbox" value=""><strong>全選</strong></label></th>
 			               	<th>工作名稱</th>
 			    			<th>時間</th>
 			    			<th>狀態</th>
 			            </tr>
 			         </thead>  
-			         <tbody id="dataSynthesisBody">
-
+			         <tbody id="dpJobListBody">
+			         	
 						  <!-- <tr>
 						  	<td><label class="checkbox-inline"><input type="checkbox" value="" id="AnalysisCheckAll"></label></td>
 						    <td>Synthetic_Analysis_JobA</td>

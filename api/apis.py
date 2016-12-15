@@ -202,7 +202,6 @@ class UtilityMeasureHTMLListView(APIView):
 			return Response(json.dumps(str(e)), status = status.HTTP_400_BAD_REQUEST)
 
 		return Response(result, status = status.HTTP_200_OK)
-
 	def _find_attrs_mititasks(self, task_ids):
 		import ast
 		task_objs = Task.objects.filter(task_id__in=list(task_ids))
@@ -223,13 +222,16 @@ class UtilityMeasureListCreateView(APIView):
 
 	def post(self, request, format = None):
 		result = 'INIT'
-	
-		data = request.data
-		data["ml_measure"] = ''
-		data["ml_result"] = ''
-		data["query_results"] = ''
+		try:			
+			data = request.data
+			data["ml_measure"] = ''
+			data["ml_results"] = ''
+			data["query_results"] = ''
+		except Exception as e:
+			result = "Required fields 'ml_measure', 'ml_results', 'query_results'."
+			Response(json.dumps(result), status=status.HTTP_400_BAD_REQUEST)
+
 		serializer = UtilityMeasureSerializer(data=data)
-		
 		if(serializer.is_valid()):
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -243,7 +245,7 @@ class UtilityMeasureRetrieveUpdateDestroyView(APIView):
 		obj.task_ids = ast.literal_eval(obj.task_ids)
 		obj.ml_config = ast.literal_eval(obj.ml_config)
 		obj.ml_measure = ast.literal_eval(obj.ml_measure)
-		obj.ml_result = ast.literal_eval(obj.ml_result)
+		obj.ml_results = ast.literal_eval(obj.ml_results)
 		obj.user_queries = ast.literal_eval(obj.user_queries)
 		obj.query_results = ast.literal_eval(obj.query_results)
 
@@ -252,19 +254,27 @@ class UtilityMeasureRetrieveUpdateDestroyView(APIView):
 		return Response(serializer.data, status = status.HTTP_200_OK)
 
 	def put(self, request, analysis_id, format=None):
-		obj = get_object_or_404(UtilityMeasure, pk = pk)
+		obj = get_object_or_404(UtilityMeasure, pk = analysis_id)
 		import ast
+		data = request.data
 		obj.task_ids = ast.literal_eval(obj.task_ids)
 		obj.ml_config = ast.literal_eval(obj.ml_config)
 		obj.user_queries = ast.literal_eval(obj.user_queries)
 
-		serializer = UtilityMeasureSerializer(task, data=request.data)
+                try:
+                        data["ml_measure"] = ""
+                        data["ml_results"] = ""
+                        data["query_results"] = ""
+                except Exception as e:
+                        Response(json.dumps(result), status=status.HTTP_400_BAD_REQUEST)
+
+		serializer = UtilityMeasureSerializer(obj, data=request.data)
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	def delete(self, request, analysis_id, format=None):
-		obj = get_object_or_404(UtilityMeasure, pk = pk)
+		obj = get_object_or_404(UtilityMeasure, pk = analysis_id)
 		obj.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)

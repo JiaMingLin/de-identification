@@ -425,20 +425,21 @@ class UtilityMeasureSerializer(serializers.ModelSerializer, Base):
 	task_ids = serializers.JSONField()
 	ml_config = serializers.JSONField()
 	ml_measure = serializers.JSONField()
-	ml_result = serializers.JSONField()
+	ml_results = serializers.JSONField()
 	user_queries = serializers.JSONField()
 	query_results = serializers.JSONField()
 
 	class Meta:
 		model = UtilityMeasure
-		field = ('analysis_id', 'task_ids', 'proc_id', 'ml_config', 'ml_measure', 'ml_result', 'user_queries', 'query_results', 'status', 'start_time', 'end_time')
+		field = ('analysis_id', 'analysis_name', 'task_ids', 'proc_id', 'ml_config', 'ml_measure', 'ml_results', 'user_queries', 'query_results', 'status', 'start_time', 'end_time')
 
 	def create(self, validated_data):
 		# create the task first to obtain the task id
 		instance = UtilityMeasure.objects.create(
 			task_ids = validated_data['task_ids'],
 			ml_config = validated_data['ml_config'],
-			user_queries = validated_data['user_queries']
+			user_queries = validated_data['user_queries'],
+			analysis_name = validated_data['analysis_name']
 		)
 
 		# submit the back ground process to obtain the process id to track status
@@ -455,6 +456,10 @@ class UtilityMeasureSerializer(serializers.ModelSerializer, Base):
 		validated_data['analysis_id'] = instance.analysis_id
 		back_proc = create_utility_measure.delay(validated_data)
 		instance.proc_id = back_proc.id
+		instance.analysis_name = validated_data['analysis_name']
+		instance.ml_config = validated_data['ml_config']
+		instance.user_queries = validated_data['user_queries']
+		instance.task_ids = validated_data['task_ids']
 		instance.status = ProcessStatus.get_code(back_proc.state)
 		instance.save()
 		return instance
