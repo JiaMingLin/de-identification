@@ -60,7 +60,7 @@ class DataUtils(Base):
 		self.preview_count = 5
 		self.specified_c_domain = specified_c_domain
 		self.date_format = date_format
-		
+
 
 	def _loading(self, file_path, pandas_df, names = None):
 		if pandas_df is None:			
@@ -118,7 +118,8 @@ class DataUtils(Base):
 			cnt = np.bincount(pos)
 		else:
 			cnt, edges = np.histogram(self.dataframe[col_name])
-		return cnt, edges
+			edges = ['%.1f - %.1f' % (edges[i], edges[i+1]) for i in range(len(edges)-1)]
+		return cnt, edges, str(self.dataframe.dtypes[col_name])
 
 	def get_df(self):
 		return self.dataframe

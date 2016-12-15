@@ -123,9 +123,10 @@ class DataPreview(APIView):
 		data = DataUtils(str(req['file_path']))
 
 		if 'col_name' in req.keys():
-			cnts, edges = data.get_histogram(req['col_name'])
+			cnts, edges, dtype = data.get_histogram(req['col_name'])
 			result['cnts'] = cnts
 			result['edges'] = edges
+			result['dtype'] = dtype
 		else:
 			col_names, dtypes, domain_size = data.data_preview()
 			result['col_names'] = col_names
