@@ -102,8 +102,19 @@ class DataUtils(Base):
 
 	def data_preview(self, format = None):
 		self.LOG.info("Preview data")
-		sub_df = self.dataframe[:self.preview_count]
-		return sub_df
+		col_names = []
+		dtypes = []
+		domain = []
+		# for each column, find the name, dtype and domiain
+		for a in self.dataframe.columns:
+			col_names.append(a)
+			dtypes.append(str(self.dataframe.dtypes[a]))
+			domain.append(len(set(self.dataframe[a])))
+		return col_names, dtypes, domain
+
+	def get_histogram(self, col_name):
+		cnt, edges = np.histogram(self.dataframe[col_name])
+		return cnt, edges
 
 	def get_df(self):
 		return self.dataframe

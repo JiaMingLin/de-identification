@@ -118,16 +118,21 @@ class DataPreview(APIView):
 		2. retrieves all the fields and the first 5 data.
 		3. return the fields and sample data to client
 		"""
+		result = dict()
 		req = request.data
 		data = DataUtils(str(req['file_path']))
-		preview_df = data.data_preview()
-		rows = [row[1].tolist() for row in preview_df.iterrows()]
-		col_names = list(preview_df.columns.values)
-		result = dict({
-			'rows':rows,
-			'col_names':col_names
-		})
-		result = json.dumps(result)
+
+		if 'col_name' in req.keys():
+			cnts, edges = data.get_histogram(req['col_name'])
+			result['cnts'] = cnts
+			result['edges'] = edges
+		else:
+			col_names, dtypes, domain_size = data.data_preview()
+			result['col_names'] = col_names
+			result['dtypes'] = dtypes
+			result['domain_size'] = domain_size
+
+		#result = json.dumps(result)
 		return Response(result, status = status.HTTP_200_OK)
 
 
