@@ -128,10 +128,11 @@ class DataPreview(APIView):
 			result['edges'] = edges
 			result['dtype'] = dtype
 		else:
-			col_names, dtypes, domain_size = data.data_preview()
+			col_names, dtypes, domain_size, data_size = data.data_preview()
 			result['col_names'] = col_names
 			result['dtypes'] = dtypes
 			result['domain_size'] = domain_size
+			result['data_size'] = data_size
 
 		#result = json.dumps(result)
 		return Response(result, status = status.HTTP_200_OK)

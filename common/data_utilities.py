@@ -110,7 +110,7 @@ class DataUtils(Base):
 			col_names.append(a)
 			dtypes.append(str(self.dataframe.dtypes[a]))
 			domain.append(len(set(self.dataframe[a])))
-		return col_names, dtypes, domain
+		return col_names, dtypes, domain, self.get_nrows()
 
 	def get_histogram(self, col_name):
 		if str(self.dataframe.dtypes[col_name]) == 'object':
