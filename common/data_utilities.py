@@ -113,7 +113,11 @@ class DataUtils(Base):
 		return col_names, dtypes, domain
 
 	def get_histogram(self, col_name):
-		cnt, edges = np.histogram(self.dataframe[col_name])
+		if str(self.dataframe.dtypes[col_name]) == 'object':
+			edges, pos = np.unique(self.dataframe[col_name],return_inverse=True)
+			cnt = np.bincount(pos)
+		else:
+			cnt, edges = np.histogram(self.dataframe[col_name])
 		return cnt, edges
 
 	def get_df(self):
