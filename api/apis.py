@@ -48,7 +48,10 @@ class TaskListCreateView(APIView):
 		"""
 		data = request.data
 		data['opted_cluster'] = ''
-		data['white_list'] = ''
+		
+		if 'white_list' not in data.keys():
+			data['white_list'] = ''
+
 		serializer = TaskSerializer(data=data)
 		
 		if(serializer.is_valid()):
