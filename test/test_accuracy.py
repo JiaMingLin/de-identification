@@ -19,7 +19,7 @@ class TestFull(TestCase, Base):
 		self.eps1_levels = [5]
 
 		# noises
-		self.privacy_levels = [1,2,3,4,5]
+		self.privacy_levels = [1,3,5]
 
 		# k
 		self.k_val = [0]
@@ -30,8 +30,12 @@ class TestFull(TestCase, Base):
 		# test cases
 		self.cases = [
 			(
-				"data2",
+				"data_fin_title.dat",
 				[]
+			),
+			(
+				"data_fin_title.dat",
+				[['stk', 'dd', 'sc']]
 			)
 		]
 
