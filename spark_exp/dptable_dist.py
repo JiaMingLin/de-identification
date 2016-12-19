@@ -1,14 +1,21 @@
+import os
+
 from common.base import *
 from dptable.variance_reduce import VarianceReduce
 from dptable.inference import Inference
 from prob_models.jtree import JunctionTree
 from spark_exp.data_dist import DataDist
 from spark_exp.dep_graph_dist import DepGraphDist
-from spark_exp.histogramdd_dict import HistogramddDist
+from spark_exp.histogramdd_dist import HistogramddDist
+from spark_exp.simulate_dist import SimulateDist
 
+from time import time
 
 class DPTableDist(Base):
-	def __init__(self, data, partitions_num = 120):
+	def __init__(self, data, eps1=10, eps2=0.2, partitions_num = 120):
+		self.eps1 = eps1
+		self.eps2 = eps2
+		self.LOG = Base.get_logger("DPTableDist")
 		# read data
 		self.data = data
 		# repartition
@@ -18,9 +25,9 @@ class DPTableDist(Base):
 
 	def run(self):
 		# build markov graph
-		graph = DepGraphDist(self.data)
+		graph = DepGraphDist(self.data, eps1 = self.eps1)
 		edges = graph.fit()
-		nodes = self.domain.keys()
+		nodes = self.domains.keys()
 		
 		# build junction tree
 		jtree_path = c.TEST_JTREE_FILE_PATH
@@ -43,6 +50,15 @@ class DPTableDist(Base):
 			self.domains, 
 			opted_marginals,
 			histogramdds,
-			0.2)
+			self.eps2)
+		model = inference.execute()
 		
 		# sampling
+		simulator = SimulateDist(model, self.data.get_nrows())
+		df = simulator.run()
+		
+		t = time()
+		save_path = os.path.join('/data/synthetic', 'sim_%d' % t)
+		self.LOG.info('Writing data to path %s.' % save_path)
+		df.write.parquet(save_path)
+		self.LOG.info('Writing data complete in %d secs.' % (time() - t))

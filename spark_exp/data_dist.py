@@ -1,6 +1,7 @@
 import re
 import numpy as np
 
+from collections import OrderedDict
 from common.base import *
 from time import time
 
@@ -32,7 +33,8 @@ class DataDist(Base):
 		self.LOG.info("Starting to loading data...")
 		if dataframe is None:
 			self.data_path = data_path
-			self.dataframe = sqlContext.parquetFile(data_path)
+			#self.dataframe = sqlContext.parquetFile(data_path)
+			self.dataframe = sqlContext.read.format('com.databricks.spark.csv').options(header='true', inferschema='true').load(data_path)
 		else:
 			self.dataframe = dataframe
 

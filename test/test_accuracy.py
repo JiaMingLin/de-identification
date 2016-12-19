@@ -14,10 +14,10 @@ class TestFull(TestCase):
 		self.eps1_levels = [3]
 
 		# noises
-		self.privacy_levels = [2,3]
+		self.privacy_levels = [2]
 
 		# k
-		self.k_val = [10,50,250]
+		self.k_val = []
 
 		# number of runs
 		self.nrun = 1
@@ -25,14 +25,14 @@ class TestFull(TestCase):
 		# test cases
 		self.cases = [
 			(
-				"data2",
+				"Data4-coarse",
 				[]
 				#[["Age", "Income", "TRV"]]
 			)
 		]
 
 		# specified data domain
-		self.specified_data_domain = False
+		self.specified_data_domain = True
 
 	def get_eps(self, level):
 		corr = {
