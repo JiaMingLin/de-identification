@@ -4,6 +4,7 @@ $(function() {
 	var initDI_response = {};
 	var execDI_response = {};
 	var task_id="";
+	var ifTask=false;
 	//console.log("task id:"+task_id);
 	// var loadingOption ={
 	// 	imgPath    : 'images/ajax-loading.gif',
@@ -12,17 +13,21 @@ $(function() {
 	// }
 	// var loading = $.loading(loadingOption);
 	var isDefault = true;
+	$("#dataSelectedCheckAll, #filenameinput").removeAttr('disabled');
 	deIdentificationProcessManagement = new deIdentificationProcessManagement();
-
+	window.localStorage.removeItem("taskID");
 	var _checkTask = function(){
 		taskID=location.href.split("?task_id=")[1];
 		if(taskID){
-			console.log("task:"+taskID);
+			ifTask=true;
+			//console.log("task:"+taskID);
 			$("#tool-tabs li").removeClass('disabled');
 			window.localStorage.setItem("taskID",taskID);
+			console.log("task id :"+window.localStorage.getItem("taskID"));
 			deIdentificationProcessManagement.getDITaskDetail(taskID);
 		}else{
 			window.localStorage.removeItem("taskID");
+			console.log("task id :"+window.localStorage.getItem("taskID"));
 		}
 		
 	}
@@ -32,7 +37,8 @@ $(function() {
 		isDefault = location.href.split("?default=")[1];
 		if((isDefault == false || isDefault == "false") && isDefault != undefined){
 			var inputData = JSON.parse(window.localStorage.getItem("info"));
-			deIdentificationProcessManagement.showSensitiveTableAndColumnSetting(inputData);
+			//deIdentificationProcessManagement.showSensitiveTableAndColumnSetting(inputData);
+			deIdentificationProcessManagement.showSensitiveTableAndColumnSetting();
 			var input_fileName = inputData.fileName;
 			$("#filenameinput").val(input_fileName);
 			$("#filenameinput").prop('disabled',true);
@@ -151,9 +157,9 @@ $(function() {
 		//disable the download button	
 		$("#download").attr('disabled', 'disabled');
 		//enable the stop button	
-		$("#stopDI").prop('disabled',true);
+		$("#stopDI").attr('disabled','disabled');
 		//disable the start button	
-		$("#execDI").prop('disabled',false);
+		$("#execDI").removeAttr('disabled');
 	}
 
 	var _columnSettingPanelControl = function(disabled){
@@ -181,8 +187,8 @@ $(function() {
 		data.fileName = fileName;
 		//for list default column setting
 		data.default = true;		
-		deIdentificationProcessManagement.showSensitiveTableAndColumnSetting(data);
-
+		//deIdentificationProcessManagement.showSensitiveTableAndColumnSetting(data);
+		deIdentificationProcessManagement.showSensitiveTableAndColumnSetting();
 		//get ready for user driven mechanism
 		var attrs = JSON.parse(window.localStorage.getItem("columns"));
 		$('input[name="columnSet"]').tagsinput({
@@ -202,15 +208,15 @@ $(function() {
 		if($("#filenameinput").prop('disabled') == false){
 			$("#filenameinput").val("");
 			//clear table content
-			$("#sensitiveHead").html('');
-			$("#sensitiveBody").html('');
-			//clear columns setting content
-			$("#columnSettingBody").html('');
+			// $("#sensitiveHead").html('');
+			// $("#sensitiveBody").html('');
+			// //clear columns setting content
+			// $("#columnSettingBody").html('');
 
 			//clear the local storage
-			localStorage.removeItem("columns");
-			localStorage.removeItem("columnSetting");
-			localStorage.removeItem("info");
+			// localStorage.removeItem("columns");
+			// localStorage.removeItem("columnSetting");
+			// localStorage.removeItem("info");
 		}
 	});
 
@@ -220,13 +226,13 @@ $(function() {
 		checkboxes.prop('checked', $(this).prop("checked"));
 	});
 
+
 	//click column setting confirm button
 	$("#columnconfirm").click(function(){
 		_recoveryColumnSettingPanel();
 		var jsonArray = [];
 		_columnSettingPanelControl(true);
-		$("#columncancel").prop('disabled', false);
-		$("#columncancel").removeAttr('disabled');
+		
 		// $('#columnSettingBody tr').each(function() {
 		// 	var jsonObject = {};
 		//     var checkbox  = $(this).find("input:checkbox").prop('checked');
@@ -240,11 +246,15 @@ $(function() {
 		//begin to initiate the DI task
 		initDI_response = _initDI();
 		_execButtonReady();
+		$("#columncancel").prop('disabled', false);
+		$("#columncancel").removeAttr('disabled');
 	});
 
 	//click column setting cancel button
 	$("#columncancel").click(function(){
+		$("#columncancel").attr("disabled", "disabled");
 		$("#columncancel").prop('disabled', true);
+
 		_columnSettingPanelControl(false);
 		_recoveryColumnSettingPanel();
 		deIdentificationProcessManagement.stopIDProc();
@@ -391,6 +401,11 @@ $(function() {
 		
 	});
 
+	$("#attr_dist").change(function(){
+		deIdentificationProcessManagement.showBarChart($("#attr_dist").val());
+
+	});
+
 	// $(document).on('click','input[name="columnSet"]',function(){
 	// 	$(this).typeahead({source:[{id: "someId1", name: "Height"}, 
  //            {id: "someId2", name: "Weight"}], 
@@ -425,17 +440,22 @@ $(function() {
 
 	//click column setting reset button
 	$("#columnreset").click(function(){
-		if($("#columnSettingBody").find("input,select,section").prop('disabled') == false){
-			var columns = [];
-			columns = JSON.parse(window.localStorage.getItem("columns"));
-			var data = {};
-			data.col_names = columns;
-			//for list default column setting
-			data.default = true;
-			deIdentificationProcessManagement.listColumnsetting(data);
-			localStorage.removeItem("columnSetting");
-			localStorage.removeItem("info");
-		}
+		$("#dataSelectedCheckAll").prop("checked", false);
+		$("#columnSettingBody tr").each(function(i){
+			$(this).find("input[type='checkbox']").prop("checked", false);
+			$(this).find("select option").eq(0).prop("selected", true);
+		});
+		// if($("#columnSettingBody").find("input,select,section").prop('disabled') == false){
+		// 	var columns = [];
+		// 	columns = JSON.parse(window.localStorage.getItem("columns"));
+		// 	var data = {};
+		// 	data.col_names = columns;
+		// 	//for list default column setting
+		// 	data.default = true;
+		// 	deIdentificationProcessManagement.listColumnsetting(data);
+		// 	localStorage.removeItem("columnSetting");
+		// 	localStorage.removeItem("info");
+		// }
 	});
 
 	$("#columnPanel").lobiPanel({
@@ -500,15 +520,15 @@ $(function() {
 				return;
 			}
 			//old record is exist
-			var inputData = JSON.parse(window.localStorage.getItem("info"));
-			var task_id = inputData.task_id;
-			var records = deIdentificationProcessManagement.getTaskDetail(task_id);
-			var lastRecord = records[records.length-1];
-			initDI_response.task_id = task_id;
-			initDI_response.privacy_level = lastRecord.privacy_level;
-			initDI_response.epsilon = lastRecord.epsilon;
-			//set waitting status
-			initDI_response.status = 0;		
+			// var inputData = JSON.parse(window.localStorage.getItem("info"));
+			// var task_id = inputData.task_id;
+			// var records = deIdentificationProcessManagement.getTaskDetail(task_id);
+			// var lastRecord = records[records.length-1];
+			// initDI_response.task_id = task_id;
+			// initDI_response.privacy_level = lastRecord.privacy_level;
+			// initDI_response.epsilon = lastRecord.epsilon;
+			// //set waitting status
+			// initDI_response.status = 0;		
 		}
 
 		if(!$("#download").prop('disabled')){

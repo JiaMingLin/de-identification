@@ -24,15 +24,26 @@ function deIdentificationProcessManagement(){
 
 
 	this.listSensitiveTable = function(data){
-		columns = data.col_names;	
+		var tableBody="";
+		var attrOption="";
+		var columns = data.col_names;	
+		var domain_size=data.domain_size;
+		var dtypes=data.dtypes;
 		//build table head
-		$("#sensitiveHead").html('');
-		// for (var k = 0; k < columns.length; k++) {
-		// 	var tableHead = "";
-		// 	tableHead += "<th class=\"text-center\">" + columns[k] + "</th>";
-		// 	$("#sensitiveHead").append(tableHead);
-		// };
-		showOriginData();
+		$("#sensitiveHead, #sensitiveBody").html('');
+		var tableHead="<th>欄位名稱</th><th>欄位型態</th><th>Domain 數量</th>";
+		$("#sensitiveHead").append(tableHead);
+		for(i=0;i<columns.length;i++){
+			tableBody+="<tr>";
+			tableBody+="<td>"+columns[i]+"</td>";
+			tableBody+="<td>"+dtypes[i]+"</td>";
+			tableBody+="<td>"+domain_size[i]+"</td>";
+			tableBody+="</tr>";
+			attrOption+="<option value='"+columns[i]+"'>"+columns[i]+"</option>";
+		}
+		$("#sensitiveBody").append(tableBody);
+		$("#attr_dist").append(attrOption);
+		//showOriginData();
 		
 		// var rows = [];
 		// rows = data.rows;
@@ -64,197 +75,134 @@ function deIdentificationProcessManagement(){
 
 	this.listColumnsetting = function(data){
 		var columns = data.col_names;
-		var showDefaultColumnSetting = data.default;
+		var selected_types = data.col_types;
+		var isNew = data.isNew;
 		var selected_attrs = {};
 		var selected_names = [];
-		var selected_types = [];
+		//var selected_types = [];
 
 		// var tableHead="<th>欄位名稱</th><th>欄位型態</th><th>Domain 數量</th>";
 		// $("#sensitiveHead").append(tableHead);
 
 		//list column setting info
+		console.log("new:"+isNew);
 		$("#columnSettingBody").html('');
-		console.log(data);
-		if(!showDefaultColumnSetting){
-			selected_attrs = data.selected_attrs;
-			selected_names = selected_attrs.names;
-			selected_types = selected_attrs.types;
-			for (var i = 0; i < columns.length; i++) {
-				var columnName = columns[i];
-				var columnInfo = "";
-				var index = selected_names.indexOf(columnName);	
-
-				columnInfo += "<tr>";
-				if (index >=0) {
-				 	//it is a selected attribute
-					columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columnName +"\" checked></label></td>";
-					columnInfo += "<td>" + columnName + "</td>";
-					columnInfo += "<td><div class=\"dropdown\">";
-					columnInfo += "<select class=\"form-control\">";
-					if(selected_types[index] == "C"){
-						columnInfo += "<option value=\"C\" selected>連續型</option>";
-						columnInfo += "<option value=\"D\">類別型</option>";
-					}else{
-						columnInfo += "<option value=\"C\">連續型</option>";
-						columnInfo += "<option value=\"D\" selected>類別型</option>";
-					}
-					
-					columnInfo += "</select></div></td>";
-					// columnInfo += "<td>";
-					// columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";										
-					// columnInfo += "</td>";
-					columnInfo += "</tr>";
-				}else{
-				 	//it is not a selected attribute
-					columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columnName +"\"></label></td>";
-					columnInfo += "<td>" + columnName + "</td>";
-					columnInfo += "<td><div class=\"dropdown\">";
-					columnInfo += "<select class=\"form-control\">";
-					columnInfo += "<option value=\"C\">連續型</option>";
-					columnInfo += "<option value=\"D\">類別型</option>";
-					columnInfo += "</select></div></td>";
-					// columnInfo += "<td>";
-					// columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";								
-					// columnInfo += "</td>";
-					columnInfo +="</tr>";
-				}
-				$("#columnSettingBody").append(columnInfo);
-			}
-		
-		}else{
-			for (var i = 0; i < columns.length; i++) {
-			var columnName = columns[i];
-			var columnInfo = "";	
-
+		var columnInfo = "";
+		for(var i = 0; i < columns.length; i++){
 			columnInfo += "<tr>";
-			columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columnName +"\"></label></td>";
-			columnInfo += "<td>" + columnName + "</td>";
-			columnInfo += "<td><div class=\"dropdown\">";
-			columnInfo += "<select class=\"form-control\">";
-			columnInfo += "<option value=\"C\">連續型</option>";
-			columnInfo += "<option value=\"D\">類別型</option>";
-			columnInfo += "</select></div></td>";
-			//columnInfo += "<td>";
-			// columnInfo += "<section style=\"border-style:inset;\">";
-			// columnInfo += "<span class=\"attr_each\">" + columns[1];											
-			// columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
-			// columnInfo += "</span>";
-			// columnInfo += "</span>";																																	
-			// columnInfo += "</section>"
-			// columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";
-			// columnInfo += "</td>";																				
-			columnInfo += "</tr>";				   
-			$("#columnSettingBody").append(columnInfo);
-
+			if(isNew){
+				columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columns[i] +"\"></label></td>";
+			}else{
+				columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" disabled checked value=\"" + columns[i] +"\"></label></td>";
 			}
-			//$('.table-fixed-header').fixedHeader();
-			//$(".table-fixed-header").fixedHeaderTable();
+			
+			columnInfo += "<td>" + columns[i] + "</td>";
+			columnInfo += "<td><div class=\"dropdown\">";
+			if(isNew){
+				columnInfo += "<select class=\"form-control\">";
+				columnInfo += "<option value=\"C\">連續型</option>";
+				columnInfo += "<option value=\"D\">類別型</option>";
+			}else{
+				columnInfo += "<select class=\"form-control\" disabled>";
+				if(selected_types[i]=="C"){
+					columnInfo += "<option value=\"C\" selected>連續型</option>";
+					columnInfo += "<option value=\"D\">類別型</option>";
+				}else{
+					columnInfo += "<option value=\"C\">連續型</option>";
+					columnInfo += "<option value=\"D\" selected>類別型</option>";
+				}			
+				
+			}
+			
+			columnInfo += "</select></div></td>";
 		}
+		$("#columnSettingBody").append(columnInfo);
+		//console.log(data);
+		// if(!showDefaultColumnSetting){
+		// 	selected_attrs = data.selected_attrs;
+		// 	selected_names = selected_attrs.names;
+		// 	selected_types = selected_attrs.types;
+		// 	for (var i = 0; i < columns.length; i++) {
+		// 		var columnName = columns[i];
+		// 		var columnInfo = "";
+		// 		var index = selected_names.indexOf(columnName);	
+
+		// 		columnInfo += "<tr>";
+		// 		if (index >=0) {
+		// 		 	//it is a selected attribute
+		// 			columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columnName +"\" checked></label></td>";
+		// 			columnInfo += "<td>" + columnName + "</td>";
+		// 			columnInfo += "<td><div class=\"dropdown\">";
+		// 			columnInfo += "<select class=\"form-control\">";
+		// 			if(selected_types[index] == "C"){
+		// 				columnInfo += "<option value=\"C\" selected>連續型</option>";
+		// 				columnInfo += "<option value=\"D\">類別型</option>";
+		// 			}else{
+		// 				columnInfo += "<option value=\"C\">連續型</option>";
+		// 				columnInfo += "<option value=\"D\" selected>類別型</option>";
+		// 			}
+					
+		// 			columnInfo += "</select></div></td>";
+		// 			// columnInfo += "<td>";
+		// 			// columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";										
+		// 			// columnInfo += "</td>";
+		// 			columnInfo += "</tr>";
+		// 		}else{
+		// 		 	//it is not a selected attribute
+		// 			columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columnName +"\"></label></td>";
+		// 			columnInfo += "<td>" + columnName + "</td>";
+		// 			columnInfo += "<td><div class=\"dropdown\">";
+		// 			columnInfo += "<select class=\"form-control\">";
+		// 			columnInfo += "<option value=\"C\">連續型</option>";
+		// 			columnInfo += "<option value=\"D\">類別型</option>";
+		// 			columnInfo += "</select></div></td>";
+		// 			// columnInfo += "<td>";
+		// 			// columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";								
+		// 			// columnInfo += "</td>";
+		// 			columnInfo +="</tr>";
+		// 		}
+		// 		$("#columnSettingBody").append(columnInfo);
+		// 	}
+		
+		// }else{
+		// 	for (var i = 0; i < columns.length; i++) {
+		// 	var columnName = columns[i];
+		// 	var columnInfo = "";	
+
+		// 	columnInfo += "<tr>";
+		// 	columnInfo += "<td><label class=\"checkbox-inline\"><input type=\"checkbox\" value=\"" + columnName +"\"></label></td>";
+		// 	columnInfo += "<td>" + columnName + "</td>";
+		// 	columnInfo += "<td><div class=\"dropdown\">";
+		// 	columnInfo += "<select class=\"form-control\">";
+		// 	columnInfo += "<option value=\"C\">連續型</option>";
+		// 	columnInfo += "<option value=\"D\">類別型</option>";
+		// 	columnInfo += "</select></div></td>";
+		// 	//columnInfo += "<td>";
+		// 	// columnInfo += "<section style=\"border-style:inset;\">";
+		// 	// columnInfo += "<span class=\"attr_each\">" + columns[1];											
+		// 	// columnInfo += "<span class=\"glyphicon glyphicon-remove-sign\" style=\"cursor: pointer;\" title=\"移除屬性\">";													
+		// 	// columnInfo += "</span>";
+		// 	// columnInfo += "</span>";																																	
+		// 	// columnInfo += "</section>"
+		// 	// columnInfo += "<input type=\"text\" value=\"\" name=\"columnSet\" class=\"form-control\" data-role=\"tagsinput\" data-provide=\"typeahead\"/>";
+		// 	// columnInfo += "</td>";																				
+		// 	columnInfo += "</tr>";				   
+		// 	$("#columnSettingBody").append(columnInfo);
+
+		// 	}
+		// 	//$('.table-fixed-header').fixedHeader();
+		// 	//$(".table-fixed-header").fixedHeaderTable();
+		// }
 	
 	}
-	function showBarChart(){
-		var dataset=[];
-  var mapdata;
-  var color = d3.scale.category10();
-  var margin = {top: 40, right: 20, bottom: 30, left: 40},
-    width = document.getElementById("barchart").offsetWidth - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
- 	d3.json("school.json", function(error, json) { //get data
- 		if (error) return console.warn(error);
-    for($i=0 ; $i<json.length ; $i++){
-      dataset.push({"label":json[$i].domain, "value":json[$i].count, "color": color($i)});
-    }
-    var formatPercent = d3.format("");
-
-    var x = d3.scale.ordinal()
-        .rangeRoundBands([0, width], .1);
-
-    var y = d3.scale.linear()
-        .range([height, 0]);
-
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom");
-
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .tickFormat(formatPercent);
-
-    var tip = d3.tip()
-      .attr('class', 'd3-tip')
-      .offset([-10, 0])
-      .html(function(d) {
-        return "<strong>數量:</strong> <span style='color:red'>" + d.value + "</span>";
-      })
-
-    var svg2 = d3.select("#barchart").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    svg2.call(tip);
-
-  x.domain(dataset.map(function(d) { return d.label; }));
-  y.domain([0, d3.max(dataset, function(d) { return d.value; })]);
-
-  svg2.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  svg2.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("數量");
-
-  svg2.selectAll(".bar")
-      .data(dataset)
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return x(d.label); })
-      .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.value); })
-      .attr("height", function(d) { return height - y(d.value); })
-      .on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
-  
-  	});
-	}
-	function showOriginData(){
-		var tableHead="<th>欄位名稱</th><th>欄位型態</th><th>Domain 數量</th>";
-		$("#sensitiveHead").append(tableHead);
-		var rowInfo="<tr><td>Age</td><td>Integer</td><td>74</td></tr>";
-		rowInfo+="<tr><td>workclass</td><td>String</td><td>7</td></tr>";
-		rowInfo+="<tr><td>fnlwgt</td><td>Integer</td><td>26741</td></tr>";
-		rowInfo+="<tr><td>education</td><td>String</td><td>16</td></tr>";
-		rowInfo+="<tr><td>education_num</td><td>Integer</td><td>16</td></tr>";
-		rowInfo+="<tr><td>marital_status</td><td>String</td><td>7</td></tr>";
-		rowInfo+="<tr><td>occupation</td><td>String</td><td>14</td></tr>";
-		rowInfo+="<tr><td>relationship</td><td>String</td><td>6</td></tr>";
-		rowInfo+="<tr><td>race</td><td>String</td><td>5</td></tr>";
-		rowInfo+="<tr><td>sex</td><td>String</td><td>2</td></tr>";
-		rowInfo+="<tr><td>capital_gain</td><td>Integer</td><td>121</td></tr>";
-		rowInfo+="<tr><td>capital_loss</td><td>Integer</td><td>97</td></tr>";
-		rowInfo+="<tr><td>hours_per_week</td><td>Integer</td><td>96</td></tr>";
-		rowInfo+="<tr><td>native_country</td><td>String</td><td>41</td></tr>";
-		rowInfo+="<tr><td>income</td><td>String</td><td>2</td></tr>";
-		$("#sensitiveBody").append(rowInfo);
-	}
-
-	this.showSensitiveTableAndColumnSetting = function(inputData){
-		var fileName = inputData.fileName;
+	this.showBarChart = function(barAttr){
+		var fileName = $("#filenameinput").val();
 		var url = endpoint + "api/data/";
 		var requestBody = new Object();
 		var filePath = dataPath + fileName + ".csv";
 		requestBody.file_path = filePath;
-
+		requestBody.col_name=barAttr;
+		console.log(barAttr);
 		$.ajax({
 			type: "Post",
 			url: url,
@@ -266,21 +214,153 @@ function deIdentificationProcessManagement(){
 			processData: false,
 			data: JSON.stringify(requestBody),
 			success: function(data) {
-				var jsonData = JSON.parse(data);
-				console.log(data);
+				//console.log(data);
+				drawBarChart(data);
+
+			},
+			error: function() {
+				console.log("file is not correct.");
+				//$("#information").html('資料預覽發生錯誤。');
+				$("#systemAlertInfo").text("資料預覽發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
+				//$("#information").
+				//clear table content
+				$("#sensitiveHead").html('');
+				$("#sensitiveBody").html('');
+				$("#columnSettingBody").html('');
+			},
+			beforeSend: function(){
+				loading.open();
+			},
+			complete: function() {
+				loading.close();
+			}
+		});
+	
+	}
+	function drawBarChart(chartData){
+		cnts=chartData.cnts;
+		edges=chartData.edges;
+		d3.select("#barchart svg").remove();
+				var dataset=[];
+		  	var mapdata;
+		  	var color = d3.scale.category10();
+		  	var margin = {top: 40, right: 20, bottom: 80, left: 40},
+		    width = document.getElementById("barchart").offsetWidth - margin.left - margin.right,
+		    height = 500 - margin.top - margin.bottom;
+		    for($i=0 ; $i<edges.length ; $i++){
+		      dataset.push({"label":edges[$i], "value":cnts[$i], "color": color($i)});
+		    }
+		    console.log(dataset);
+		    var formatPercent = d3.format("");
+
+		    var x = d3.scale.ordinal()
+		        .rangeRoundBands([0, width], .1);
+
+		    var y = d3.scale.linear()
+		        .range([height, 0]);
+
+		    var xAxis = d3.svg.axis()
+		        .scale(x)
+		        .orient("bottom");
+
+		    var yAxis = d3.svg.axis()
+		        .scale(y)
+		        .orient("left")
+		        .tickFormat(formatPercent);
+
+		    var tip = d3.tip()
+		      .attr('class', 'd3-tip')
+		      .offset([-10, 0])
+		      .html(function(d) {
+		        return "<strong>數量:</strong> <span style='color:red'>" + d.value + "</span>";
+		      })
+
+		    var svg = d3.select("#barchart").append("svg")
+			    .attr("width", width + margin.left + margin.right)
+			    .attr("height", height + margin.top + margin.bottom)
+			  	.append("g")
+			    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			    svg.call(tip);
+
+			  x.domain(dataset.map(function(d) { return d.label; }));
+			  y.domain([0, d3.max(dataset, function(d) { return d.value; })]);
+
+			  svg.append("g")
+			      .attr("class", "x axis")
+			      .attr("transform", "translate(0," + height + ")")
+			      .call(xAxis)
+			      .selectAll("text")
+			      .attr("y", 30)
+    				.attr("x", 24)
+			      .attr("dy", ".35em")
+			      .attr("transform", "rotate(45)");
+
+			  svg.append("g")
+			      .attr("class", "y axis")
+			      .call(yAxis)
+			    .append("text")
+			      .attr("transform", "rotate(-90)")
+			      .attr("y", 6)
+			      .attr("dy", ".71em")
+			      .style("text-anchor", "end")
+			      .text("數量");
+
+			  svg.selectAll(".bar")
+			      .data(dataset)
+			    .enter().append("rect")
+			      .attr("class", "bar")
+			      .attr("x", function(d) { return x(d.label); })
+			      .attr("width", x.rangeBand())
+			      .attr("y", function(d) { return y(d.value); })
+			      .attr("height", function(d) { return height - y(d.value); })
+			      .on('mouseover', tip.show)
+			      .on('mouseout', tip.hide);
+	}
+
+	this.showSensitiveTableAndColumnSetting = function(){
+		//var fileName = inputData.fileName;
+		var fileName=$("#filenameinput").val();
+		var url = endpoint + "api/data/";
+		var requestBody = new Object();
+		var barAttr="";
+		var filePath = dataPath + fileName + ".csv";
+		var inputData=new Object();
+		requestBody.file_path = filePath;
+		console.log("file: "+fileName);
+		$.ajax({
+			type: "Post",
+			url: url,
+			headers:{
+				"Content-Type":"application/json;charset=utf-8"
+			},
+			dataType: "json",
+			async: false,
+			processData: false,
+			data: JSON.stringify(requestBody),
+			success: function(data) {
+				//console.log(data);
+				//var jsonData = JSON.parse(data);
+				var jsonData=data;
+				console.log(jsonData);
 				deIdentificationProcessManagement.listSensitiveTable(jsonData);
 				inputData.col_names = jsonData.col_names;
+				inputData.isNew=1;
 				deIdentificationProcessManagement.listColumnsetting(inputData);
+				barAttr=jsonData.col_names[0];
+				deIdentificationProcessManagement.showBarChart(barAttr);
 				//fake data
-				$("#data_name").text("Adults");
-				$("#data_rows").text("45222");
-				showBarChart();
+				$("#data_name").text($("#filenameinput").val());
+				$("#data_rows").text(data.data_size);
 				//save columns name
 				window.localStorage.setItem("columns",JSON.stringify(jsonData.col_names));
 			},
 			error: function() {
 				console.log("file is not correct.");
-				$("#information").html('資料預覽發生錯誤。');
+				//$("#information").html('資料預覽發生錯誤。');
+				$("#systemAlertInfo").text("資料預覽發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 				//$("#information").
 				//clear table content
 				$("#sensitiveHead").html('');
@@ -298,6 +378,9 @@ function deIdentificationProcessManagement(){
 
 	this.getDITaskDetail=function(task_id){
 		var url = endpoint + "api/de-identification/"+task_id+"/";
+		var user_cluster="";
+		var filename="";
+		var inputData=new Object();
 		$.ajax({
 			type: "GET",
 			url: url,
@@ -309,20 +392,67 @@ function deIdentificationProcessManagement(){
 			processData: false,
 			//data: JSON.stringify(requestBody),
 			success: function(data) {
-				console.log(data);
 				$("#task_name").val(data.task_name);
+				//console.log(data);
+				
+				
+				
 				procId=data.proc_id;
+				filename=data.data_path.split("/");
+				filename=filename[filename.length-1];
+				filename=filename.split(".");
+				filename=filename[0];
+				// var inputData.filename="";
+				// showSensitiveTableAndColumnSetting();
+				$("#filenameinput, #dataSelectedCheckAll").val(filename).attr("disabled","disabled");
 				//fake data start
-				$("#data_name").text("Adults");
-				$("#data_rows").text("45222");
-				showBarChart();
-				showOriginData();
+				$("#data_name").text($("#filenameinput").val());
+				$("#data_rows").text(data.data_size);
 				//fake data end
+				deIdentificationProcessManagement.showSensitiveTableAndColumnSetting();
+				inputData.col_names = data.selected_attrs.names;
+				inputData.col_types = data.selected_attrs.types;
+				inputData.isNew=0;
+				deIdentificationProcessManagement.listColumnsetting(inputData);
+				getOptedCluster(task_id);
+				for(i=0;i<data.selected_attrs.names.length;i++){
+					//console.log(data.selected_attrs.names[i]);
+					selected_name=data.selected_attrs.names[i];
+					user_cluster+="<option value='"+selected_name+"'>"+selected_name+"</option>";
+				}
+				$("#user_cluster_list").append(user_cluster);
+				var dualListbox = $('.dualListbox').bootstrapDualListbox({ //dual select
+			    nonSelectedListLabel: '屬性選取',
+			    selectedListLabel: '新增關聯叢集',
+			    preserveSelectionOnMove: '移動',
+			    moveOnSelect: false,
+			    infoText:false
+			  });
+			  whiteList=data.white_list; //draw white list
+			  white_list='';
+
+				for(var i = 0; i < whiteList.length; i++) {
+				    var eWhiteList = whiteList[i];
+				    white_list+='<li class="general_transition p_relative">';
+				    white_list+='<ol>';
+				    for(var j = 0; j < eWhiteList.length; j++) {
+
+				    	white_list+='<span class="label label-info">'+eWhiteList[j]+'</span> ';
+				    }
+				    white_list+='<div class="list_btn_set"><a class="btn btn-primary user_driver_delete" role="button"><i class="glyphicon glyphicon-trash"></i></a></div>';
+				    white_list+='</ol>';
+				    white_list+='</li>';
+				}
+				//dafault_cluster='<li class="general_transition"></li>';
+				//$("#defalut_cluster").attr('data-cluster', JSON.stringify(opted_cluster));
+				$("#user_driven_list").append(white_list);
 
 			},
 			error: function() {
 				console.log("get DI task detail fail.");
-				$("#information").html('欄位資訊設定錯誤。');
+				//$("#information").html('欄位資訊設定錯誤。');
+				$("#systemAlertInfo").text("欄位資訊設定錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				loading.open();
@@ -337,7 +467,8 @@ function deIdentificationProcessManagement(){
 		var url = endpoint + "api/de-identification/";
 		var response = null;
 		var inputData = {};
-
+		//$("#columncancel").attr("disabled", "disabled");
+		$("#dataSelectedCheckAll").attr("disabled", "disabled").attr("checked");
 		//console.log(requestBody);
 		$.ajax({
 			type: "Post",
@@ -364,13 +495,15 @@ function deIdentificationProcessManagement(){
 				doDIProc =setInterval(function(){ 
 					process_status=deindentificationProc(procId, taskID, "init");
 					//console.log('status:'+process_status);
-				}, 3000);
+				}, 1000);
 
 				response = data;
 			},
 			error: function() {
 				console.log("initiate DI task fail.");
-				$("#information").html('欄位資訊設定錯誤。');
+				//$("#information").html('欄位資訊設定錯誤。');
+				$("#systemAlertInfo").text("欄位資訊設定錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				loading.open();
@@ -400,7 +533,9 @@ function deIdentificationProcessManagement(){
 			},
 			error: function() {
 				console.log("initiate DI task fail.");
-				$("#information").html('欄位資訊設定錯誤。');
+				//$("#information").html('欄位資訊設定錯誤。');
+				$("#systemAlertInfo").text("欄位資訊設定錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				loading.open();
@@ -435,6 +570,7 @@ function deIdentificationProcessManagement(){
 					$("#column_process .progress-bar").css("width", "100%").text("100%");
 					$("#tool-tabs li").removeClass('disabled');
 					if(proc_type=="init"){
+						$("#columncancel").attr("disabled", "disabled");
 						optedCluster=getOptedCluster(task_id);
 					}
 					if(proc_type=="exec"){ //do after exec
@@ -444,18 +580,20 @@ function deIdentificationProcessManagement(){
 						$("#column_process").fadeOut(function(){
 							$("#column_process .progress-bar").css("width", "0%").text("0%");
 						}); 
-					}, 3000);
+					}, 1000);
 					//$("#column_process .progress-bar").text("100%");
 					//return process_status;
 				}else if(process_status==5){
 					$("#systemAlertInfo").text("發生錯誤");
-					$("#systemAlert").fadeIn();
+					$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 					$("#column_process").fadeOut();
 					clearInterval(doDIProc);
 				}
 			},
 			error: function() {
 				// console.log("initiate DI task fail.");
+				$("#systemAlertInfo").text("欄位資訊設定錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 				// $("#information").html('欄位資訊設定錯誤。');
 			},
 			beforeSend: function(){
@@ -503,7 +641,9 @@ function deIdentificationProcessManagement(){
 			},
 			error: function() {
 				console.log("get the task detail fail");
-				$("#information").html('讀取任務內容發生錯誤。');
+				$("#systemAlertInfo").text("讀取任務內容發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
+				//$("#information").html('讀取任務內容發生錯誤。');
 			},
 			beforeSend: function(){
 				//_showSpin();
@@ -534,6 +674,7 @@ function deIdentificationProcessManagement(){
 			//data: JSON.stringify(requestBody),
 			success: function(data,textStatus) {
 				var statistics_err_attrs=[];
+				var download_path=data.synthetic_path;
 				console.log(data);
 				$statistics_err=data.statistics_err;
 				//console.log($statistics_err);
@@ -575,7 +716,9 @@ function deIdentificationProcessManagement(){
                               e.preventDefault();  //stop the browser from following
                              window.location.href = download_path;
                          });
-            $("#information").html('去識別化任務完成。');
+            //$("#information").html('去識別化任務完成。');
+            $("#systemAlertInfo").text("去識別化任務完成。");
+						$("#systemAlert").removeClass('alert-danger').addClass('alert-info').fadeIn();
 
 				}else if(textStatus == "error"){
                          //disable the stop button     
@@ -586,7 +729,9 @@ function deIdentificationProcessManagement(){
 			},
 			error: function() {
 				//console.log("get the task detail fail");
-				$("#information").html('讀取任務內容發生錯誤。');
+				//$("#information").html('讀取任務內容發生錯誤。');
+				$("#systemAlertInfo").text("讀取任務內容發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				//_showSpin();
@@ -619,11 +764,13 @@ function deIdentificationProcessManagement(){
 					$("#column_process").fadeOut(function(){
 						$("#column_process .progress-bar").css("width", "0%").text("0%");
 					}); 
-				}, 3000);
+				}, 1000);
 			},
 			error: function() {
 				// console.log("initiate DI task fail.");
 				// $("#information").html('欄位資訊設定錯誤。');
+				$("#systemAlertInfo").text("欄位資訊設定錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				//loading.open();
@@ -680,7 +827,7 @@ function deIdentificationProcessManagement(){
 
 				doDIProc =setInterval(function(){ 
 					process_status=deindentificationProc(procId, taskID, "exec");
-				}, 3000);
+				}, 1000);
 			},
 			complete: function(xhr,textStatus,error){
 				console.log(xhr);
@@ -689,7 +836,9 @@ function deIdentificationProcessManagement(){
 			},
 			error: function() {
 				console.log("execute DI task fail.");
-				$("#information").html('去識別化任務發生錯誤。');
+				//$("#information").html('去識別化任務發生錯誤。');
+				$("#systemAlertInfo").text("去識別化任務發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			}
 		
 		});
@@ -718,7 +867,9 @@ function deIdentificationProcessManagement(){
 			},
 			error: function() {
 				console.log("get the task detail fail");
-				$("#information").html('讀取任務內容發生錯誤。');
+				//$("#information").html('讀取任務內容發生錯誤。');
+				$("#systemAlertInfo").text("讀取任務內容發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				//_showSpin();

@@ -56,7 +56,11 @@ $(function() {
 		});
 	});
 	$('[data-toggle="popover"]').popover()
-
+	$("#eAnalysisTask").click(function(){
+		var selected_ana_id = $("#dataSynthesisBody input[type=checkbox]:checked").val();
+		// console.log(selected_task_id);
+		window.location.href="/privacy/web/DataSynthesis.html?id="+selected_ana_id;
+	});
 	//check all box
 	$("#DPTableCheckAll").bind("click",function (e) {	
 		var checkboxes = $("#dpJobListBody input:checkbox");

@@ -47,13 +47,19 @@ function dashboardManagement() {
 						statusName = "等待中";
 						break;
 						case 1:
-						statusName = "執行中";
+						statusName = "進入排程，等待執行";
 						break;
 						case 2:
-						statusName = "錯誤發生";
+						statusName = "執行中";
 						break;
 						case 3:
 						statusName = "已完成";
+						break;
+						case 4:
+						statusName = "執行中斷";
+						break;
+						case 5:
+						statusName = "執行錯誤";
 						break;
 					}				
 
@@ -68,7 +74,8 @@ function dashboardManagement() {
 				};
 			},
 			error: function() {
-				
+				$("#systemAlertInfo").text("讀取發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				loading.open();
@@ -96,6 +103,8 @@ function dashboardManagement() {
 			},
 			error: function() {
 				console.log("get record back fail");
+				$("#systemAlertInfo").text("讀取任務內容發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			complete: function(xhr,textStatus,error){
 				if(textStatus == "success"){
@@ -133,7 +142,8 @@ function dashboardManagement() {
 				trId.remove();
 			},
 			error: function() {
-				
+				$("#systemAlertInfo").text("刪除任務發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				loading.open();
@@ -161,7 +171,8 @@ function dashboardManagement() {
 				trId.remove();
 			},
 			error: function() {
-				
+				$("#systemAlertInfo").text("刪除合成資料分析發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				loading.open();
@@ -189,6 +200,7 @@ function dashboardManagement() {
 					trId.find(".job_status").text("等待中");
 				},
 				error: function() {
+
 				},
 				beforeSend: function(){
 					loading.open();
@@ -262,13 +274,19 @@ function dashboardManagement() {
 						statusName = "等待中";
 						break;
 						case 1:
-						statusName = "執行中";
+						statusName = "進入排程，等待執行";
 						break;
 						case 2:
-						statusName = "錯誤發生";
+						statusName = "執行中";
 						break;
 						case 3:
 						statusName = "已完成";
+						break;
+						case 4:
+						statusName = "執行中斷";
+						break;
+						case 5:
+						statusName = "執行錯誤";
 						break;
 					}				
 
@@ -284,7 +302,8 @@ function dashboardManagement() {
 				//$("#dataSynthesisBody").append();
 			},
 			error: function() {
-
+				$("#systemAlertInfo").text("讀取發生錯誤。");
+				$("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
 			},
 			beforeSend: function(){
 				//loading.open();

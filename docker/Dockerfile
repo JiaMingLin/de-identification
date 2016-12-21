@@ -44,8 +44,8 @@ RUN mkdir log/ && \
 ADD start.sh /opt/de-identification/start.sh
 RUN chmod +x /opt/de-identification/start.sh
 
-VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
-#VOLUME ["/opt/de-identification/"]
+#VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
+VOLUME ["/opt/de-identification/"]
 EXPOSE 8080
 
-ENTRYPOINT /opt/de-identification/start.sh
+#ENTRYPOINT /opt/de-identification/start.sh
