@@ -183,7 +183,10 @@ class ProcessControlView(APIView):
 			revoke(proc_id, terminate=True)
 			instance = get_object_or_404(Job, proc_id = proc_id)
 		except:
-			instance = get_object_or_404(Task, proc_id = proc_id)
+			try:
+				instance = get_object_or_404(Task, proc_id = proc_id)
+			except:
+				instance = get_object_or_404(UtilityMeasure, proc_id = proc_id)
 
 		instance.status = ProcessStatus.get_code('REVOKED')
 		instance.end_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')

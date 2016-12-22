@@ -8,6 +8,9 @@ from common.enums import *
 from common.base import *
 
 from datetime import datetime
+from time import sleep
+#import eventlet
+#eventlet.monkey_patch()
 
 @shared_task
 def create_utility_measure(request):
@@ -125,6 +128,7 @@ class MLScoring(BaseScoring):
 		results = []
 		test_cases = self.test_case_generate()
 		for case in test_cases:
+			sleep(5)
 			jobs = self.get_job_instances(case['task_id'])
 			noise_params = self.get_noises_params(jobs)
 			scores = get_random_values(len(noise_params))
@@ -141,6 +145,7 @@ class UserQueryScoring(BaseScoring):
 		results = []
 		test_cases = self.test_case_generate()
 		for case in test_cases:
+			sleep(5)
 			jobs = self.get_job_instances(case['task_id'])
 			noise_params = self.get_noises_params(jobs)
 			scores = get_random_values(len(noise_params))

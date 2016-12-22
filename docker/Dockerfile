@@ -33,7 +33,7 @@ RUN apt-get install software-properties-common -y --force-yes && \
     add-apt-repository -y ppa:rwky/redis && \
     apt-get update && \
     apt-get install redis-server supervisor -y && \
-    pip install celery redis supervisor && \
+    pip install celery redis supervisor eventlet aenum && \
     service supervisor restart && \
     supervisorctl reread && \
     supervisorctl update
