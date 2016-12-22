@@ -345,7 +345,7 @@ $(function() {
 		deIdentificationProcessManagement.stopIDProc();
 	});
 	//update data
-	$("#save_task_name").click(function(){
+	$("#save_task_name, #save_user_driven").click(function(){
 		//console.log("save")
 		var requestBody = {};
 		var filename = "";

@@ -516,7 +516,7 @@ function deIdentificationProcessManagement(){
 	}
 	this.updateDeIdentificationTask=function(requestBody){
 		taskID=window.localStorage.getItem("taskID");
-		var url = endpoint + "api/de-identification/"+taskID;
+		var url = endpoint + "api/de-identification/"+taskID+"/";
 		//console.log(requestBody);
 		$.ajax({
 			type: "Put",
