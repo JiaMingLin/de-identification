@@ -23,7 +23,7 @@ RUN git clone https://github.com/JiaMingLin/de-identification.git && \
     cd de-identification && \
     git fetch && \
     git pull && \
-    echo 'update code:1'
+    echo 'update gui'
 
 WORKDIR /opt/de-identification
 
