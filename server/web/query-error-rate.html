@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>查詢誤差率</title>
+	<link rel="stylesheet"  href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/style.css">
+	<!-- <link rel="stylesheet"  href="css/jquery-ui.min.css"> -->
+	<!-- <link rel="stylesheet"  href="css/bootstrap-theme.min.css"> -->
+	<link rel="stylesheet" 	type="text/css" href="css/jqueryFileTree.css" media="screen" />
+	<!-- <link rel="stylesheet"  href="css/bootstrap-tagsinput.css"> -->
+	<script src="css/c3.css"></script>	
+	<link rel="stylesheet"  href="css/lobipanel.css">
+	<style>
+	</style>
+</head>
+<body id="body" class="fix_body">
+<nav class="navbar navbar-fixed-top" role=navigation>
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="/privacy">去識別化工具</a>
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=#mainnavbar aria-expanded=false aria-controls=navbar> 
+			<span class=sr-only>Toggle navigation</span> 
+			<span class=icon-bar></span> <span class=icon-bar></span> 
+			<span class=icon-bar></span> </button> 
+		</div>
+		<div id="mainnavbar" class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="">Benson</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+<aside class="menu">
+		<ul>
+			<li class=""><a class="general_transition" href="/privacy"><span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span> Dashboard</a></li>
+			<li class="active"><a class="general_transition" href=""><span class="glyphicon glyphicon-cog"></span> Setting</a></li>
+			<li><a class="general_transition" href=""><span class="glyphicon glyphicon-question-sign"></span>Help</a></li>
+		</ul>
+</aside>
+<div class="container-fluid" id="bigContainer">
+	<div class="row subnav">
+		<div class="col-xs-12">
+			<ul id="tool-tabs" class="nav nav-tabs" role="tablist">
+          <li ><a href="preview.html" >原始資料預覽</a></li>
+          <li><a href="association-properties.html">關聯屬性設定</a></li>
+          <li><a href="de-identification.html" >去識別化</a></li>
+          <li class="active"><a href="query-error-rate.html" >查詢誤差率</a></li>
+          <li><a href="analysis.html" >合成資料分析</a></li>
+        </ul>
+	  </div><!-- col-xs-12 -->
+	</div><!-- row -->
+		    	<div id="tabs-content" class="tab-content">
+				      <div class="tab-pane tab_con active" id="query-error-rate">
+    						<div class="row">
+								<div class="col-xs-4 col-lg-4">
+									<h2><strong>查詢列表</strong></h2>
+										<div class="list-group">
+												  <a class="list-group-item active"> 查詢名稱A</a>
+												  <a class="list-group-item"> 查詢名稱B</a> 
+												  <a class="list-group-item"> 查詢名稱C</a>
+												  <a class="list-group-item"> 查詢名稱D</a> 
+												  <a class="list-group-item"> 查詢名稱E</a>  
+										</div>
+								</div><!-- col-xs-4 -->
+								<div class="col-xs-8 col-lg-8">
+									<h2><strong>查詢名稱A</strong></h2>
+									<div class="box box_inside">
+										<h3>請輸入查詢條件:</h3>
+										<textarea class="form-control" rows="5" id="queryarea" placeholder="輸入條件如：(身高 > 170 AND 體重 < 60) OR 年齡 >= 23；年齡 > 22 AND 收入 <= 24K
+													"></textarea>
+										<div class="hint">提示：最多五筆查詢條件，每筆條件以" ; "區隔。</div>
+										<div class="btn-group pull-right">
+												<a role="button" class="btn  btn-md btn-primary glyphicon glyphicon-play"> 執行</a>
+					  						<a role="button" class="btn  btn-md btn-primary glyphicon glyphicon-trash"> 清除</a>
+										</div>
+									</div><!-- box -->
+										
+									<h2><strong>查詢結果</strong></h2>
+									<div class="box box_inside">
+										<div id="query_error_rate">
+											
+										</div>
+									</div><!-- box -->
+									
+								</div><!-- col-xs-8 -->
+							</div><!-- row -->
+				        </div><!--#query-error-rate div-->   
+		        </div><!--tabs-content-->
+	</div><!--first row-->
+	<div class="setting_btns">
+  	<a type="button" class="btn btn-primary">儲存設定</a>
+  	<a type="button" class="btn btn-primary">返回列表</a>
+	</div>
+</div>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"></script>
+<script type="text/javascript" src="https://rawgit.com/twitter/typeahead.js/master/dist/bloodhound.min.js"></script>
+<!-- <script type="text/javascript" src="js/bootstrap-tagsinput.js"></script>
+<script type="text/javascript" src="js/bootstrap3-typeahead.min.js"></script> -->
+<script type="text/javascript" src="js/jqueryFileTree.js"></script>
+<script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+<script type="text/javascript" src="js/ajax-loading.js"></script>
+<script type="text/javascript" src="js/lobipanel.js"></script>
+<script type="text/javascript">
+	// $(document).ready(function(){
+	// 	$('#JQueryFTD_Demo').fileTree({
+	// 	root: '/workspace/',
+	// 	script: 'connectors/jqueryFileTree.asp',
+	// 	expandSpeed: 1000,
+	// 	collapseSpeed: 1000,
+	// 	multiFolder: false
+	// 	}, function(file) {
+	// 	alert(file);
+	// 	});
+	// 	});
+</script>
+<script type="text/javascript" src="js/DeIdentificationProcess.js"></script>
+<script type="text/javascript" src="js/DeIdentificationProcessManagement.js"></script>
+<script type="text/javascript" src="js/utilities.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script src="js/c3.min.js"></script>	
+<script>
+	var dataset=[];
+  var mapdata;
+  var color = d3.scale.category10();
+  var margin = {top: 40, right: 20, bottom: 30, left: 40},
+    width = document.getElementById("query_error_rate").offsetWidth - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+ 	d3.json("school.json", function(error, json) {
+ 		if (error) return console.warn(error);
+    for($i=0 ; $i<json.length ; $i++){
+      dataset.push({"label":json[$i].name_tw, "value":json[$i].count, "color": color($i)});
+    }
+
+  // query_error_rate
+  var chart = c3.generate({
+    bindto: '#query_error_rate',
+    data: {
+      columns: [
+      	//['x', '0.01', '0.1', '1','10','INF']
+        ['error rate', 0.1, 0.4, 0.6, 0.7, 1]
+      ]
+    },
+    axis: {
+        x: {
+			    type: 'category',
+          categories: ['0.01', '0.1', '1', '10', 'INF']
+			  }
+    }
+
+    
+});
+
+
+ 	});
+</script>
+</body>
+</html>

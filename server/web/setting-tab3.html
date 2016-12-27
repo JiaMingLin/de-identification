@@ -1,0 +1,94 @@
+<div class="row">
+                <div class="col-xs-6 col-lg-6">
+                  
+                  <div class="col-xs-6 col-lg-6">
+                        <h2 class="" ><strong>隱私層級</strong></h2>
+                      </div><!-- col-xs-6 -->
+                      <div class="col-xs-6 col-lg-6 title_select">
+                          <select class="form-control" id="PL-options">
+                          <option value="1">LV1</option>
+                          <option value="2">LV2</option>
+                          <option value="3">LV3</option>
+                          <option value="4">LV4</option>
+                          <option value="5">LV5</option>
+                      </select>
+                  </div><!-- col-xs-6  -->
+                  <div class="box box_inside">
+                      <table class="table table-hover  table-bordered" >
+                        <thead class="thead-inverse" style="">
+                          <tr>
+                            <th class="text-center">隱私層級</th>
+                            <th class="text-center">層級定義</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="text-center"><strong>LV1</strong></td>
+                            <td>TBD</td>
+                          </tr>
+                          <tr>
+                            <td class="text-center"><strong>LV2</strong></td>
+                            <td>TBD</td>
+                          </tr>
+                          <tr>
+                            <td class="text-center"><strong>LV3</strong></td>
+                            <td>TBD</td>
+                          </tr>
+                          <tr>
+                            <td class="text-center"><strong>LV4</strong></td>
+                            <td>TBD</td>
+                          </tr>
+                          <tr>
+                            <td class="text-center"><strong>LV5</strong></td>
+                            <td>TBD</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                  </div><!--box-->
+                <div class="col-xs-12 col-lg-12">
+                  <div class="clearfix btn-group">
+                    <a role="button" class="btn  btn-md btn-primary glyphicon glyphicon-play" id="execDI"> 執行</a>
+                      <a role="button" class="btn btn-md btn-primary glyphicon glyphicon-stop" id="stopDI" disabled> 停止</a>
+                      <a role="button" class="btn  btn-md btn-primary glyphicon glyphicon-download-alt" id="download" disabled> 合成資料下載</a>
+                  </div>
+                  <div id="dptableprogress" style="display: none;">
+                    <img src="images/loading-bar.gif" />
+                    <span class="lead">&nbsp資料處理中，請稍後。</span>
+                  </div>
+                </div><!-- col-xs-12 -->
+                <div class="col-xs-12 col-lg-12" style="padding-top:10px">
+                  <div class="alert alert-danger" role="alert">訊息框 | </div>
+                    <span style="" ><strong >訊息框 &nbsp | &nbsp </strong><strong id="information"></strong></span>
+                  </div>
+                </div><!-- col-xs-12 -->
+              </div><!-- row -->
+              </div><!-- col-xs-6  -->
+              <div class="col-xs-6 col-lg-6">
+                  <div class="row">
+                    <div class="col-xs-8 col-lg-8" align="" >
+                      <h2><strong>隱私層級之相對應Epsilon(ε)</h2>
+                    </div>
+                    <div class="col-xs-4 col-lg-4 ">
+                      <section>
+                        <span ><strong id="showEpsilon"> &nbsp </strong></span>
+                      </section>
+                    </div>
+                  
+                <div class="col-xs-12 col-lg-12">
+                  <div class="panel panel-primary">
+                        <div class="panel-heading lead" align="center"><strong>統計誤差率</strong></div>
+                          <div class="panel-body" style="overflow:auto;padding-top:0px;">
+                            <div class="table-responsive col-xs-12 col-lg-12" style="position:relative;overflow:auto;height:200px;width:100%">
+                              <table class="table table-hover table-bordered">
+                            <thead >
+                              <tr id="statisticsHead">
+                              </tr>
+                            </thead>
+                            <tbody id="statisticsBody">
+                            </tbody>
+                          </table>
+                        </div>
+                        </div>
+                    </div>
+                  </div>
+                </div><!-- row -->

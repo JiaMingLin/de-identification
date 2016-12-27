@@ -1,0 +1,45 @@
+[
+    {
+        "id": "22",
+        "map": "cn",
+        "count": 33,
+        "domain": "20-30",
+        "name_en": "China"
+    },
+    {
+        "id": "7",
+        "map": "mo",
+        "count": 43,
+        "domain": "30-40",
+        "name_en": "Macau"
+    },
+    {
+        "id": "2",
+        "map": "hk",
+        "count": 49,
+        "domain": "40-50",
+        "name_en": "Hong Kong"
+    },
+    {
+        "id": "13",
+        "map": "jp",
+        "count": 39,
+        "domain": "50-60",
+        "name_en": "Japan High School"
+    },
+    {
+        "id": "11",
+        "map": "kr",
+        "count": 10,
+        "domain": "60-70",
+        "name_en": "Korea"
+    },
+    {
+        "id": "11",
+        "map": "kr",
+        "count": 13,
+        "domain": "70 以上",
+        "name_en": "Korea"
+    }
+
+]

@@ -1,0 +1,458 @@
+html{
+      background: #eee;
+    }
+    body{
+      margin:51px 0 0 240px;
+      background: #eee;
+      font-family: '微軟正黑體', 'Arial';
+      color:#555;
+    }
+    .p_relative{
+      position: relative;
+    }
+    .clearfix:after {
+    clear: both;
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+  }
+  /*bootstrap*/
+  .tab-content{
+    margin-bottom: 60px;
+  }
+  .form-control{
+    height:36px;
+    padding:6px 10px;
+    border:2px solid #aaa;
+  }
+  .label-info{
+    background: #0087a4;
+  }
+  .form-control:focus{
+      border:2px solid #0087a4;
+    }
+  .form-horizontal .control-label{
+    padding-top: 8px;
+  }
+  .form-control-static{
+    padding-top:9px;
+  }
+  .input-group-addon{
+    padding: 6px 10px;
+    background: #aaa;
+    border:1px solid #aaa;
+    color:#fff;
+  }
+  .system_alert{
+    margin-top: 10px;
+  }
+  .bootstrap-duallistbox-container .filter{
+    height: auto;
+  }
+  .btn{
+    trasition:all .5s;
+    -webkit-trasition:all .5s;
+  }
+  .btn-primary{
+    background: #0878a4;
+    border:1px solid #0878a4;
+  }
+  .btn-primary:hover{
+    background: #003d73;
+    border:1px solid #003d73;
+  }
+  .progress-bar-success{
+    background: #0878a4;
+  }
+  .text-info, .text-info:hover{
+    color:#0878a4;
+    color:#c05640;
+  }
+    nav.navbar.navbar-fixed-top{
+      /*background: rgba(255,255,255,.8);*/
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+      /*box-shadow: 0 0 4px #666;*/
+    }
+    .general_transition{
+      transition:all .5s;
+      -webkit-transition:all .5s;
+    }
+    .menu{
+      background: #0878a4;
+      position: fixed;
+      left:0;
+      top:51px;
+      width:240px;
+      bottom:0;
+      border-right: 1px solid #075f81;
+    }
+    .progress_wrap{
+      position: fixed;
+      left:240px;
+      right:0;
+      bottom:0;
+      padding:20px 20px 0;
+      background: #fff;
+      z-index: 99;
+    }
+    @media screen and (max-width: 1100px) {
+      body{
+        margin-left: 48px;
+      }
+      .progress_wrap{
+        left:48px;
+      }
+      .menu{
+        width:48px;
+      }
+      .menu ul li span{
+        display: none;
+      }
+      .menu ul li span.glyphicon{
+        display: block;
+      }
+    }
+    .menu ul{
+      margin:0;
+      padding:0;
+    }
+    .menu ul li{
+      list-style:none;
+      border-bottom: 1px solid #075f81;
+    }
+    .menu ul li span{
+      margin-right: 5px;
+    }
+    .menu ul li a{
+      display: block;
+      padding:12px 15px;
+      color:#eee;
+    }
+    .menu ul li a:hover{
+      background: #003d73;
+      color:#fff;
+      text-decoration: none;
+    }
+    .menu ul li.active a, .menu ul li.active a:hover{
+      color:#fff;
+      background: #003d73;
+      font-weight: bold;
+    }
+    .menu ul li.active a .glyphicon{
+      color:#1ecfd6;
+
+    }
+
+    .subnav{
+      padding-top: 1px;
+      background: #fff;
+      margin-bottom: 10px;
+    }
+    .nav-tabs > li > a{
+      border:none;
+      color:#555;
+      border-radius: 0;
+      border-bottom:3px solid #fff;
+    }
+    .nav-tabs > li > a:hover{
+      color:#000;
+      border-bottom:3px solid #ddd;
+      background: #fff
+    }
+    .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus{
+      border:none;
+      color:#000;
+      border-bottom:3px solid #0087a4;
+      font-weight: bold;
+    }
+    .navbar{
+      min-height: 48px;
+    }
+    .navbar-brand{
+      padding:6px;
+      height: 40px;
+    }
+    .navbar-brand img{
+      height:40px;
+    }
+    a.navbar-brand{
+      /*color:#fff;*/
+      color:#003d73;
+    }
+    .navbar-nav > li > a, .navbar-nav > li > a:link{
+      padding-top:15px;
+      padding-bottom: 15px;
+      color:#003d73;
+      /*color: #fff;*/
+    }
+    .navbar-nav > li > a:hover{
+      background: #fff;
+      color:#003d73;
+    }
+    .btn_set{
+      padding-bottom: 10px;
+    }
+    .btn{
+      padding:6px 15px;
+    }
+    .box{
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom:10px;
+    }
+    .box_first{
+      margin-top: 20px;
+    }
+    .box h2{
+      border-bottom: 1px solid #eee;
+      padding:15px 20px;
+      margin: 0;
+    }
+    .box_inside{
+      padding:20px;
+    }
+    .table thead{
+      background: #003d73;
+      color:#ddd;
+    }
+    h2{
+      font-size: 21px;
+    }
+    h2 span.glyphicon{
+      font-size: 19px;
+      position: relative;
+      top:2px;
+      cursor:pointer;
+    }
+    h2 span.glyphicon:hover{
+      color: #3498db;
+    }
+    h2 .form-control{
+      position: absolute;
+      right:10px;
+      top:8px;
+      width:120px;
+    }
+
+.setting_btns{
+    position: fixed;
+    right:0;
+    left:240px;
+    bottom:0;
+    padding:15px;
+    background: rgba(238,238,238,.8);
+    z-index: 10;
+  }
+  .lead{
+    font-size: 21px;
+  }
+  .panel .lead{
+    margin-bottom: 0;
+  }
+  /*.title_select{
+    margin: 10px 0;
+  }*/
+  .fix_body{
+    padding-bottom: 60px;
+  }
+  .progress{
+    height: 20px;
+  }
+  .progress .progress-bar{
+    font-size: 14px;
+    line-height: 20px;
+    vertical-align: middle;
+  }
+  .box h3{
+    font-size: 17px;
+    margin:0 0 10px;
+  }
+  /*bar chart*/
+  .axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: orange;
+}
+
+.bar:hover {
+  fill: orangered ;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+
+  .general_list{
+    margin: 0;
+    padding: 0;
+  }
+  .general_list li{
+    margin:0;
+    padding:10px 20px;
+    border-bottom: 1px solid #eee;
+    cursor:pointer;
+    list-style: none;
+  }
+  .general_list li:hover{
+    background: #ecf0f1;
+  }
+  .general_list li>a{
+    display: block;
+    padding:15px 20px;
+    color: #555;
+  }
+  .general_list li a:hover{
+    text-decoration: none;
+  }
+  .general_list li.active a,.general_list li.active a:hover{
+    background: #003d73;
+    color:#fff;
+  }
+  .general_list h4{
+    margin-top: 0;
+  }
+  .general_list label{
+    font-size: 15px;
+  }
+  .cluster_list li{
+    min-height: 54px;
+  }
+  .cluster_list ol{
+    padding:0;
+    margin-right: 60px;
+  }
+  .cluster_list li:hover .list_btn_set{
+    display: block;
+  }
+  .list_btn_set{
+    display: none;
+    position: absolute;
+    top:10px;
+    right:20px;
+  }
+  .box h3{
+    padding:0px 0px 10px;
+  }
+  .bootstrap-duallistbox-container label{
+    text-align: center;
+    padding:0;
+    margin:0;
+    height: 10px;
+  }
+  .bootstrap-duallistbox-container select{
+    height: 300px !important;
+  }
+  .box_inside .form-group{
+    margin-bottom: 5px;
+  }
+  /*pin panel*/
+  .panel > .panel-heading{
+    background: none;
+    border-bottom:1px solid #eee;
+    color:#555;
+    padding:13px 20px 15px;
+    height: 54px;
+  }
+  .panel{
+    border:none;
+  }
+  .lobipanel .panel-heading .dropdown .dropdown-menu > li > a .panel-control-icon:hover, .lobipanel .panel-heading .dropdown .dropdown-menu > li > a:hover .panel-control-icon{
+    text-shadow:none;
+  }
+  .y_scroll{
+    overflow-y: auto;
+  }
+  .label_left{
+    
+  }
+  .radio label.label_left{
+    text-align: left;
+    padding-left: 40px;
+  }
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+/*line chart*/
+path {
+  /*stroke: DodgerBlue;*/
+  stroke: #333;
+  stroke-width: 1;
+  fill: none;
+}
+.axis {
+  font-size: 11px;
+  fill: gray;
+}
+.x.axis line {
+  stroke: lightgrey;
+}
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+.x.axis path {
+  stroke: #fafafa;
+}
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: lightgrey;
+}
+#query_error_rate svg{
+  width:100%;
+}
+.task_name_block{
+    padding-bottom: 20px;
+    height: 50px;
+  }
+  .task_name_block .opeara_btns{
+    display: none;
+  }
+  .task_name_block .form-control{
+    border:2px solid #eee;
+    background: none;
+  }
+  .task_name_block.active .form-control{
+    border: 2px solid #aaa;
+    background: #fff;
+  }
+  .task_name_block.active .opeara_btns{
+    display: block;
+  }
+  .task_name_block .progress{
+    margin-top: 5px;
+  }

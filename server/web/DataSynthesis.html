@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>合成資料分析與查詢誤差率</title>
+	<link rel="stylesheet"  href="css/bootstrap.min.css">
+	<!-- <link rel="stylesheet"  href="web/css/bootstrap-theme.min.css"> -->
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/c3.css"></link>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+	<style>
+		.form-horizontal .control-label{
+			text-align: left;
+		}
+    .bootstrap-select > .dropdown-toggle.bs-placeholder, .bootstrap-select > .dropdown-toggle.bs-placeholder:active, .bootstrap-select > .dropdown-toggle.bs-placeholder:focus, .bootstrap-select > .dropdown-toggle.bs-placeholder:hover{
+      color:#ddd;
+    }
+    .query_list{
+      margin:10px 0;
+      padding: 0;
+    }
+    .query_list li{
+      position: relative;
+      list-style:none;
+      padding:15px 30px 15px 15px;
+      margin:0;
+      border-bottom: 1px solid #ddd;
+      transition: all .5s;
+      -webkit-transition: all .5s;
+    }
+    .query_list li:hover{
+      background: #eee;
+    }
+    .query_list li .glyphicon{
+      position: absolute;
+      top:20px;
+      right:10px;
+      cursor: pointer;
+    }
+    .query_list li .glyphicon:hover{
+      color: #0878a4;
+    }
+    #column_process{
+      display: none;
+    }
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-fixed-top" role=navigation>
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="/privacy"><img src="images/logo.svg" alt="去識別化工具"></a>
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=#mainnavbar aria-expanded=false aria-controls=navbar> 
+			<span class=sr-only>Toggle navigation</span> 
+			<span class=icon-bar></span> <span class=icon-bar></span> 
+			<span class=icon-bar></span> </button> 
+		</div>
+		<div id="mainnavbar" class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right">
+				<!-- <li><a href="">Benson</a></li> -->
+			</ul>
+		</div>
+	</div>
+</nav>
+	<aside class="menu">
+		<ul>
+			<li class="active"><a class="general_transition" href="/privacy"><span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span><span>Dashboard</span></a></li>
+			<li><a class="general_transition" href=""><span class="glyphicon glyphicon-cog"></span><span>Setting</span></a></li>
+			<li><a class="general_transition" href=""><span class="glyphicon glyphicon-question-sign"></span><span>Help</span></a></li>
+		</ul>
+	</aside>
+<div class="progress_wrap" id="column_process">
+<div class="progress">
+  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">0%</div>
+  </div>
+</div><!-- progress_wrap -->
+<div class="container-fluid">
+  <div class="row subnav">
+    <form class="form-horizontal" style="margin:10px 20px 0">
+      <div class="form-group">
+        <label for="" class="col-sm-2 control-label">工作名稱</label>
+        <div class="col-sm-10">
+          <select id="task_list" class="selectpicker form-control" name="" id="" multiple title="選擇工作名稱" data-style="btn-primary">
+            <!-- <option value="job1">job1</option>
+            <option value="job2">job2</option>
+            <option value="job3">job3</option>
+            <option value="job4">job4</option> -->
+          </select>
+        </div>
+      </div><!-- form-group -->
+    </form>
+    <!-- <div class="col-xs-12">
+      <ul id="tool-tabs" class="nav nav-tabs" role="tablist">
+          <li class="active"><a href="#data-synthesis" data-toggle="tab">合成資料分析</a></li>
+          <li><a href="#query-error-rate" data-toggle="tab" disabled>查詢誤差率</a></li>
+        </ul>
+    </div> --><!-- col-xs-12 -->
+  </div><!-- row -->
+<!-- <div class="row task_name_block" style="margin-top:10px;">
+    <div class="col-xs-6">
+      <input type="text" id="task_name" class="form-control" value="" placeholder="輸入 Task 名稱" title="點擊修改名稱">
+    </div>
+    <div class="col-xs-6 opeara_btns">
+      <a class="btn btn-primary">儲存</a> <a class="btn btn-default">取消</a>
+    </div>
+  </div> --><!-- row -->
+  <div class="alert alert-danger system_alert fade in" role="alert" id="systemAlert" style="display:none">
+      <span id="systemAlertInfo"></span> 
+      <button id="" type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div><!-- alert -->
+	<div class="tab-content">
+		<!-- tab content -->
+		
+		<div class="tab-pane active" id="data-synthesis">
+      	<div class="row">
+                    <div class="col-xs-5 col-lg-5">
+                      <div class="box">
+                      	<!-- <h2><strong>合成資料分析</strong></h2> -->
+                      	<div class="box_inside">
+                        <form class="form-horizontal">
+                          <div class="form-group">
+                            <label for="" class="col-sm-4 control-label">名稱</label>
+                            <div class="col-sm-8">
+                              <input type="text" class="form-control" id="analysis_name">
+                            </div>
+                          </div><!-- form-group -->
+                          <!-- <div class="form-group">
+														<label for="" class="col-sm-4 control-label">狀態</label>
+														<div class="col-sm-8">
+															<p class="form-control-static">完成</p>
+														</div>
+                          </div> -->
+                          <div class="form-group">
+                            <label for="" class="col-xs-4 control-label">演算法</label>
+                            <div class="col-xs-8">
+                              <select class="form-control" name="" id="algorithmsList">
+                                <!-- <option value="cul1">Logistic Regression</option> -->
+                              </select>
+                            </div><!-- col-sm-10 -->
+                          </div><!-- form-group -->
+                          <div id="method_list">
+
+                          </div><!-- method_list -->
+                          <!-- <div class="form-group">
+                            <div class="radio">
+                              <label class="col-xs-6 control-label label_left" >
+                                <input type="radio" name="arg_radio" id="" value="option1" checked>
+                                Use training set
+                              </label>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <div class="radio">
+                              <label class="col-xs-6 control-label label_left" >
+                                <input type="radio" name="arg_radio" id="" value="option1" checked>
+                                Supplied test set
+                              </label>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <div class="radio">
+                              <label class="col-xs-6 control-label label_left">
+                                <input type="radio" name="arg_radio" id="" value="option1" checked>
+                                Cross-validation Folds 
+                              </label>
+                              <div class="col-xs-6">
+                                <input type="text" class="form-control">
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <div class="radio" style="margin-top:-4px;">
+                              <label class="col-xs-6 control-label label_left">
+                                <input type="radio" name="arg_radio" id="" value="option1" checked>
+                                Percentage split
+                              </label>
+                              <div class="col-xs-6">
+                                <div class="input-group">
+                                  <input type="text" class="form-control">
+                                  <span class="input-group-addon">%</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div> -->
+                          <hr>
+                          <div class="form-group">
+                            <label for="" class="col-xs-4 control-label">目標</label>
+                            <div class="col-xs-8">
+                              <select class="form-control" name="" id="target_list">
+                                
+                              </select>
+                            </div><!-- col-sm-10 -->
+                          </div><!-- form-group -->
+
+                          
+                        </form>
+                        <h3 style="margin-top:20px;">請輸入查詢條件:</h3>
+                    <textarea class="form-control" rows="3" id="queryarea" placeholder="輸入條件如：(身高 > 170 AND 體重 < 60) OR 年齡 >= 23；年齡 > 22 AND 收入 <= 24K
+                          "></textarea>
+                          <a role="button" id="add_query" class="btn btn-primary btn-block">新增查詢條件</a>
+                          <div class="hint">提示：最多五筆查詢條件</div>
+                          <ul class="query_list" id="query_list">
+                            <!-- <li class="p_relative">(身高 > 170 AND 體重 < 60) OR 年齡 >= 23
+                              <span class="glyphicon glyphicon-remove"></span>
+                            </li> -->
+                          </ul>
+                      <div class="clearfix">
+                            <div class="pull-right btn-group" style="">
+                              <a role="button" class="btn  btn-md btn-primary glyphicon glyphicon-play" id="doSynthesis"> 執行</a>
+                              <button role="button" class="btn btn-md btn-primary glyphicon glyphicon-stop" id="stopSynthesis" disabled> 停止</button>
+                            </div>
+                          </div>
+                      </div><!-- box_inside -->
+                      </div><!-- box -->
+                      <!-- <div class="box">
+                      	<h2><strong>結果列表</strong></h2>
+                      </div> -->
+                    </div><!-- col-xs-6 -->
+                    <div class="col-xs-7 col-lg-7">
+                      <div class="box">
+                        <h2><strong>分析結果</strong></h2>
+                        <div class="box_inside" id="chart_draw">
+                          <div id="chart1"></div>
+                        	<!-- <h3>F-Measure</h3>
+                          <div id="f_measure" style="margin-bottom:30px;"></div>
+                          <h3>Currently Classified Instances</h3>
+                          <div id="cci"></div> -->
+                        </div><!-- box_inside -->
+                      </div><!-- box -->
+                    </div><!-- col-xs-6 -->
+                  </div><!-- row -->
+		</div><!-- tab-pane -->
+    <div class="tab-pane tab_con" id="query-error-rate">
+    </div><!--#query-error-rate div-->
+</div><!-- container-fluid -->
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/bootstrap-filestyle.min.js"></script>
+<script src="js/bootstrap-select.js"></script>
+<script type="text/javascript" src="js/ajax-loading.js"></script>
+<!-- <script type="text/javascript" src="web/js/Dashboard.js"></script>
+<script type="text/javascript" src="web/js/DashboardManagement.js"></script>
+<script type="text/javascript" src="web/js/DeIdentificationProcessManagement.js"></script> -->
+<script type="text/javascript" src="js/utilities.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<!-- <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script> -->
+<script src="js/c3.min.js"></script>	
+<script>
+$(function(){
+  var currentPath = window.location.pathname;
+  var endpoint = UTILITIES.endpoint;
+  var analysis_id="";
+  var doDIProc;
+  var procId;
+  localStorage.removeItem("analysis_id");
+
+  if(currentPath === "/privacy/"){
+    //in dashboard page
+    loadingGifPath = 'web/images/ajax-loading.gif';
+  }else{
+    loadingGifPath = 'images/ajax-loading.gif';
+  }
+  var loadingOption ={
+    imgPath    : loadingGifPath,
+    tip: '請稍後...',
+    ajax: false
+  }
+  var loading = $.loading(loadingOption);
+	// var f_measure = c3.generate({
+ //        bindto: '#f_measure',
+ //        data: {
+ //          columns: [
+ //            //['x', '0.01', '0.1', '1','10','INF']
+ //            ['10 cross-validation', 0.1, 0.4, 0.6, 0.7, 1]
+ //          ]
+ //        },
+ //        size: {
+	// 			  height: 250
+	// 			},
+	// 			color: {
+	// 			  pattern: ['#0878a4', '#003d73']
+	// 			},
+ //        axis: {
+ //            x: {
+ //              type: 'category',
+ //              categories: ['0.01', '0.1', '1', '10', 'INF']
+ //            }
+ //        }
+ //    });
+	// var cci = c3.generate({
+ //        bindto: '#cci',
+ //        data: {
+ //          columns: [
+ //            //['x', '0.01', '0.1', '1','10','INF']
+ //            ['10 cross-validation', 0.2, 0.7, 0.79, 0.87, 1]
+ //          ]
+ //        },
+ //        size: {
+	// 			  height: 250
+	// 			},
+	// 			color: {
+	// 			  pattern: ['#0878a4', '#003d73']
+	// 			},
+ //        axis: {
+ //            x: {
+ //              type: 'category',
+ //              categories: ['0.01', '0.1', '1', '10', 'INF']
+ //            }
+ //        }
+ //    });
+
+  $("#add_query").click(function(){
+    var queryCount=$("#query_list li").length;
+    $query_content=$("#queryarea").val();
+    //console.log($query_content);
+    if(queryCount<5){
+      $query_content="<li><span class='query_content'>"+$query_content+"</span><span class='glyphicon glyphicon-remove'></span></li>";
+      $(".query_list").append($query_content);
+    }else{
+      alert("超過5個查詢條件了");
+    }
+    
+  });
+
+  $(".query_list").on("click", ".glyphicon", function(){
+    $(this).parent().fadeOut(function(){
+      $(this).remove();
+    });
+  });
+
+  //get task list
+  getTaskList(0,0);
+  function getTaskList(size, page, seledtedAttr){
+    var task_list="";
+    var url = endpoint + "api/de-identification?page=" + page + "&size=" + size; 
+    $("#task_list").empty();
+    $.ajax({
+      type: "GET",
+      url: url,
+      dataType: "json",
+      headers:{
+        "Content-Type":"application/json;charset=utf-8"
+      },
+      //dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        //console.log(seledtedAttr);
+        if(seledtedAttr!=null){
+          for(i=0;i<data.length;i++){
+            ifTask=0;
+            for(j=0;j<seledtedAttr.length;j++){
+              if(seledtedAttr[j]==data[i]["task_id"]){
+                ifTask=1;
+                break;
+              }
+            }
+            if(ifTask==1){
+              task_list+="<option value='"+data[i]["task_id"]+"' selected>"+data[i]["task_name"]+"</option>";
+            }else{
+              task_list+="<option value='"+data[i]["task_id"]+"' >"+data[i]["task_name"]+"</option>";
+            }            
+          }
+        }else{
+          for(i=0;i<data.length;i++){
+            task_list+="<option value='"+data[i]["task_id"]+"' >"+data[i]["task_name"]+"</option>";
+          }
+        }
+        
+        $("#task_list").append(task_list);
+      },
+      error: function() {
+        
+      },
+      beforeSend: function(){
+        //loading.open();
+      },
+      complete: function() {
+        //loading.close();
+      }
+    });
+  }
+
+  //get method
+  getMethod();
+  function getMethod(){
+    method_list="";
+    url=endpoint+"api/de-identification/utility/v_methods/";
+    $.ajax({
+      type: "GET",
+      url: url,
+      headers:{
+        "Content-Type":"application/json;charset=utf-8"
+      },
+      //dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        i=0;
+        for(var key in data){
+          method_list+='<div class="form-group">';
+          method_list+='<div class="radio">';
+          method_list+='<label class="col-xs-8 control-label label_left" >';
+          if(i==0){
+            method_list+='<input type="radio" name="arg_radio" id="" checked value="'+key+'">';
+          }else{
+            method_list+='<input type="radio" name="arg_radio" id="" value="'+key+'">';
+          }     
+          methodName=data[key].split("|");
+          method_list+=methodName[0];                    
+          method_list+='</label>';
+          if(methodName[1]){
+            method_list+='<div class="col-xs-4"><input id="method'+key+'" type="text" class="form-control"></div>';
+          }
+          method_list+='</div></div>';
+          i++;
+        }
+        $("#method_list").append(method_list);
+
+      },
+      error: function() {
+        
+      },
+      beforeSend: function(){
+        //loading.open();
+      },
+      complete: function() {
+        //loading.close();
+      }
+    });
+  }
+  //get algorithms
+  getAlgorithms();
+  function getAlgorithms(){
+    url=endpoint+"api/de-identification/utility/algorithms/";    
+    var algorithmsList="";
+    $.ajax({
+      type: "GET",
+      url: url,
+      headers:{
+        "Content-Type":"application/json;charset=utf-8"
+      },
+      //dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        for (var key in data) {
+          algorithmsList+="<option value='"+key+"'>"+data[key]+"</option>";
+        }
+        $("#algorithmsList").append(algorithmsList);
+      },
+      error: function() {
+        
+      },
+      beforeSend: function(){
+        //loading.open();
+      },
+      complete: function() {
+        //loading.close();
+      }
+    });
+  }
+  //get target
+  // $("#target_list").click(function(){
+    
+  // });
+  $(".subnav").on("blur",".dropdown-menu", function(){
+    var selectTask=$(".selectpicker").val();
+    task_ids=selectTask.join("|");
+    //console.log(task_ids);
+    getTargetList(task_ids);
+  });
+  function getTargetList(task_ids){
+    var url=endpoint+"api/de-identification/utility/target/?task_ids="+task_ids;    
+    var targetList="";
+    $("#target_list").empty();
+    $.ajax({
+      type: "GET",
+      url: url,
+      headers:{
+        "Content-Type":"application/json;charset=utf-8"
+      },
+      //dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        for (var key in data) {
+          targetList+="<option value='"+key+"'>"+data[key]+"</option>";
+        }
+        $("#target_list").append(targetList);
+      },
+      error: function() {
+        $("#systemAlertInfo").text("資料及來源不一致");
+        $("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
+      },
+      beforeSend: function(){
+        loading.open();
+      },
+      complete: function() {
+        loading.close();
+      }
+    });
+  }
+
+
+
+  $("#doSynthesis").click(function(){
+    var requestBody={};
+    var task_ids=selectTask=$(".selectpicker").val();
+    var ml_config={};
+    var method_id="";
+    var method_param="";
+    var user_queries=[];
+    var analysis_name="";
+    requestBody.analysis_name=$("#analysis_name").val();
+    requestBody.task_ids=task_ids;
+    ml_config.algorithm_id=$("#algorithmsList").val();
+    ml_config.target=$("#target_list option:selected").text();
+    method_id=($('input[name=arg_radio]:checked').val());
+    var methodInput="#method"+method_id;
+    method_param=$(methodInput).val();
+    if(method_param){
+      method_id=method_id+"|"+method_param;
+    }
+    //console.log(method_id)
+    ml_config.method_id=method_id;
+    requestBody.ml_config=ml_config;
+    $("#query_list li").each(function(){
+      user_queries.push($(this).find(".query_content").text());
+    });
+    requestBody.user_queries=user_queries;
+    //console.log(requestBody);
+    $("#column_process").fadeIn();
+    analysis_id=window.localStorage.getItem("analysis_id");
+    //console.log(analysis_id);
+    if(analysis_id==null){
+      console.log("first");
+      doSynthesis(requestBody);
+    }else{
+      console.log("get");
+      updateSynthesis(requestBody, analysis_id);
+    }
+    
+    $("#stopSynthesis").removeAttr('disabled');
+    $("#systemAlert").fadeOut();
+  });
+
+  $("#stopSynthesis").click(function(){
+    stopIDProc();
+  });
+
+  function doSynthesis(requestBody){
+    //console.log(requestBody);
+    var url=endpoint+"api/de-identification/utility/";      
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: JSON.stringify(requestBody),
+      headers:{
+        "Content-Type":"application/json"
+      },
+      dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        procId=data.proc_id;
+        analysis_id=data.analysis_id;
+        window.localStorage.setItem("analysis_id",analysis_id);
+        //deindentificationProc(procId, analysis_id);
+        doDIProc =setInterval(function(){ 
+          process_status=deindentificationProc(procId, analysis_id);
+        }, 3000);
+
+      },
+      error: function() {
+        
+      },
+      beforeSend: function(){
+        loading.open();
+      },
+      complete: function() {
+        loading.close();
+      }
+    });
+  }
+  //stop
+  function stopIDProc() {
+    //proc_id=proc_id;
+    //console.log(procId);
+    url=endpoint+"api/de-identification/proc/"+procId;
+    $.ajax({
+      type: "DELETE",
+      url: url,
+      headers:{
+        "Content-Type":"application/json;charset=utf-8"
+      },
+      //dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        clearInterval(doDIProc);
+        setTimeout(function(){ 
+          $("#column_process").fadeOut(function(){
+            $("#column_process .progress-bar").css("width", "0%").text("0%");
+          }); 
+        }, 1000);
+      },
+      error: function() {
+        // console.log("initiate DI task fail.");
+        // $("#information").html('欄位資訊設定錯誤。');
+        $("#column_process").fadeOut(function(){
+            $("#column_process .progress-bar").css("width", "0%").text("0%");
+          }); 
+        $("#systemAlertInfo").text("停止程序發生錯誤");
+        $("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
+      },
+      beforeSend: function(){
+        //loading.open();
+      },
+      complete: function() {
+        //loading.close();
+      }
+    });
+  }
+  //update
+  function updateSynthesis(requestBody, analysis_id){
+    var url=endpoint+"api/de-identification/utility/"+analysis_id+"/";      
+    $.ajax({
+      type: "PUT",
+      url: url,
+      data: JSON.stringify(requestBody),
+      headers:{
+        "Content-Type":"application/json"
+      },
+      dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        procId=data.proc_id;
+        window.localStorage.setItem("analysis_id",analysis_id);
+        //deindentificationProc(procId, analysis_id);
+        doDIProc =setInterval(function(){ 
+          process_status=deindentificationProc(procId, analysis_id);
+        }, 3000);
+
+      },
+      error: function() {
+        
+      },
+      beforeSend: function(){
+        loading.open();
+      },
+      complete: function() {
+        loading.close();
+      }
+    });
+  }
+  //process
+  function deindentificationProc(proc_id, analysis_id){
+    url=endpoint+"api/de-identification/proc/"+proc_id;
+    $.ajax({
+      type: "GET",
+      url: url,
+      headers:{
+        "Content-Type":"application/json;charset=utf-8"
+      },
+      //dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        //console.log(data);
+        process_percent=data.process_percent+"%";
+        process_status=data.status;
+        $("#column_process .progress-bar").css("width", process_percent).text(process_percent);
+        
+        if(process_status==3){
+          clearInterval(doDIProc);
+          $("#stopSynthesis").attr('disabled', 'disabled');
+          $("#column_process .progress-bar").css("width", "100%").text("100%");
+          utilityMeasurementDetail(analysis_id);
+          setTimeout(function(){ 
+            $("#column_process").fadeOut(function(){
+              $("#column_process .progress-bar").css("width", "0%").text("0%");
+            });
+          }, 3000);
+          //return process_status;
+        }else if(process_status==4){
+          clearInterval(doDIProc);
+        }else if(process_status==5){
+          $("#systemAlertInfo").text("發生錯誤");
+          $("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
+          $("#column_process").fadeOut();
+          $("#column_process .progress-bar").css("width", "0%").text("0%");
+          clearInterval(doDIProc);
+        }
+      },
+      error: function() {
+        // console.log("initiate DI task fail.");
+        // $("#information").html('欄位資訊設定錯誤。');
+        $("#systemAlertInfo").text("網路連線錯誤");
+        $("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
+      },
+      beforeSend: function(){
+        //loading.open();
+      },
+      complete: function() {
+        //loading.close();
+      }
+    });
+  }
+  //Utility Measurement Detail
+  function utilityMeasurementDetail(analysis_id){
+    var ml_results_chart=[];
+    var columns=[];
+    var xs={};
+    $("#chart_draw").empty();
+    var url=endpoint+"api/de-identification/utility/"+analysis_id;      
+    $.ajax({
+      type: "GET",
+      url: url,
+      //data: JSON.stringify(requestBody),
+      headers:{
+        "Content-Type":"application/json"
+      },
+      dataType: "json",
+      async: false,
+      //processData: false,
+      //data: {'proc_id':proc_id},
+      success: function(data) {
+        console.log(data);
+        window.localStorage.setItem("analysisData", JSON.stringify(data));
+        for(var key in data.ml_measure){
+          //console.log("name:"+data.ml_measure[key]);
+          $("#chart_draw").append("<h3>"+data.ml_measure[key]+"</h3>");
+          $("#chart_draw").append("<div id='chart"+key+"'></div>");
+          ml_results_chart.push(key);
+        }
+        for(i=0;i<ml_results_chart.length;i++){
+          columns=[];
+          xs={};
+          var chart="#chart"+String(ml_results_chart[i]);
+          for(j=0;j<data.ml_results.length;j++){
+            if(data.ml_results[j].figure_id==ml_results_chart[i]){
+              //console.log("task id: "+data.ml_results[j]["task_id"]);
+              xs["task"+String(data.ml_results[j]["task_id"])]="x"+String(j);
+              x_vals=data.ml_results[j]["x_vals"];
+              x_vals.unshift("x"+String(j));
+              columns.push(x_vals);
+              y_vals=data.ml_results[j]["y_vals"];
+              y_vals.unshift("task"+String(data.ml_results[j]["task_id"]));
+              columns.push(y_vals);
+            }
+            
+          }
+          //console.log(xs);
+          //console.log(columns);
+          drawMultiChart(chart, xs, columns);
+        }
+        //console.log($("#query_list li").length);
+        for(i=0;i<$("#query_list li").length;i++){
+          columns=[];
+          xs={};
+          $("#chart_draw").append("<h3>"+$("#query_list li").eq(i).find(".query_content").text()+"</h3>");
+          figureId=i+1;
+          $("#chart_draw").append("<div id='query"+figureId+"'></div>");
+          var chart="#query"+figureId;
+          for(j=0;j<data.query_results.length;j++){
+            if(data.query_results[j].figure_id==figureId){
+              console.log("x="+j);
+              xs["task"+String(data.query_results[j]["task_id"])]="x"+String(j);
+              x_vals=data.query_results[j]["x_vals"];
+              x_vals.unshift("x"+String(j));
+              columns.push(x_vals);
+              y_vals=data.query_results[j]["y_vals"];
+              y_vals.unshift("task"+String(data.query_results[j]["task_id"]));
+              columns.push(y_vals);
+            }
+            
+          }
+          // console.log(xs);
+          // console.log(columns);
+          drawMultiChart(chart, xs, columns);    
+        }
+        // if(data.query_results.length!=0){
+        //   for(i=0;i<data.query_results.length;i++){
+        //     $("#chart_draw").append("<h3>task id: "+data.query_results[i]["task_id"]+"</h3>");
+        //     $("#chart_draw").append("<div id='query"+i+"'></div>");
+        //   }
+        //   for(i=0;i<data.query_results.length;i++){
+        //     var chart="#query"+i;
+        //     var x_vals=data.query_results[i]["x_vals"];
+        //     var y_vals=data.query_results[i]["y_vals"];
+        //     y_vals.unshift("Epsilon");
+        //     //console.log(y_vals);
+        //     drawChart(chart, x_vals, y_vals);
+        //   }
+        // }
+      },
+      error: function() {
+        $("#systemAlertInfo").text("網路連線錯誤");
+        $("#systemAlert").removeClass('alert-info').addClass('alert-danger').fadeIn();
+      },
+      beforeSend: function(){
+        loading.open();
+      },
+      complete: function() {
+        loading.close();
+      }
+    });
+  }
+  //draw chart
+  function drawChart(chart, x_vals, y_vals){
+    console.log("draw");
+    var chart = c3.generate({
+        bindto: chart,
+        data: {
+          columns: [
+            //['x', '0.01', '0.1', '1','10','INF']
+            y_vals
+          ]
+        },
+        size: {
+          height: 250
+        },
+        color: {
+          pattern: ['#0878a4', '#003d73']
+        },
+        axis: {
+            x: {
+              type: 'category',
+              categories: x_vals
+            },
+            y: {
+              label: { // ADD
+                text: '%',
+                position: 'outer-middle'
+              }
+            }
+        }
+    });
+  }
+  //draw multi chart
+  //drawMultiChart("#chart1");
+  function drawMultiChart(chart, xs, columns){
+    var chart = c3.generate({
+        bindto: chart,
+        data: {
+          xs: xs,
+          columns: columns
+        },
+        size: {
+          height: 250
+        },
+        color: {
+          pattern: ['#0878a4', '#003d73']
+        },
+        axis: {
+            x: {
+              type: 'category'
+              //categories: [0.01,0.1,1,"Original"],
+              // tick: {
+              //   fit: true,
+              //   values: [0.01,0.1,1,"Original"]
+              //}
+              //categories: [0.01,0.1,"Original"],
+              //categories: ["a","b","c","Original"],
+            },
+            y: {
+              label: { // ADD
+                text: '%',
+                position: 'outer-middle'
+              }
+            }
+        }
+    });
+  }
+  // drawMultiChartTest();
+  // function drawMultiChartTest(){
+  //   var chart = c3.generate({
+  //       bindto: "#chart_draw",
+  //       data: {
+  //         xs: { task2: "x0",  task6: "x2"},
+  //         columns: [["x0", 0.01, 0.1, "Original"], ["task2", 75.10344827586206, 81.93103448275862, 99], ["x2", 0.01, 0.1, "Original"], ["task6", null, 97.16666666666667, 99]]
+  //       },
+  //       size: {
+  //         height: 250
+  //       },
+  //       color: {
+  //         pattern: ['#0878a4', '#003d73']
+  //       },
+  //       axis: {
+  //           x: {
+  //             type: 'category'
+  //           },
+  //           y: {
+  //             label: { // ADD
+  //               text: '%',
+  //               position: 'outer-middle'
+  //             }
+  //           }
+  //       }
+  //   });
+  // }
+  var _checkId=function(){
+    analysisID=location.href.split("?id=")[1];
+    if(analysisID){
+      //console.log(analysisID); 
+      var analysisData={};
+      var user_queries_list="";
+      utilityMeasurementDetail(analysisID);
+      analysisData=JSON.parse(window.localStorage.getItem("analysisData"));
+      //console.log(analysisData);
+      task_ids=analysisData.task_ids;
+      getTaskList(0,0, task_ids);
+      task_ids=task_ids.join("|");
+      getTargetList(task_ids);
+      user_queries=analysisData.user_queries;
+      $("#query_list").empty();
+      for(i=0;i<user_queries.length;i++){
+        user_queries_list+="<li><span class='query_content'>"+user_queries[i]+"</span><span class='glyphicon glyphicon-remove'></span></li>";
+      }
+      $("#query_list").append(user_queries_list);
+      $("#analysis_name").val(analysisData.analysis_name);
+      ml_config=analysisData.ml_config;
+      $("#algorithmsList").val(ml_config.algorithm_id);
+      //$("#target_list").val(ml_config.target);
+      $("#target_list").find("option[text=" + ml_config.target + "]").attr("selected", true);
+      target_check=ml_config.method_id.split("|");
+      $('input:radio[name=arg_radio][value='+target_check[0]+']').attr('checked', true);
+      if(target_check[1]){
+        targetId="#method"+target_check[0];
+        $(targetId).val(target_check[1]);
+      }
+      utilityMeasurementDetail(analysisID);
+    }//end if
+  }
+  _checkId();
+
+});
+
+</script>
+</body>
+</html>
