@@ -18,18 +18,20 @@ RUN echo "options(repos = c(CRAN = 'https://cran.rstudio.com'))" > /root/.Rprofi
     R -e 'source("http://bioconductor.org/biocLite.R") ; biocLite(c("graph","RBGL","Rgraphviz"), ask=FALSE) ' && \
     R -e 'install.packages(c("R.oo", "methods", "R.matlab", "data.table", "distr", "entropy", "plyr", "FNN", "e1071", "stringr", "gRim", "gRain", "gRbase", "caret", "rPython", "crayon"))'
 
-
 WORKDIR /opt
 RUN git clone https://github.com/JiaMingLin/de-identification.git && \
     cd de-identification && \
     git fetch && \
-    git pull
+    git pull && \
+    echo 'update code:1'
 
 WORKDIR /opt/de-identification
 
 # install redis and celery
 ADD celery.conf /etc/supervisor/conf.d/celery.conf
-RUN apt-get install software-properties-common -y --force-yes && \
+RUN mkdir /opt/de-identification/log/ && \
+    touch /opt/de-identification/log/worker.log && \
+    apt-get install software-properties-common -y --force-yes && \
     add-apt-repository -y ppa:rwky/redis && \
     apt-get update && \
     apt-get install redis-server supervisor -y && \
@@ -38,14 +40,13 @@ RUN apt-get install software-properties-common -y --force-yes && \
     supervisorctl reread && \
     supervisorctl update
 
-RUN mkdir log/ && \
-    ./clean.sh
+RUN ./clean.sh
 
 ADD start.sh /opt/de-identification/start.sh
 RUN chmod +x /opt/de-identification/start.sh
 
-#VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
-VOLUME ["/opt/de-identification/"]
+VOLUME ["/opt/de-identification/static/test/", "/opt/de-identification/log/"]
+#VOLUME ["/opt/de-identification/"]
 EXPOSE 8080
 
-#ENTRYPOINT /opt/de-identification/start.sh
+ENTRYPOINT /opt/de-identification/start.sh
