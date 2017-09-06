@@ -20,4 +20,4 @@ where
 Be sure to substitute **HOST_PORT**, **USER_DATA** and **USER_LOG** with your own settings.
 
 ## Next Step
-See [here](../documents/user_guide.md) a quick start.
+See [here](/documents/user_guide.md) a quick start.
