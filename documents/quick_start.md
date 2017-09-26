@@ -12,9 +12,7 @@ In this document, we brieftly introduce the deploying model and the required par
 | ------------- | ------------- |
 | `-p`      | The port forwarding setting. Inside container, the application is listening on 8080 port. To visit the GUI page, one should specify his own setting to route the traffics from host into container. For example, ```-p 8888:8080``` means routing the traffics to 8888 port on host into 8080 port on the container.  |
 | `-v`      | The volume attachment setting. The application can only find datasets under the directory `/opt/de-identification/static/test/` inside the container. To read the user's data, you could specify your own directory to be attached to the one in container. For example, launching container with 
-```
--v /user/data/:/opt/de-identification/static/test/
-```
+```-v /user/data/:/opt/de-identification/static/test/```
 , the Docker will create the directory of path `/user/data` if not existed, and attach it to the directory `/opt/de-identification/static/test/` in container for application to read. |
 
 ### The launch command
