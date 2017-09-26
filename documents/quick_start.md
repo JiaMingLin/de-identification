@@ -4,6 +4,7 @@ For convenience, we have pack the project into Docker image, which is now public
 In this document, we brieftly introduce the deploying model and the required parameters for launching application.
 
 ## Overview
+We firstly give the intuitive deployment model by the figure below.
 <img src="figures/overview.png" alt="overview" width='600'/>
 
 ## Useful management commands
