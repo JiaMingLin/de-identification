@@ -4,6 +4,7 @@ For convenience, we have pack the project into Docker image, which is now public
 In this document, we brieftly introduce the deploying model and the required parameters for launching application.
 
 ## Overview
+![overview](figures/overview.png)
 
 ## Useful management commands
 
@@ -11,7 +12,7 @@ In this document, we brieftly introduce the deploying model and the required par
 | Options    | Description |
 | ------------- | ------------- |
 | `-p`      | The port forwarding setting. Inside container, the application is listening on 8080 port. To visit the GUI page, one should specify his own setting to route the traffics from host into container. For example, ```-p 8888:8080``` means routing the traffics to 8888 port on host into 8080 port on the container.  |
-| `-v`      | The volume attachment setting. The application can only find datasets under the directory `/opt/de-identification/static/test/` inside the container. To read the user's data, you could specify your own directory to be attached to the one in container. For example, launching container with ```-v /user/data/:/opt/de-identification/static/test/```, the Docker will create the directory of path `/user/data` if not existed, and attach it to the directory `/opt/de-identification/static/test/` in container for application to read. |
+| `-v`      | The volume attachment setting. The application can only find datasets under the directory `/opt/de-identification/static/test/` inside the container. To read the user's data, you could specify your own directory to be attached to the one in container. For example, launching container with the option ```-v /user/data/:/opt/de-identification/static/test/```, the Docker will create the directory of path `/user/data` if not existed, and attach it to the directory `/opt/de-identification/static/test/` in container for application to read. |
 
 ### The launch command
 With the super user privilege of the host. Using the following command to run the application.
@@ -58,3 +59,10 @@ docker kill [CONTAINER ID]
 ```
 
 ### The update command
+To update the application, using Docker image update command and then launching another new container.
+
+```
+docker pull robinlin/de-identification
+docker run -itd robinlin/de-identification [Options...] /bin/bash
+```
+
