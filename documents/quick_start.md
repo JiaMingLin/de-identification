@@ -4,7 +4,7 @@ For convenience, we have pack the project into Docker image, which is now public
 In this document, we brieftly introduce the deploying model and the required parameters for launching application.
 
 ## Overview
-<img src="figures/overview.png" alt="overview" width='300'/>
+<img src="figures/overview.png" alt="overview" width='600'/>
 
 ## Useful management commands
 
