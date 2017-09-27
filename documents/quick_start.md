@@ -1,7 +1,7 @@
 # Quick Start
 
 For convenience, we have pack the project into Docker image, which is now public on DockerHub.
-In this document, we brieftly introduce the deploying model and the required parameters for launching application.
+In this document, we brieftly introduce the deployment model and the required parameters for launching application.
 
 ## Overview
 We firstly give the intuitive deployment model by the figure below.
