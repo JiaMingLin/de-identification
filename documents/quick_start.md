@@ -18,7 +18,7 @@ We firstly give the intuitive deployment model by the figure below.
 ### The launch command
 With the super user privilege of the host. Using the following command to run the application.
 ```
-docker run -itd robinlin/de-identification [Options...] /bin/bash
+docker run -itd [Options...] robinlin/de-identification /bin/bash
 ```
 **Note**: 
 1. Replace the `[Options...]` with the *Port Forwarding* and *Volume attachment* settings.
@@ -26,7 +26,7 @@ docker run -itd robinlin/de-identification [Options...] /bin/bash
 
 **Example**:
 ```
-root@ubuntu:~# docker run -itd robinlin/de-identification -p 8888:8080 -v /user/data/:/opt/de-identification/static/test/ /bin/bash
+root@ubuntu:~# docker run -itd -p 8888:8080 -v /user/data/:/opt/de-identification/static/test/ robinlin/de-identification /bin/bash
 4f67c7ddff1d7a1b536b0d59b94494469d5a478d2c1c3575ec9af971276e8327
 ```
 
@@ -64,6 +64,11 @@ To update the application, using Docker image update command and then launching 
 
 ```
 docker pull robinlin/de-identification
-docker run -itd robinlin/de-identification [Options...] /bin/bash
+docker run -itd [Options...] robinlin/de-identification /bin/bash
 ```
 
+## Access to GUI page
+After the container/application being launched, using the web browser to visit the dashboard.
+
+**Example**:
+Suppose the IP address of host machine is 140.112.42.26, and the container is spcified to listen on 7888 port, then the URL should be `http://140.112.42.26:7888`
