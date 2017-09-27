@@ -23,6 +23,7 @@ And we give you an example to demostrate the entire process of de-identication w
 
 ### Create/Review/Delete de-identification tasks
 <img src="figures/dashboard.png" alt="dashboard" width='600' border="2"/>
+
 * The dashboard lists all the created de-identification tasks.
 * **Create**: click to initiate a new de-identification task.
 * **Review**: select a created task to view its details, can also modify the settings.
@@ -30,9 +31,9 @@ And we give you an example to demostrate the entire process of de-identication w
 
 ### Read data and Pre-processing
 <img src="figures/preview2.png" alt="preview" width='600' border="2"/>
+
 1. Fill the textbox with file name and click confirm. For example, `adults`<br>
    **Note**: we now only support `.csv` file, make sure dataset in the directory is in `.csv` format.
-
 2. Select the attributes will be included in the generated dataset.
 3. For the selected attributes, specify the data type respect to the attribute.<br>
    **Example**: the `workclass` is categorical. Then for `workclass` change the numerical/continuous type to categorical in the drag-down list.
@@ -40,7 +41,9 @@ And we give you an example to demostrate the entire process of de-identication w
 
 ### Generate de-identified data
 <img src="figures/generate2.png" alt="generate" width='600' border="2"/>
+
 After the **pre-processing** step, we can select the privacy level to generate de-identification dataset.
+
 1. Select one privacy level from the drag-down list.
 2. Click the **Execute** button to generate de-identification dataset.
 3. When the *Step 2* is succeed, you can download the generated de-identification dataset.
