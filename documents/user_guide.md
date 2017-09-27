@@ -75,3 +75,9 @@ Suppose the Docker container is launched successfully, you can visit the dashboa
 
 ### 5. Generate de-identified data.
 <img src="figures/generate2.png" alt="generate" width='600' border="2"/>
+
+After the **pre-processing** step, we can select the privacy level to generate de-identification dataset.
+
+1. Select one privacy level from the drag-down list.
+2. Click the **Execute** button to generate de-identification dataset.
+3. When the *Step 2* is succeed, you can download the generated de-identification dataset.
