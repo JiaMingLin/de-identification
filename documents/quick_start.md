@@ -67,8 +67,12 @@ docker pull robinlin/de-identification
 docker run -itd [Options...] robinlin/de-identification /bin/bash
 ```
 
-## Access to GUI page
+## Next Step
 After the container/application being launched, using the web browser to visit the dashboard.
 
 **Example**:
-Suppose the IP address of host machine is 140.112.42.26, and the container is spcified to listen on 7888 port, then the URL should be `http://140.112.42.26:7888`
+Suppose the IP address of host machine is 140.112.42.26, and the container is spcified to listen on 8888 port, then the URL should be `http://140.112.42.26:8888`.
+
+And read the [user guide](user_guide.md) for the tutorial of generating de-identified dataset.
+
+
