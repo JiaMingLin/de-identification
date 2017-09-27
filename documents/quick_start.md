@@ -5,7 +5,7 @@ In this document, we brieftly introduce the deployment model and the required pa
 
 ## Overview
 We firstly give the intuitive deployment model by the figure below.
-<img src="figures/overview.png" alt="overview" width='600'/>
+<img src="https://github.com/JiaMingLin/de-identification/blob/master/documents/figures/overview.png" alt="overview" width='600'/>
 
 ## Useful management commands
 
