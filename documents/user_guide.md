@@ -13,11 +13,11 @@ And we give you an example to demostrate the entire process of de-identication w
 2. The original UCI Adult Dataset is incompelement without header and some missing values, we copied the original dataset, added the corresponding header and then remove some missing values. The manipulated version can be found [here](../static/test/adults.csv). 
 
 ## GUI overview
-1. **Dashboard**
+1. **Dashboard**<br>
 	<img src="figures/dashboard.png" alt="dashboard" width='600'/>
-2. **Preview page**
+2. **Preview page**<br>
 	<img src="figures/preview.png" alt="preview" width='600'/>
-3. **Generate sythetic data**
+3. **Generate sythetic data**<br>
 	<img src="figures/generate.png" alt="generate" width='600'/>
 
 ## Steps
