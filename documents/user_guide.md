@@ -14,11 +14,11 @@ And we give you an example to demostrate the entire process of de-identication w
 
 ## GUI overview
 1. **Dashboard**<br>
-	<img src="figures/dashboard.png" alt="dashboard" width='600'/>
+	<img src="figures/dashboard.png" alt="dashboard" width='600' border="2"/>
 2. **Preview page**<br>
-	<img src="figures/preview.png" alt="preview" width='600'/>
+	<img src="figures/preview.png" alt="preview" width='600' border="2"/>
 3. **Generate sythetic data**<br>
-	<img src="figures/generate.png" alt="generate" width='600'/>
+	<img src="figures/generate.png" alt="generate" width='600' border="2"/>
 
 ## Steps
 
